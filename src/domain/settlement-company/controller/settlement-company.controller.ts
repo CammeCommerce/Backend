@@ -1,9 +1,19 @@
-import { Body, Controller, Get, Post } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+} from "@nestjs/common";
 import { SettlementCompanyService } from "src/domain/settlement-company/service/settlement-company.service";
 import { ApiOperation } from "@nestjs/swagger";
 import { CreateSettlementCompanyDto } from "src/domain/settlement-company/dto/request/create-settlement-company.dto";
 import { CreateSettlementCompanyResultDto } from "src/domain/settlement-company/dto/response/create-settlement-company-result.dto";
 import { GetSettlementCompaniesDto } from "src/domain/settlement-company/dto/response/get-settlement-company.dto";
+import { ModifySettlementCompanyDto } from "src/domain/settlement-company/dto/request/modify-settlement-company.dto";
+import { ModifySettlementCompanyResultDto } from "src/domain/settlement-company/dto/response/modify-settlement-company-result.dto";
 
 @Controller("settlement-company")
 export class SettlementCompanyController {
@@ -31,5 +41,18 @@ export class SettlementCompanyController {
   @Get()
   async getSettlementCompanies(): Promise<GetSettlementCompaniesDto> {
     return await this.settlementCompanyService.getSettlementCompanies();
+  }
+
+  @ApiOperation({
+    summary: "정산업체명 수정",
+    operationId: "modifySettlementCompany",
+    tags: ["settlement-company"],
+  })
+  @Patch(":id")
+  async modifySettlementCompany(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() dto: ModifySettlementCompanyDto
+  ): Promise<ModifySettlementCompanyResultDto> {
+    return await this.settlementCompanyService.modifySettlementCompany(id, dto);
   }
 }
