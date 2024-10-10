@@ -11,11 +11,12 @@ import {
   Query,
 } from "@nestjs/common";
 import { MediumService } from "src/domain/medium/service/medium.service";
-import { createMediumDto } from "src/domain/medium/dto/request/create-medium.dto";
+import { CreateMediumDto } from "src/domain/medium/dto/request/create-medium.dto";
 import { ApiOperation, ApiQuery } from "@nestjs/swagger";
 import { GetMediumsDto } from "src/domain/medium/dto/response/get-medium.dto";
 import { ModifyMediumDto } from "src/domain/medium/dto/request/modify-medium.dto";
 import { ModifyMediumResultDto } from "src/domain/medium/dto/response/modify-medium-result.dto";
+import { CreateMediumResultDto } from "src/domain/medium/dto/response/create-medium-result.dto";
 
 @Controller("medium")
 export class MediumController {
@@ -27,7 +28,9 @@ export class MediumController {
     tags: ["medium"],
   })
   @Post()
-  async createMedium(@Body() dto: createMediumDto) {
+  async createMedium(
+    @Body() dto: CreateMediumDto
+  ): Promise<CreateMediumResultDto> {
     return await this.mediumService.createMedium(dto);
   }
 
