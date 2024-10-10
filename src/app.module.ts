@@ -6,6 +6,7 @@ import { MediumModule } from "src/domain/medium/medium.module";
 import { SettlementCompanyModule } from "src/domain/settlement-company/settlement-company.module";
 import { OrderModule } from "src/domain/order/order.module";
 import { OrderMatchingModule } from "src/domain/order-matching/order-matching.module";
+import { DepositModule } from "src/domain/deposit/deposit.module";
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { OrderMatchingModule } from "src/domain/order-matching/order-matching.mo
     SettlementCompanyModule,
     OrderModule,
     OrderMatchingModule,
+    DepositModule,
   ],
   controllers: [AppController],
   providers: [AppService],
