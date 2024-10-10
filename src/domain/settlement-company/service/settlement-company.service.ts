@@ -96,4 +96,23 @@ export class SettlementCompanyService {
 
     return modifySettlementCompanyResultDto;
   }
+
+  // TODO: 단 1건이라도 매칭된 건이 있을 시, 삭제할 수 없도록 구현
+  // 정산업체명 삭제
+  async deleteSettlementCompany(id: number): Promise<void> {
+    const settlementCompany = await this.settlementCompanyRepository.findOne({
+      where: { id, isDeleted: false },
+    });
+
+    if (!settlementCompany) {
+      throw new NotFoundException("정산업체를 찾을 수 없습니다.");
+    }
+
+    settlementCompany.deletedAt = new Date();
+    settlementCompany.isDeleted = true;
+
+    await this.settlementCompanyRepository.save(settlementCompany);
+
+    return;
+  }
 }

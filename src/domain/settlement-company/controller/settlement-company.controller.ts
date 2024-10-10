@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
   Param,
   ParseIntPipe,
   Patch,
@@ -54,5 +56,18 @@ export class SettlementCompanyController {
     @Body() dto: ModifySettlementCompanyDto
   ): Promise<ModifySettlementCompanyResultDto> {
     return await this.settlementCompanyService.modifySettlementCompany(id, dto);
+  }
+
+  @ApiOperation({
+    summary: "정산업체명 삭제",
+    operationId: "deleteSettlementCompany",
+    tags: ["settlement-company"],
+  })
+  @Delete(":id")
+  @HttpCode(204)
+  async deleteSettlementCompany(
+    @Param("id", ParseIntPipe) id: number
+  ): Promise<void> {
+    return await this.settlementCompanyService.deleteSettlementCompany(id);
   }
 }
