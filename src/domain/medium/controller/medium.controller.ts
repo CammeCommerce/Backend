@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
   Param,
   ParseIntPipe,
   Patch,
@@ -49,5 +51,16 @@ export class MediumController {
     @Body() dto: ModifyMediumDto
   ): Promise<ModifyMediumResultDto> {
     return await this.mediumService.modifyMedium(id, dto);
+  }
+
+  @ApiOperation({
+    summary: "매체명 삭제",
+    operationId: "deleteMedium",
+    tags: ["medium"],
+  })
+  @Delete(":id")
+  @HttpCode(204)
+  async deleteMedium(@Param("id", ParseIntPipe) id: number): Promise<void> {
+    return await this.mediumService.deleteMedium(id);
   }
 }

@@ -87,4 +87,23 @@ export class MediumService {
 
     return modifyMediumResultDto;
   }
+
+  // TODO: 단 1건이라도 매칭된 건이 있을 시, 삭제할 수 없도록 구현
+  // 매체명 삭제
+  async deleteMedium(id: number): Promise<void> {
+    const medium = await this.mediumRepository.findOne({
+      where: { id, isDeleted: false },
+    });
+
+    if (!medium) {
+      throw new NotFoundException("매체를 찾을 수 없습니다.");
+    }
+
+    medium.deletedAt = new Date();
+    medium.isDeleted = true;
+
+    await this.mediumRepository.save(medium);
+
+    return;
+  }
 }
