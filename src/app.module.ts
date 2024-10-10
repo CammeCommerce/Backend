@@ -8,6 +8,7 @@ import { OrderModule } from "src/domain/order/order.module";
 import { OrderMatchingModule } from "src/domain/order-matching/order-matching.module";
 import { DepositModule } from "src/domain/deposit/deposit.module";
 import { DepositMatchingModule } from "src/domain/deposit-matching/deposit-matching.module";
+import { WithdrawalModule } from "src/domain/withdrawal/withdrawal.module";
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { DepositMatchingModule } from "src/domain/deposit-matching/deposit-match
     OrderMatchingModule,
     DepositModule,
     DepositMatchingModule,
+    WithdrawalModule,
   ],
   controllers: [AppController],
   providers: [AppService],
