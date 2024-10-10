@@ -10,6 +10,7 @@ import { DepositModule } from "src/domain/deposit/deposit.module";
 import { DepositMatchingModule } from "src/domain/deposit-matching/deposit-matching.module";
 import { WithdrawalModule } from "src/domain/withdrawal/withdrawal.module";
 import { WithdrawalMatchingModule } from "src/domain/withdrawal-matching/withdrawal-matching.module";
+import { OnlineModule } from "src/domain/online/online.module";
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { WithdrawalMatchingModule } from "src/domain/withdrawal-matching/withdra
     DepositMatchingModule,
     WithdrawalModule,
     WithdrawalMatchingModule,
+    OnlineModule,
   ],
   controllers: [AppController],
   providers: [AppService],
