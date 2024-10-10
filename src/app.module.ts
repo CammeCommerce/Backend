@@ -12,9 +12,11 @@ import { WithdrawalModule } from "src/domain/withdrawal/withdrawal.module";
 import { WithdrawalMatchingModule } from "src/domain/withdrawal-matching/withdrawal-matching.module";
 import { OnlineModule } from "src/domain/online/online.module";
 import { IncomeStatementModule } from "src/domain/income-statement/income-statement.module";
+import { DBModule } from "src/db/db.module";
 
 @Module({
   imports: [
+    DBModule,
     UserModule,
     MediumModule,
     SettlementCompanyModule,
