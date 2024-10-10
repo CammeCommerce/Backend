@@ -9,6 +9,8 @@ import {
   GetMediumsDto,
   MediumDetailDto,
 } from "src/domain/medium/dto/response/get-medium.dto";
+import { ModifyMediumDto } from "src/domain/medium/dto/request/modify-medium.dto";
+import { ModifyMediumResultDto } from "src/domain/medium/dto/response/modify-medium-result.dto";
 
 @Injectable()
 export class MediumService {
@@ -56,5 +58,33 @@ export class MediumService {
     mediumItemsDto.items = items;
 
     return mediumItemsDto;
+  }
+
+  // 매체명 수정
+  async modifyMedium(
+    id: number,
+    dto: ModifyMediumDto
+  ): Promise<ModifyMediumResultDto> {
+    const medium = await this.mediumRepository.findOne({
+      where: { id, isDeleted: false },
+    });
+
+    if (!medium) {
+      throw new NotFoundException("매체를 찾을 수 없습니다.");
+    }
+
+    medium.name = dto.name;
+    medium.updatedAt = new Date();
+
+    await this.mediumRepository.save(medium);
+
+    // 매체명 수정 결과 DTO 생성
+    const modifyMediumResultDto = plainToInstance(ModifyMediumResultDto, {
+      id: medium.id,
+      name: medium.name,
+      updatedAt: medium.updatedAt,
+    });
+
+    return modifyMediumResultDto;
   }
 }
