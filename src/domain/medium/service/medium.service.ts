@@ -60,6 +60,112 @@ export class MediumService {
     return mediumItemsDto;
   }
 
+  // TODO: 검색 분리하기(현재 임시 구현한 상태)
+  // 매체명/등록일자 검색 및 기간 필터링
+  async searchMediums(
+    name: string,
+    startDate: Date,
+    endDate: Date,
+    periodType: string
+  ): Promise<GetMediumsDto> {
+    // 기본 조회 조건
+    const queryBuilder = this.mediumRepository
+      .createQueryBuilder("medium")
+      .where("medium.isDeleted = false");
+
+    // 매체명 검색 조건 추가
+    if (name) {
+      queryBuilder.andWhere("medium.name LIKE :name", {
+        name: `%${name}%`,
+      });
+    }
+
+    // 등록일자 범위 검색 조건 추가
+    if (startDate && endDate) {
+      queryBuilder.andWhere(
+        "medium.createdAt BETWEEN :startDate AND :endDate",
+        {
+          startDate,
+          endDate,
+        }
+      );
+    }
+
+    // 특정 기간 필터 적용
+    const now = new Date();
+    switch (periodType) {
+      case "어제":
+        const yesterday = new Date();
+        yesterday.setDate(now.getDate() - 1);
+        queryBuilder.andWhere("medium.createdAt BETWEEN :start AND :end", {
+          start: yesterday,
+          end: now,
+        });
+        break;
+      case "지난 3일":
+        const threeDaysAgo = new Date();
+        threeDaysAgo.setDate(now.getDate() - 3);
+        queryBuilder.andWhere("medium.createdAt BETWEEN :start AND :end", {
+          start: threeDaysAgo,
+          end: now,
+        });
+        break;
+      case "일주일":
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(now.getDate() - 7);
+        queryBuilder.andWhere("medium.createdAt BETWEEN :start AND :end", {
+          start: oneWeekAgo,
+          end: now,
+        });
+        break;
+      case "1개월":
+        const oneMonthAgo = new Date();
+        oneMonthAgo.setMonth(now.getMonth() - 1);
+        queryBuilder.andWhere("medium.createdAt BETWEEN :start AND :end", {
+          start: oneMonthAgo,
+          end: now,
+        });
+        break;
+      case "3개월":
+        const threeMonthsAgo = new Date();
+        threeMonthsAgo.setMonth(now.getMonth() - 3);
+        queryBuilder.andWhere("medium.createdAt BETWEEN :start AND :end", {
+          start: threeMonthsAgo,
+          end: now,
+        });
+        break;
+      case "6개월":
+        const sixMonthsAgo = new Date();
+        sixMonthsAgo.setMonth(now.getMonth() - 6);
+        queryBuilder.andWhere("medium.createdAt BETWEEN :start AND :end", {
+          start: sixMonthsAgo,
+          end: now,
+        });
+        break;
+      default:
+        break;
+    }
+
+    const mediums = await queryBuilder.getMany();
+
+    if (!mediums.length) {
+      throw new NotFoundException("검색 조건에 맞는 매체가 없습니다.");
+    }
+
+    const items = mediums.map((medium) =>
+      plainToInstance(MediumDetailDto, {
+        id: medium.id,
+        name: medium.name,
+        createdAt: medium.createdAt,
+      })
+    );
+
+    const mediumItemsDto = new GetMediumsDto();
+    mediumItemsDto.items = items;
+
+    return mediumItemsDto;
+  }
+
   // 매체명 수정
   async modifyMedium(
     id: number,
