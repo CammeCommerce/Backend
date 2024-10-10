@@ -7,11 +7,11 @@ import {
 
 export abstract class BaseEntity extends TypeOrmBaseEntity {
   @CreateDateColumn()
-  createAt: Date;
+  createdAt: Date;
 
   @UpdateDateColumn()
-  updateAt: Date;
+  updatedAt: Date;
 
   @DeleteDateColumn({ type: "timestamp", nullable: true })
-  deleteAt: Date | null;
+  deletedAt: Date | null;
 }
