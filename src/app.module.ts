@@ -7,6 +7,7 @@ import { SettlementCompanyModule } from "src/domain/settlement-company/settlemen
 import { OrderModule } from "src/domain/order/order.module";
 import { OrderMatchingModule } from "src/domain/order-matching/order-matching.module";
 import { DepositModule } from "src/domain/deposit/deposit.module";
+import { DepositMatchingModule } from "src/domain/deposit-matching/deposit-matching.module";
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { DepositModule } from "src/domain/deposit/deposit.module";
     OrderModule,
     OrderMatchingModule,
     DepositModule,
+    DepositMatchingModule,
   ],
   controllers: [AppController],
   providers: [AppService],
