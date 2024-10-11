@@ -15,12 +15,15 @@ import {
 import { ModifyOrderDto } from "src/domain/order/dto/request/modify-order.dto";
 import { ModifyOrderResultDto } from "src/domain/order/dto/response/modify-order-result.dto";
 import * as XLSX from "xlsx";
+import { OrderMatching } from "src/domain/order-matching/entity/order-matching.entity";
 
 @Injectable()
 export class OrderService {
   constructor(
     @InjectRepository(Order)
-    private readonly orderRepository: Repository<Order>
+    private readonly orderRepository: Repository<Order>,
+    @InjectRepository(OrderMatching)
+    private readonly orderMatchingRepository: Repository<OrderMatching>
   ) {}
 
   // taxType 숫자 값을 문자열(과세, 면세)로 변환하는 메서드
@@ -114,7 +117,24 @@ export class OrderService {
         taxType: row[taxTypeIdx],
         marginAmount,
         shippingDifference,
+        mediumName: null,
+        settleCompanyName: null,
       };
+
+      // 매체명과 정산업체명이 비어 있을 경우, 매입처와 매출처를 기준으로 자동 매칭
+      if (!order.mediumName || !order.settleCompanyName) {
+        const matchedRecord = await this.orderMatchingRepository.findOne({
+          where: {
+            purchasePlace: order.purchasePlace,
+            salesPlace: order.salesPlace,
+          },
+        });
+
+        if (matchedRecord) {
+          order.mediumName = matchedRecord.mediumName;
+          order.settleCompanyName = matchedRecord.settlementCompanyName;
+        }
+      }
 
       orders.push(order);
     }
