@@ -3,7 +3,7 @@ import { BaseEntity } from "src/global/base.entity";
 
 @Entity()
 export class Withdrawal extends BaseEntity {
-  @Column({ comment: "매체명" })
+  @Column({ comment: "매체명", nullable: true })
   mediumName: string;
 
   @Column({ comment: "출금일자" })

@@ -8,29 +8,58 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  UploadedFile,
+  UseInterceptors,
 } from "@nestjs/common";
 import { WithdrawalService } from "src/domain/withdrawal/service/withdrawal.service";
-import { ApiOperation } from "@nestjs/swagger";
-import { CreateWithdrawalDto } from "src/domain/withdrawal/dto/request/create-withdrawal.dto";
-import { CreateWithdrawalResultDto } from "src/domain/withdrawal/dto/response/create-withdrawal-result.dto";
+import { ApiBody, ApiConsumes, ApiOperation } from "@nestjs/swagger";
 import { GetWithdrawalDto } from "src/domain/withdrawal/dto/response/get-withdrawal.dto";
 import { ModifyWithdrawalDto } from "src/domain/withdrawal/dto/request/modify-withdrawal.dto";
 import { ModifyWithdrawalResultDto } from "src/domain/withdrawal/dto/response/modify-withdrawal-result.dto";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { UploadWithdrawalExcelDto } from "src/domain/withdrawal/dto/request/upload-withdrawal-excel.dto";
 
 @Controller("withdrawal")
 export class WithdrawalController {
   constructor(private readonly withdrawalService: WithdrawalService) {}
 
   @ApiOperation({
-    summary: "출금값 등록",
-    operationId: "createWithdrawal",
+    summary: "출금 엑셀 업로드",
+    operationId: "uploadWithdrawalExcel",
     tags: ["withdrawal"],
   })
-  @Post()
-  async createWithdrawal(
-    @Body() dto: CreateWithdrawalDto
-  ): Promise<CreateWithdrawalResultDto> {
-    return await this.withdrawalService.createWithdrawal(dto);
+  @ApiConsumes("multipart/form-data")
+  @ApiBody({
+    description: "출금 데이터를 포함한 엑셀 파일 업로드 및 열 인덱스 설정",
+    type: UploadWithdrawalExcelDto,
+  })
+  @Post("excel/upload")
+  @UseInterceptors(FileInterceptor("file"))
+  async uploadWithdrawalExcel(
+    @UploadedFile() file: Express.Multer.File,
+    @Body("withdrawalDateIndex") withdrawalDateIndex: string,
+    @Body("accountAliasIndex") accountAliasIndex: string,
+    @Body("withdrawalAmountIndex") withdrawalAmountIndex: string,
+    @Body("accountDescriptionIndex") accountDescriptionIndex: string,
+    @Body("transactionMethod1Index") transactionMethod1Index: string,
+    @Body("transactionMethod2Index") transactionMethod2Index: string,
+    @Body("accountMemoIndex") accountMemoIndex: string,
+    @Body("purposeIndex") purposeIndex: string,
+    @Body("clientNameIndex") clientNameIndex: string
+  ): Promise<void> {
+    // 엑셀 파일 파싱 및 출금 데이터 저장
+    await this.withdrawalService.parseExcelAndSaveWithdrawals(
+      file,
+      withdrawalDateIndex,
+      accountAliasIndex,
+      withdrawalAmountIndex,
+      accountDescriptionIndex,
+      transactionMethod1Index,
+      transactionMethod2Index,
+      accountMemoIndex,
+      purposeIndex,
+      clientNameIndex
+    );
   }
 
   @ApiOperation({
