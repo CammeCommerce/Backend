@@ -82,4 +82,22 @@ export class DepositMatchingService {
 
     return depositMatchingItemsDto;
   }
+
+  // 입금 매칭 삭제
+  async deleteDepositMatching(id: number): Promise<void> {
+    const depositMatching = await this.depositMatchingRepository.findOne({
+      where: { id, isDeleted: false },
+    });
+
+    if (!depositMatching) {
+      throw new NotFoundException("입금 매칭을 찾을 수 없습니다.");
+    }
+
+    depositMatching.deletedAt = new Date();
+    depositMatching.isDeleted = true;
+
+    await this.depositMatchingRepository.save(depositMatching);
+
+    return;
+  }
 }

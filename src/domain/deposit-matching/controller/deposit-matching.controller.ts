@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Post } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  ParseIntPipe,
+  Post,
+} from "@nestjs/common";
 import { DepositMatchingService } from "src/domain/deposit-matching/service/deposit-matching.service";
 import { ApiOperation } from "@nestjs/swagger";
 import { CreateDepositMatchingDto } from "src/domain/deposit-matching/dto/request/create-deposit-matching.dto";
@@ -31,5 +40,18 @@ export class DepositMatchingController {
   @Get()
   async getDepositMatchings(): Promise<GetDepositMatchingsDto> {
     return await this.depositMatchingService.getDepositMatchings();
+  }
+
+  @ApiOperation({
+    summary: "입금 매칭 삭제",
+    operationId: "deleteDepositMatching",
+    tags: ["deposit-matching"],
+  })
+  @Delete(":id")
+  @HttpCode(204)
+  async deleteDepositMatching(
+    @Param("id", ParseIntPipe) id: number
+  ): Promise<void> {
+    return await this.depositMatchingService.deleteDepositMatching(id);
   }
 }
