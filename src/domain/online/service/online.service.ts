@@ -9,6 +9,8 @@ import {
   GetOnlineDto,
   OnlineDetailDto,
 } from "src/domain/online/dto/response/get-online.dto";
+import { ModifyOnlineDto } from "src/domain/online/dto/request/modify-online.dto";
+import { ModifyOnlineResultDto } from "src/domain/online/dto/response/modify-online-result.dto";
 
 @Injectable()
 export class OnlineService {
@@ -66,5 +68,44 @@ export class OnlineService {
     onlineItemsDto.items = items;
 
     return onlineItemsDto;
+  }
+
+  // 온라인(행) 수정
+  async modifyOnline(
+    id: number,
+    dto: ModifyOnlineDto
+  ): Promise<ModifyOnlineResultDto> {
+    const online = await this.onlineRepository.findOne({
+      where: { id, isDeleted: false },
+    });
+
+    if (!online) {
+      throw new NotFoundException("온라인(행)을 찾을 수 없습니다.");
+    }
+
+    online.salesMonth = dto.salesMonth;
+    online.mediumName = dto.mediumName;
+    online.onlineCompanyName = dto.onlineCompanyName;
+    online.salesAmount = dto.salesAmount;
+    online.purchaseAmount = dto.purchaseAmount;
+    online.marginAmount = dto.marginAmount;
+    online.memo = dto.memo;
+    online.updatedAt = new Date();
+
+    await this.onlineRepository.save(online);
+
+    const modifyOnlineResultDto = plainToInstance(ModifyOnlineResultDto, {
+      id: online.id,
+      salesMonth: online.salesMonth,
+      mediumName: online.mediumName,
+      onlineCompanyName: online.onlineCompanyName,
+      salesAmount: online.salesAmount,
+      purchaseAmount: online.purchaseAmount,
+      marginAmount: online.marginAmount,
+      memo: online.memo,
+      updatedAt: online.updatedAt,
+    });
+
+    return modifyOnlineResultDto;
   }
 }
