@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Order } from "src/domain/order/entity/order.entity";
 import { DeepPartial, Repository } from "typeorm";
@@ -6,6 +10,10 @@ import { CreateOrderDto } from "src/domain/order/dto/request/create-order.dto";
 import { CreateOrderResultDto } from "src/domain/order/dto/response/create-order.result.dto";
 import { plainToInstance } from "class-transformer";
 import { TaxType } from "src/global/enum/tax-type.enum";
+import {
+  GetOrdersDto,
+  OrderDetailDto,
+} from "src/domain/order/dto/response/get-order.dto";
 
 @Injectable()
 export class OrderService {
@@ -69,5 +77,43 @@ export class OrderService {
     });
 
     return createOrderResultDto;
+  }
+
+  // 주문값 조회
+  async getOrders(): Promise<GetOrdersDto> {
+    const orders = await this.orderRepository.find({
+      where: { isDeleted: false },
+      order: { createdAt: "DESC" },
+    });
+
+    if (!orders) {
+      throw new NotFoundException("등록된 주문이 없습니다.");
+    }
+
+    const items = orders.map((order) =>
+      plainToInstance(OrderDetailDto, {
+        id: order.id,
+        mediumName: order.mediumName,
+        settleCompanyName: order.settleCompanyName,
+        productName: order.productName,
+        quantity: order.quantity,
+        orderDate: order.orderDate,
+        purchasePlace: order.purchasePlace,
+        salesPlace: order.salesPlace,
+        purchasePrice: order.purchasePrice,
+        salesPrice: order.salesPrice,
+        purchaseShippingFee: order.purchaseShippingFee,
+        salesShippingFee: order.salesShippingFee,
+        taxType: order.taxType,
+        marginAmount: order.marginAmount,
+        shippingDifference: order.shippingDifference,
+      })
+    );
+
+    // 주문 배열 DTO 생성
+    const orderItemsDto = new GetOrdersDto();
+    orderItemsDto.items = items;
+
+    return orderItemsDto;
   }
 }
