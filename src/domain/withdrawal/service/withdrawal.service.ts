@@ -9,6 +9,8 @@ import {
   GetWithdrawalDto,
   WithdrawalDetailDto,
 } from "src/domain/withdrawal/dto/response/get-withdrawal.dto";
+import { ModifyWithdrawalDto } from "src/domain/withdrawal/dto/request/modify-withdrawal.dto";
+import { ModifyWithdrawalResultDto } from "src/domain/withdrawal/dto/response/modify-withdrawal-result.dto";
 
 @Injectable()
 export class WithdrawalService {
@@ -77,5 +79,53 @@ export class WithdrawalService {
     withdrawalItemsDto.items = items;
 
     return withdrawalItemsDto;
+  }
+
+  // 출금값 수정
+  async modifyWithdrawal(
+    id: number,
+    dto: ModifyWithdrawalDto
+  ): Promise<ModifyWithdrawalResultDto> {
+    const withdrawal = await this.withdrawalRepository.findOne({
+      where: { id, isDeleted: false },
+    });
+
+    if (!withdrawal) {
+      throw new NotFoundException("출금값을 찾을 수 없습니다.");
+    }
+
+    withdrawal.mediumName = dto.mediumName;
+    withdrawal.withdrawalDate = dto.withdrawalDate;
+    withdrawal.accountAlias = dto.accountAlias;
+    withdrawal.withdrawalAmount = dto.withdrawalAmount;
+    withdrawal.accountDescription = dto.accountDescription;
+    withdrawal.transactionMethod1 = dto.transactionMethod1;
+    withdrawal.transactionMethod2 = dto.transactionMethod2;
+    withdrawal.accountMemo = dto.accountMemo;
+    withdrawal.purpose = dto.purpose;
+    withdrawal.clientName = dto.clientName;
+    withdrawal.updatedAt = new Date();
+
+    await this.withdrawalRepository.save(withdrawal);
+
+    const modifyWithdrawalResultDto = plainToInstance(
+      ModifyWithdrawalResultDto,
+      {
+        id: withdrawal.id,
+        mediumName: withdrawal.mediumName,
+        withdrawalDate: withdrawal.withdrawalDate,
+        accountAlias: withdrawal.accountAlias,
+        withdrawalAmount: withdrawal.withdrawalAmount,
+        accountDescription: withdrawal.accountDescription,
+        transactionMethod1: withdrawal.transactionMethod1,
+        transactionMethod2: withdrawal.transactionMethod2,
+        accountMemo: withdrawal.accountMemo,
+        purpose: withdrawal.purpose,
+        clientName: withdrawal.clientName,
+        updatedAt: withdrawal.updatedAt,
+      }
+    );
+
+    return modifyWithdrawalResultDto;
   }
 }
