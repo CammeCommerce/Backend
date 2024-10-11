@@ -22,18 +22,6 @@ export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
   @ApiOperation({
-    summary: "주문값 등록",
-    operationId: "createOrder",
-    tags: ["order"],
-  })
-  @Post()
-  async createOrder(
-    @Body() dto: CreateOrderDto
-  ): Promise<CreateOrderResultDto> {
-    return await this.orderService.createOrder(dto);
-  }
-
-  @ApiOperation({
     summary: "주문값 조회",
     operationId: "getOrders",
     tags: ["order"],

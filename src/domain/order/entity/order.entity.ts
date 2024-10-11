@@ -3,10 +3,10 @@ import { BaseEntity } from "src/global/base.entity";
 
 @Entity()
 export class Order extends BaseEntity {
-  @Column({ comment: "매체명" })
+  @Column({ comment: "매체명", nullable: true })
   mediumName: string;
 
-  @Column({ comment: "정산업체명" })
+  @Column({ comment: "정산업체명", nullable: true })
   settleCompanyName: string;
 
   @Column({ comment: "상품명" })
