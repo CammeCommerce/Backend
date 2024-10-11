@@ -14,12 +14,15 @@ import {
 import { ModifyDepositDto } from "src/domain/deposit/dto/request/modify-deposit.dto";
 import { ModifyDepositResultDto } from "src/domain/deposit/dto/response/modify-deposit-result.dto";
 import * as XLSX from "xlsx";
+import { DepositMatching } from "src/domain/deposit-matching/entity/deposit-matching.entity";
 
 @Injectable()
 export class DepositService {
   constructor(
     @InjectRepository(Deposit)
-    private readonly depositRepository: Repository<Deposit>
+    private readonly depositRepository: Repository<Deposit>,
+    @InjectRepository(DepositMatching)
+    private readonly depositMatchingRepository: Repository<DepositMatching>
   ) {}
 
   // 엑셀 열 이름을 숫자 인덱스로 변환하는 메서드
@@ -77,7 +80,7 @@ export class DepositService {
       const depositAmount = parseInt(row[depositAmountIdx], 10) || 0;
 
       const deposit = {
-        mediumName: null, // 초기에는 null로 설정하고, 추후에 매칭 도메인에서 처리
+        mediumName: null,
         depositDate: row[depositDateIdx],
         accountAlias: row[accountAliasIdx],
         depositAmount,
@@ -89,6 +92,20 @@ export class DepositService {
         purpose: row[purposeIdx],
         clientName: row[clientNameIdx],
       };
+
+      // 매체명이 비어 있을 경우 계좌 별칭과 용도를 기준으로 자동 매칭
+      if (!deposit.mediumName) {
+        const matchedRecord = await this.depositMatchingRepository.findOne({
+          where: {
+            accountAlias: deposit.accountAlias,
+            purpose: deposit.purpose,
+          },
+        });
+
+        if (matchedRecord) {
+          deposit.mediumName = matchedRecord.mediumName;
+        }
+      }
 
       deposits.push(deposit);
     }
