@@ -8,29 +8,59 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  UploadedFile,
+  UseInterceptors,
 } from "@nestjs/common";
 import { DepositService } from "src/domain/deposit/service/deposit.service";
-import { ApiOperation } from "@nestjs/swagger";
-import { CreateDepositDto } from "src/domain/deposit/dto/request/create-deposit.dto";
-import { CreateDepositResultDto } from "src/domain/deposit/dto/response/create-deposit-result.dto";
+import { ApiBody, ApiConsumes, ApiOperation } from "@nestjs/swagger";
 import { GetDepositsDto } from "src/domain/deposit/dto/response/get-deposit.dto";
 import { ModifyDepositDto } from "src/domain/deposit/dto/request/modify-deposit.dto";
 import { ModifyDepositResultDto } from "src/domain/deposit/dto/response/modify-deposit-result.dto";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { UploadDepositExcelDto } from "src/domain/deposit/dto/request/upload-deposit-excel.dto";
 
 @Controller("deposit")
 export class DepositController {
   constructor(private readonly depositService: DepositService) {}
 
   @ApiOperation({
-    summary: "입금값 등록",
-    operationId: "createDeposit",
+    summary: "입금 엑셀 파일 업로드",
+    operationId: "uploadAndSaveDeposits",
     tags: ["deposit"],
   })
-  @Post()
-  async createDeposit(
-    @Body() dto: CreateDepositDto
-  ): Promise<CreateDepositResultDto> {
-    return await this.depositService.createDeposit(dto);
+  @ApiConsumes("multipart/form-data")
+  @ApiBody({
+    description: "엑셀 파일 업로드 및 각 열의 인덱스 설정",
+    type: UploadDepositExcelDto,
+  })
+  @Post("upload")
+  @UseInterceptors(FileInterceptor("file"))
+  async uploadAndSaveDeposits(
+    @UploadedFile() file: Express.Multer.File,
+    @Body("depositDateIndex") depositDateIndex: string,
+    @Body("accountAliasIndex") accountAliasIndex: string,
+    @Body("depositAmountIndex") depositAmountIndex: string,
+    @Body("accountDescriptionIndex") accountDescriptionIndex: string,
+    @Body("transactionMethod1Index") transactionMethod1Index: string,
+    @Body("transactionMethod2Index") transactionMethod2Index: string,
+    @Body("accountMemoIndex") accountMemoIndex: string,
+    @Body("counterpartyNameIndex") counterpartyNameIndex: string,
+    @Body("purposeIndex") purposeIndex: string,
+    @Body("clientNameIndex") clientNameIndex: string
+  ): Promise<void> {
+    await this.depositService.parseExcelAndSaveDeposits(
+      file,
+      depositDateIndex,
+      accountAliasIndex,
+      depositAmountIndex,
+      accountDescriptionIndex,
+      transactionMethod1Index,
+      transactionMethod2Index,
+      accountMemoIndex,
+      counterpartyNameIndex,
+      purposeIndex,
+      clientNameIndex
+    );
   }
 
   @ApiOperation({

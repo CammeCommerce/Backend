@@ -3,7 +3,7 @@ import { BaseEntity } from "src/global/base.entity";
 
 @Entity()
 export class Deposit extends BaseEntity {
-  @Column({ comment: "매체명" })
+  @Column({ comment: "매체명", nullable: true })
   mediumName: string;
 
   @Column({ comment: "입금일자" })
