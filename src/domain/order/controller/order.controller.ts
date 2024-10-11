@@ -8,18 +8,63 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  UploadedFile,
+  UseInterceptors,
 } from "@nestjs/common";
 import { OrderService } from "src/domain/order/service/order.service";
-import { ApiOperation } from "@nestjs/swagger";
-import { CreateOrderDto } from "src/domain/order/dto/request/create-order.dto";
-import { CreateOrderResultDto } from "src/domain/order/dto/response/create-order.result.dto";
+import { ApiBody, ApiConsumes, ApiOperation } from "@nestjs/swagger";
 import { GetOrdersDto } from "src/domain/order/dto/response/get-order.dto";
 import { ModifyOrderDto } from "src/domain/order/dto/request/modify-order.dto";
 import { ModifyOrderResultDto } from "src/domain/order/dto/response/modify-order-result.dto";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { UploadOrderExcelDto } from "src/domain/order/dto/request/upload-order-excel.dto";
 
 @Controller("order")
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
+  @ApiOperation({
+    summary: "엑셀 파일 업로드를 통한 주문 등록",
+    operationId: "uploadExcelAndSaveOrders",
+    tags: ["order"],
+  })
+  @ApiConsumes("multipart/form-data")
+  @ApiBody({
+    description: "엑셀 파일 업로드 및 각 열의 인덱스 설정",
+    type: UploadOrderExcelDto,
+  })
+  @Post("excel/upload")
+  @UseInterceptors(FileInterceptor("file"))
+  async uploadExcelAndSaveOrders(
+    @UploadedFile() file: Express.Multer.File,
+    @Body("productNameIndex") productNameIndex: string,
+    @Body("quantityIndex") quantityIndex: string,
+    @Body("orderDateIndex") orderDateIndex: string,
+    @Body("purchasePlaceIndex") purchasePlaceIndex: string,
+    @Body("salesPlaceIndex") salesPlaceIndex: string,
+    @Body("purchasePriceIndex") purchasePriceIndex: string,
+    @Body("salesPriceIndex") salesPriceIndex: string,
+    @Body("purchaseShippingFeeIndex") purchaseShippingFeeIndex: string,
+    @Body("salesShippingFeeIndex") salesShippingFeeIndex: string,
+    @Body("taxTypeIndex") taxTypeIndex: string,
+    @Body("marginAmountIndex") marginAmountIndex: string,
+    @Body("shippingDifferenceIndex") shippingDifferenceIndex: string
+  ): Promise<void> {
+    await this.orderService.parseExcelAndSaveOrders(
+      file,
+      productNameIndex,
+      quantityIndex,
+      orderDateIndex,
+      purchasePlaceIndex,
+      salesPlaceIndex,
+      purchasePriceIndex,
+      salesPriceIndex,
+      purchaseShippingFeeIndex,
+      salesShippingFeeIndex,
+      taxTypeIndex,
+      marginAmountIndex,
+      shippingDifferenceIndex
+    );
+  }
 
   @ApiOperation({
     summary: "주문값 조회",

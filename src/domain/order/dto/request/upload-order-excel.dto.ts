@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsString } from "class-validator";
 
-export class UploadExcelDto {
+export class UploadOrderExcelDto {
   @ApiProperty({
     type: "string",
     format: "binary",

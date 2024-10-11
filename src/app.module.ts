@@ -13,7 +13,6 @@ import { WithdrawalMatchingModule } from "src/domain/withdrawal-matching/withdra
 import { OnlineModule } from "src/domain/online/online.module";
 import { IncomeStatementModule } from "src/domain/income-statement/income-statement.module";
 import { DBModule } from "src/db/db.module";
-import { ExcelModule } from "src/global/excel/excel.module";
 
 @Module({
   imports: [
@@ -29,7 +28,6 @@ import { ExcelModule } from "src/global/excel/excel.module";
     WithdrawalMatchingModule,
     OnlineModule,
     IncomeStatementModule,
-    ExcelModule,
   ],
   controllers: [AppController],
   providers: [AppService],
