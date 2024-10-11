@@ -2,6 +2,9 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 
 export class DepositDetailDto {
+  @ApiProperty({ example: 1, description: "입금 ID" })
+  id: number;
+
   @ApiProperty({ example: "캄므커머스", description: "매체명" })
   mediumName: string;
 
