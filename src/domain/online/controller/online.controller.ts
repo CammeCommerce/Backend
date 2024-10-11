@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
   Param,
   ParseIntPipe,
   Patch,
@@ -52,5 +54,16 @@ export class OnlineController {
     @Body() dto: ModifyOnlineDto
   ): Promise<ModifyOnlineResultDto> {
     return await this.onlineService.modifyOnline(id, dto);
+  }
+
+  @ApiOperation({
+    summary: "온라인 값 삭제",
+    operationId: "deleteOnline",
+    tags: ["online"],
+  })
+  @Delete(":id")
+  @HttpCode(204)
+  async deleteOnline(@Param("id", ParseIntPipe) id: number): Promise<void> {
+    return await this.onlineService.deleteOnline(id);
   }
 }

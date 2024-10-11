@@ -108,4 +108,22 @@ export class OnlineService {
 
     return modifyOnlineResultDto;
   }
+
+  // 온라인(행) 삭제
+  async deleteOnline(id: number): Promise<void> {
+    const online = await this.onlineRepository.findOne({
+      where: { id, isDeleted: false },
+    });
+
+    if (!online) {
+      throw new NotFoundException("온라인(행)을 찾을 수 없습니다.");
+    }
+
+    online.deletedAt = new Date();
+    online.isDeleted = true;
+
+    await this.onlineRepository.save(online);
+
+    return;
+  }
 }
