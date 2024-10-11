@@ -30,6 +30,7 @@ export class OrderMatchingService {
       where: {
         purchasePlace: dto.purchasePlace,
         salesPlace: dto.salesPlace,
+        isDeleted: false,
       },
     });
 

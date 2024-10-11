@@ -30,6 +30,7 @@ export class DepositMatchingService {
       where: {
         accountAlias: dto.accountAlias,
         purpose: dto.purpose,
+        isDeleted: false,
       },
     });
 
