@@ -177,4 +177,22 @@ export class OrderService {
 
     return modifyOrderResultDto;
   }
+
+  // 주문값 삭제
+  async deleteOrder(id: number): Promise<void> {
+    const order = await this.orderRepository.findOne({
+      where: { id, isDeleted: false },
+    });
+
+    if (!order) {
+      throw new NotFoundException("주문을 찾을 수 없습니다.");
+    }
+
+    order.deletedAt = new Date();
+    order.isDeleted = true;
+
+    await this.orderRepository.save(order);
+
+    return;
+  }
 }

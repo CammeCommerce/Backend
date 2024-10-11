@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
   Param,
   ParseIntPipe,
   Patch,
@@ -52,5 +54,16 @@ export class OrderController {
     @Body() dto: ModifyOrderDto
   ): Promise<ModifyOrderResultDto> {
     return await this.orderService.modifyOrder(id, dto);
+  }
+
+  @ApiOperation({
+    summary: "주문값 삭제",
+    operationId: "deleteOrder",
+    tags: ["order"],
+  })
+  @Delete(":id")
+  @HttpCode(204)
+  async deleteOrder(@Param("id", ParseIntPipe) id: number): Promise<void> {
+    return await this.orderService.deleteOrder(id);
   }
 }
