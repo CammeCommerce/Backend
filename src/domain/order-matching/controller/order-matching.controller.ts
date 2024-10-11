@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Post } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  ParseIntPipe,
+  Post,
+} from "@nestjs/common";
 import { OrderMatchingService } from "src/domain/order-matching/service/order-matching.service";
 import { ApiOperation } from "@nestjs/swagger";
 import { CreateOrderMatchingDto } from "src/domain/order-matching/dto/request/create-order-matching.dto";
@@ -29,5 +38,18 @@ export class OrderMatchingController {
   @Get()
   async getOrderMatchings(): Promise<GetOrderMatchingsDto> {
     return await this.orderMatchingService.getOrderMatchings();
+  }
+
+  @ApiOperation({
+    summary: "주문 매칭 삭제",
+    operationId: "deleteOrderMatching",
+    tags: ["order-matching"],
+  })
+  @Delete(":id")
+  @HttpCode(204)
+  async deleteOrderMatching(
+    @Param("id", ParseIntPipe) id: number
+  ): Promise<void> {
+    return await this.orderMatchingService.deleteOrderMatching(id);
   }
 }

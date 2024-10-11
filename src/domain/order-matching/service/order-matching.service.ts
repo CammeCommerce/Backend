@@ -84,4 +84,22 @@ export class OrderMatchingService {
 
     return orderMatchingItemsDto;
   }
+
+  // 주문 매칭 삭제
+  async deleteOrderMatching(id: number): Promise<void> {
+    const orderMatching = await this.orderMatchingRepository.findOne({
+      where: { id, isDeleted: false },
+    });
+
+    if (!orderMatching) {
+      throw new NotFoundException("주문 매칭을 찾을 수 없습니다.");
+    }
+
+    orderMatching.deletedAt = new Date();
+    orderMatching.isDeleted = true;
+
+    await this.orderMatchingRepository.save(orderMatching);
+
+    return;
+  }
 }
