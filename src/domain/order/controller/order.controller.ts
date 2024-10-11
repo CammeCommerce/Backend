@@ -23,7 +23,7 @@ import { UploadOrderExcelDto } from "src/domain/order/dto/request/upload-order-e
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
   @ApiOperation({
-    summary: "엑셀 파일 업로드를 통한 주문 등록",
+    summary: "주문 엑셀 파일 업로드",
     operationId: "uploadExcelAndSaveOrders",
     tags: ["order"],
   })
