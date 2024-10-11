@@ -14,6 +14,8 @@ import {
   GetOrdersDto,
   OrderDetailDto,
 } from "src/domain/order/dto/response/get-order.dto";
+import { ModifyOrderDto } from "src/domain/order/dto/request/modify-order.dto";
+import { ModifyOrderResultDto } from "src/domain/order/dto/response/modify-order-result.dto";
 
 @Injectable()
 export class OrderService {
@@ -115,5 +117,64 @@ export class OrderService {
     orderItemsDto.items = items;
 
     return orderItemsDto;
+  }
+
+  // 주문값 수정
+  async modifyOrder(
+    id: number,
+    dto: ModifyOrderDto
+  ): Promise<ModifyOrderResultDto> {
+    const order = await this.orderRepository.findOne({
+      where: { id, isDeleted: false },
+    });
+
+    if (!order) {
+      throw new NotFoundException("주문을 찾을 수 없습니다.");
+    }
+
+    // taxType을 문자열로 변환
+    const taxTypeString = this.convertTaxTypeToString(dto.taxType);
+    if (!taxTypeString) {
+      throw new BadRequestException(`잘못된 taxType 값: ${dto.taxType}`);
+    }
+
+    order.mediumName = dto.mediumName;
+    order.settleCompanyName = dto.settleCompanyName;
+    order.productName = dto.productName;
+    order.quantity = dto.quantity;
+    order.orderDate = dto.orderDate;
+    order.purchasePlace = dto.purchasePlace;
+    order.salesPlace = dto.salesPlace;
+    order.purchasePrice = dto.purchasePrice;
+    order.salesPrice = dto.salesPrice;
+    order.purchaseShippingFee = dto.purchaseShippingFee;
+    order.salesShippingFee = dto.salesShippingFee;
+    order.taxType = taxTypeString;
+    order.marginAmount = dto.marginAmount;
+    order.shippingDifference = dto.shippingDifference;
+    order.updatedAt = new Date();
+
+    await this.orderRepository.save(order);
+
+    // 주문값 수정 결과 DTO 생성
+    const modifyOrderResultDto = plainToInstance(ModifyOrderResultDto, {
+      id: order.id,
+      mediumName: order.mediumName,
+      settleCompanyName: order.settleCompanyName,
+      productName: order.productName,
+      quantity: order.quantity,
+      orderDate: order.orderDate,
+      purchasePlace: order.purchasePlace,
+      salesPlace: order.salesPlace,
+      purchasePrice: order.purchasePrice,
+      salesPrice: order.salesPrice,
+      purchaseShippingFee: order.purchaseShippingFee,
+      salesShippingFee: order.salesShippingFee,
+      taxType: order.taxType,
+      marginAmount: order.marginAmount,
+      shippingDifference: order.shippingDifference,
+    });
+
+    return modifyOrderResultDto;
   }
 }
