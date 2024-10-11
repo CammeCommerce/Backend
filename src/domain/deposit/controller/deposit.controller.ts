@@ -33,7 +33,7 @@ export class DepositController {
     description: "엑셀 파일 업로드 및 각 열의 인덱스 설정",
     type: UploadDepositExcelDto,
   })
-  @Post("upload")
+  @Post("excel/upload")
   @UseInterceptors(FileInterceptor("file"))
   async uploadAndSaveDeposits(
     @UploadedFile() file: Express.Multer.File,
