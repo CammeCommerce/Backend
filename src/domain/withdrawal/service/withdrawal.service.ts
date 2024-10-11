@@ -128,4 +128,22 @@ export class WithdrawalService {
 
     return modifyWithdrawalResultDto;
   }
+
+  // 출금값 삭제
+  async deleteWithdrawal(id: number): Promise<void> {
+    const withdrawal = await this.withdrawalRepository.findOne({
+      where: { id, isDeleted: false },
+    });
+
+    if (!withdrawal) {
+      throw new NotFoundException("출금값을 찾을 수 없습니다.");
+    }
+
+    withdrawal.deletedAt = new Date();
+    withdrawal.isDeleted = true;
+
+    await this.withdrawalRepository.save(withdrawal);
+
+    return;
+  }
 }

@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
   Param,
   ParseIntPipe,
   Patch,
@@ -52,5 +54,16 @@ export class WithdrawalController {
     @Body() dto: ModifyWithdrawalDto
   ): Promise<ModifyWithdrawalResultDto> {
     return await this.withdrawalService.modifyWithdrawal(id, dto);
+  }
+
+  @ApiOperation({
+    summary: "출금값 삭제",
+    operationId: "deleteWithdrawal",
+    tags: ["withdrawal"],
+  })
+  @Delete(":id")
+  @HttpCode(204)
+  async deleteWithdrawal(@Param("id", ParseIntPipe) id: number): Promise<void> {
+    return await this.withdrawalService.deleteWithdrawal(id);
   }
 }
