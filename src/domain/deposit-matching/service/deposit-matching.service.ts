@@ -1,10 +1,18 @@
-import { ConflictException, Injectable } from "@nestjs/common";
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { DepositMatching } from "src/domain/deposit-matching/entity/deposit-matching.entity";
 import { Repository } from "typeorm";
 import { CreateDepositMatchingResultDto } from "src/domain/deposit-matching/dto/response/create-deposit-matching-result.dto";
 import { plainToInstance } from "class-transformer";
 import { CreateDepositMatchingDto } from "src/domain/deposit-matching/dto/request/create-deposit-matching.dto";
+import {
+  DepositMatchingDetailDto,
+  GetDepositMatchingsDto,
+} from "src/domain/deposit-matching/dto/response/get-deposit-matching.dto";
 
 @Injectable()
 export class DepositMatchingService {
@@ -46,5 +54,32 @@ export class DepositMatchingService {
     );
 
     return createDepositMatchingDto;
+  }
+
+  // 입금 매칭 조회
+  async getDepositMatchings(): Promise<GetDepositMatchingsDto> {
+    const depositMatchings = await this.depositMatchingRepository.find({
+      where: { isDeleted: false },
+      order: { createdAt: "ASC" },
+    });
+
+    if (!depositMatchings) {
+      throw new NotFoundException("등록된 입금 매칭이 없습니다.");
+    }
+
+    const items = depositMatchings.map((depositMatching) =>
+      plainToInstance(DepositMatchingDetailDto, {
+        id: depositMatching.id,
+        mediumName: depositMatching.mediumName,
+        accountAlias: depositMatching.accountAlias,
+        purpose: depositMatching.purpose,
+      })
+    );
+
+    // 입금 매칭 배열 DTO 생성
+    const depositMatchingItemsDto = new GetDepositMatchingsDto();
+    depositMatchingItemsDto.items = items;
+
+    return depositMatchingItemsDto;
   }
 }
