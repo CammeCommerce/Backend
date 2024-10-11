@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Post } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  ParseIntPipe,
+  Post,
+} from "@nestjs/common";
 import { ApiOperation } from "@nestjs/swagger";
 import { WithdrawalMatchingService } from "src/domain/withdrawal-matching/service/withdrawal-matching.service";
 import { CreateWithdrawalMatchingDto } from "src/domain/withdrawal-matching/dto/request/create-withdrawal-matching.dto";
@@ -31,5 +40,18 @@ export class WithdrawalMatchingController {
   @Get()
   async getWithdrawalMatchings(): Promise<GetWithdrawalMatchingsDto> {
     return await this.withdrawalMatchingService.getWithdrawalMatchings();
+  }
+
+  @ApiOperation({
+    summary: "출금 매칭 삭제",
+    operationId: "deleteWithdrawalMatching",
+    tags: ["withdrawal-matching"],
+  })
+  @Delete(":id")
+  @HttpCode(204)
+  async deleteWithdrawalMatching(
+    @Param("id", ParseIntPipe) id: number
+  ): Promise<void> {
+    return await this.withdrawalMatchingService.deleteWithdrawalMatching(id);
   }
 }

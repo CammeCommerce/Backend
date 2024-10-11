@@ -84,4 +84,22 @@ export class WithdrawalMatchingService {
 
     return withdrawalMatchingItemsDto;
   }
+
+  // 출금 매칭 삭제
+  async deleteWithdrawalMatching(id: number): Promise<void> {
+    const withdrawalMatching = await this.withdrawalMatchingRepository.findOne({
+      where: { id, isDeleted: false },
+    });
+
+    if (!withdrawalMatching) {
+      throw new NotFoundException("출금 매칭을 찾을 수 없습니다.");
+    }
+
+    withdrawalMatching.deletedAt = new Date();
+    withdrawalMatching.isDeleted = true;
+
+    await this.withdrawalMatchingRepository.save(withdrawalMatching);
+
+    return;
+  }
 }
