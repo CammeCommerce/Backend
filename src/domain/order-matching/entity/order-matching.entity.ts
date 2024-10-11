@@ -7,7 +7,7 @@ export class OrderMatching extends BaseEntity {
   mediumName: string;
 
   @Column({ comment: "정산업체명" })
-  settleCompanyName: string;
+  settlementCompanyName: string;
 
   @Column({ comment: "매입처" })
   purchasePlace: string;
