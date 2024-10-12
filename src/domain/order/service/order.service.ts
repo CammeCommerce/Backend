@@ -121,13 +121,13 @@ export class OrderService {
         marginAmount,
         shippingDifference,
         mediumName: null,
-        settleCompanyName: null,
+        settlementCompanyName: null,
         isMediumMatched: false,
-        isSettleCompanyMatched: false,
+        isSettlementCompanyMatched: false,
       };
 
       // 매체명과 정산업체명이 비어 있을 경우, 매입처와 매출처를 기준으로 자동 매칭
-      if (!order.mediumName || !order.settleCompanyName) {
+      if (!order.mediumName || !order.settlementCompanyName) {
         const matchedRecord = await this.orderMatchingRepository.findOne({
           where: {
             purchasePlace: order.purchasePlace,
@@ -137,9 +137,9 @@ export class OrderService {
 
         if (matchedRecord) {
           order.mediumName = matchedRecord.mediumName;
-          order.settleCompanyName = matchedRecord.settlementCompanyName;
+          order.settlementCompanyName = matchedRecord.settlementCompanyName;
           order.isMediumMatched = !!order.mediumName;
-          order.isSettleCompanyMatched = !!order.settleCompanyName;
+          order.isSettlementCompanyMatched = !!order.settlementCompanyName;
         }
       }
 
