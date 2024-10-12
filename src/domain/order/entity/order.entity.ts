@@ -7,7 +7,7 @@ export class Order extends BaseEntity {
   mediumName: string;
 
   @Column({ comment: "정산업체명", nullable: true })
-  settleCompanyName: string;
+  settlementCompanyName: string;
 
   @Column({ comment: "상품명" })
   productName: string;
@@ -49,5 +49,5 @@ export class Order extends BaseEntity {
   isMediumMatched: boolean;
 
   @Column({ comment: "정산업체명 매칭 여부", default: false })
-  isSettleCompanyMatched: boolean;
+  isSettlementCompanyMatched: boolean;
 }

@@ -9,7 +9,7 @@ export class ModifyOrderDto {
 
   @ApiProperty({ example: "캄므>포앤_마진만", description: "정산업체명" })
   @IsString()
-  settleCompanyName: string;
+  settlementCompanyName: string;
 
   @ApiProperty({ example: "상품명", description: "상품명" })
   @IsString()

@@ -10,7 +10,7 @@ export class OrderDetailDto {
   mediumName: string;
 
   @ApiProperty({ example: "캄므>포앤_마진만", description: "정산업체명" })
-  settleCompanyName: string;
+  settlementCompanyName: string;
 
   @ApiProperty({ example: "상품명", description: "상품명" })
   productName: string;
@@ -52,7 +52,7 @@ export class OrderDetailDto {
   isMediumMatched: boolean;
 
   @ApiProperty({ example: false, description: "정산업체명 매칭 여부" })
-  isSettleCompanyMatched: boolean;
+  isSettlementCompanyMatched: boolean;
 }
 
 export class GetOrdersDto {
