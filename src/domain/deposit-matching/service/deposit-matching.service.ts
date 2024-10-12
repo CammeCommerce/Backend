@@ -84,6 +84,135 @@ export class DepositMatchingService {
     return depositMatchingItemsDto;
   }
 
+  // 입금 매칭 검색 및 필터링
+  async searchDepositMatchings(
+    startDate: Date,
+    endDate: Date,
+    periodType: string,
+    mediumName: string,
+    searchQuery: string
+  ): Promise<GetDepositMatchingsDto> {
+    const queryBuilder = this.depositMatchingRepository
+      .createQueryBuilder("depositMatching")
+      .where("depositMatching.isDeleted = false");
+
+    // 매칭일자 범위 검색 조건
+    if (startDate && endDate) {
+      queryBuilder.andWhere(
+        "depositMatching.createdAt BETWEEN :startDate AND :endDate",
+        { startDate, endDate }
+      );
+    }
+
+    // 기간 필터
+    const now = new Date();
+    switch (periodType) {
+      case "어제":
+        const yesterday = new Date(now);
+        yesterday.setDate(now.getDate() - 1);
+        queryBuilder.andWhere(
+          "depositMatching.createdAt BETWEEN :start AND :end",
+          {
+            start: yesterday,
+            end: now,
+          }
+        );
+        break;
+      case "지난 3일":
+        const threeDaysAgo = new Date(now);
+        threeDaysAgo.setDate(now.getDate() - 3);
+        queryBuilder.andWhere(
+          "depositMatching.createdAt BETWEEN :start AND :end",
+          {
+            start: threeDaysAgo,
+            end: now,
+          }
+        );
+        break;
+      case "일주일":
+        const oneWeekAgo = new Date(now);
+        oneWeekAgo.setDate(now.getDate() - 7);
+        queryBuilder.andWhere(
+          "depositMatching.createdAt BETWEEN :start AND :end",
+          {
+            start: oneWeekAgo,
+            end: now,
+          }
+        );
+        break;
+      case "1개월":
+        const oneMonthAgo = new Date(now);
+        oneMonthAgo.setMonth(now.getMonth() - 1);
+        queryBuilder.andWhere(
+          "depositMatching.createdAt BETWEEN :start AND :end",
+          {
+            start: oneMonthAgo,
+            end: now,
+          }
+        );
+        break;
+      case "3개월":
+        const threeMonthsAgo = new Date(now);
+        threeMonthsAgo.setMonth(now.getMonth() - 3);
+        queryBuilder.andWhere(
+          "depositMatching.createdAt BETWEEN :start AND :end",
+          {
+            start: threeMonthsAgo,
+            end: now,
+          }
+        );
+        break;
+      case "6개월":
+        const sixMonthsAgo = new Date(now);
+        sixMonthsAgo.setMonth(now.getMonth() - 6);
+        queryBuilder.andWhere(
+          "depositMatching.createdAt BETWEEN :start AND :end",
+          {
+            start: sixMonthsAgo,
+            end: now,
+          }
+        );
+        break;
+      default:
+        break;
+    }
+
+    // 매체명 검색 조건
+    if (mediumName) {
+      queryBuilder.andWhere("depositMatching.mediumName LIKE :mediumName", {
+        mediumName: `%${mediumName}%`,
+      });
+    }
+
+    // 계좌 별칭 또는 용도 키워드 검색 조건
+    if (searchQuery) {
+      queryBuilder.andWhere(
+        "(depositMatching.accountAlias LIKE :searchQuery OR depositMatching.purpose LIKE :searchQuery)",
+        { searchQuery: `%${searchQuery}%` }
+      );
+    }
+
+    const depositMatchings = await queryBuilder.getMany();
+
+    if (!depositMatchings.length) {
+      throw new NotFoundException("검색 조건에 맞는 입금 매칭이 없습니다.");
+    }
+
+    const items = depositMatchings.map((depositMatching) =>
+      plainToInstance(DepositMatchingDetailDto, {
+        id: depositMatching.id,
+        mediumName: depositMatching.mediumName,
+        accountAlias: depositMatching.accountAlias,
+        purpose: depositMatching.purpose,
+      })
+    );
+
+    const depositMatchingItemsDto = new GetDepositMatchingsDto();
+    depositMatchingItemsDto.items = items;
+
+    return depositMatchingItemsDto;
+  }
+
   // 입금 매칭 삭제
   async deleteDepositMatching(id: number): Promise<void> {
     const depositMatching = await this.depositMatchingRepository.findOne({
