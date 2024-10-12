@@ -309,6 +309,52 @@ export class WithdrawalService {
     return withdrawalItemsDto;
   }
 
+  // 검색된 출금 데이터를 엑셀로 다운로드
+  async downloadWithdrawalsExcel(
+    startDate: Date,
+    endDate: Date,
+    periodType: string,
+    mediumName: string,
+    isMediumMatched: any,
+    searchQuery: string
+  ): Promise<Buffer> {
+    const withdrawalDto = await this.searchWithdrawals(
+      startDate,
+      endDate,
+      periodType,
+      mediumName,
+      isMediumMatched,
+      searchQuery
+    );
+
+    // 엑셀에 포함할 필드만 추출
+    const dataForExcel = withdrawalDto.items.map((withdrawal) => ({
+      매체명: withdrawal.mediumName,
+      출금일자: withdrawal.withdrawalDate,
+      "계좌 별칭": withdrawal.accountAlias,
+      출금액: withdrawal.withdrawalAmount,
+      "계좌 적요": withdrawal.accountDescription,
+      거래수단1: withdrawal.transactionMethod1,
+      거래수단2: withdrawal.transactionMethod2,
+      "계좌 메모": withdrawal.accountMemo,
+      용도: withdrawal.purpose,
+      거래처: withdrawal.clientName,
+    }));
+
+    // 엑셀 데이터 생성
+    const worksheet = XLSX.utils.json_to_sheet(dataForExcel);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Withdrawals");
+
+    // 엑셀 파일 버퍼 생성
+    const excelBuffer = XLSX.write(workbook, {
+      type: "buffer",
+      bookType: "xlsx",
+    });
+
+    return excelBuffer;
+  }
+
   // 출금값 수정
   async modifyWithdrawal(
     id: number,
