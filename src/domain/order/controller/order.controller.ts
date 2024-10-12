@@ -8,11 +8,12 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   UploadedFile,
   UseInterceptors,
 } from "@nestjs/common";
 import { OrderService } from "src/domain/order/service/order.service";
-import { ApiBody, ApiConsumes, ApiOperation } from "@nestjs/swagger";
+import { ApiBody, ApiConsumes, ApiOperation, ApiQuery } from "@nestjs/swagger";
 import { GetOrdersDto } from "src/domain/order/dto/response/get-order.dto";
 import { ModifyOrderDto } from "src/domain/order/dto/request/modify-order.dto";
 import { ModifyOrderResultDto } from "src/domain/order/dto/response/modify-order-result.dto";
@@ -74,6 +75,70 @@ export class OrderController {
   @Get()
   async getOrders(): Promise<GetOrdersDto> {
     return await this.orderService.getOrders();
+  }
+
+  @ApiOperation({
+    summary: "주문 검색 및 필터링",
+    operationId: "searchOrders",
+    tags: ["order"],
+  })
+  @ApiQuery({
+    name: "startDate",
+    required: false,
+    description: "발주일자 시작 날짜",
+  })
+  @ApiQuery({
+    name: "endDate",
+    required: false,
+    description: "발주일자 종료 날짜",
+  })
+  @ApiQuery({
+    name: "periodType",
+    required: false,
+    description: "기간 필터 (어제, 지난 3일, 일주일, 1개월, 3개월, 6개월)",
+  })
+  @ApiQuery({ name: "mediumName", required: false, description: "매체명" })
+  @ApiQuery({
+    name: "isMediumMatched",
+    required: false,
+    description: "매체명 매칭 여부",
+  })
+  @ApiQuery({
+    name: "settlementCompanyName",
+    required: false,
+    description: "정산업체명",
+  })
+  @ApiQuery({
+    name: "isSettlementCompanyMatched",
+    required: false,
+    description: "정산업체명 매칭 여부",
+  })
+  @ApiQuery({
+    name: "searchQuery",
+    required: false,
+    description: "검색창에서 검색 (상품명, 구매처, 판매처 등)",
+  })
+  @Get("search")
+  async searchOrders(
+    @Query("startDate") startDate: string,
+    @Query("endDate") endDate: string,
+    @Query("periodType") periodType: string,
+    @Query("mediumName") mediumName: string,
+    @Query("isMediumMatched") isMediumMatched: any,
+    @Query("settlementCompanyName") settlementCompanyName: string,
+    @Query("isSettlementCompanyMatched") isSettlementCompanyMatched: any,
+    @Query("searchQuery") searchQuery: string
+  ): Promise<GetOrdersDto> {
+    return await this.orderService.searchOrders(
+      startDate ? new Date(startDate) : null,
+      endDate ? new Date(endDate) : null,
+      periodType,
+      mediumName,
+      isMediumMatched,
+      settlementCompanyName,
+      isSettlementCompanyMatched,
+      searchQuery
+    );
   }
 
   @ApiOperation({

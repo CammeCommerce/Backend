@@ -44,4 +44,10 @@ export class Order extends BaseEntity {
 
   @Column({ comment: "배송차액" })
   shippingDifference: number;
+
+  @Column({ comment: "매체명 매칭 여부", default: false })
+  isMediumMatched: boolean;
+
+  @Column({ comment: "정산업체명 매칭 여부", default: false })
+  isSettleCompanyMatched: boolean;
 }

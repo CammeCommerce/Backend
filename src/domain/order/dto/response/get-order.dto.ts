@@ -47,6 +47,12 @@ export class OrderDetailDto {
 
   @ApiProperty({ example: 3000, description: "배송차액" })
   shippingDifference: number;
+
+  @ApiProperty({ example: false, description: "매체명 매칭 여부" })
+  isMediumMatched: boolean;
+
+  @ApiProperty({ example: false, description: "정산업체명 매칭 여부" })
+  isSettleCompanyMatched: boolean;
 }
 
 export class GetOrdersDto {

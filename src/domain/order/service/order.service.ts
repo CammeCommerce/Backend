@@ -119,6 +119,8 @@ export class OrderService {
         shippingDifference,
         mediumName: null,
         settleCompanyName: null,
+        isMediumMatched: false,
+        isSettleCompanyMatched: false,
       };
 
       // 매체명과 정산업체명이 비어 있을 경우, 매입처와 매출처를 기준으로 자동 매칭
@@ -133,6 +135,8 @@ export class OrderService {
         if (matchedRecord) {
           order.mediumName = matchedRecord.mediumName;
           order.settleCompanyName = matchedRecord.settlementCompanyName;
+          order.isMediumMatched = !!order.mediumName;
+          order.isSettleCompanyMatched = !!order.settleCompanyName;
         }
       }
 
@@ -183,10 +187,170 @@ export class OrderService {
         taxType: order.taxType,
         marginAmount: order.marginAmount,
         shippingDifference: order.shippingDifference,
+        isMediumMatched: order.isMediumMatched,
+        isSettleCompanyMatched: order.isSettleCompanyMatched,
       })
     );
 
     // 주문 배열 DTO 생성
+    const orderItemsDto = new GetOrdersDto();
+    orderItemsDto.items = items;
+
+    return orderItemsDto;
+  }
+
+  // 주문 검색 및 필터링 로직
+  async searchOrders(
+    startDate: Date,
+    endDate: Date,
+    periodType: string,
+    mediumName: string,
+    isMediumMatched: any,
+    settlementCompanyName: string,
+    isSettlementCompanyMatched: any,
+    searchQuery: string
+  ): Promise<GetOrdersDto> {
+    const queryBuilder = this.orderRepository
+      .createQueryBuilder("order")
+      .where("order.isDeleted = false");
+
+    // 발주일자 범위 검색 조건
+    if (startDate && endDate) {
+      queryBuilder.andWhere("order.orderDate BETWEEN :startDate AND :endDate", {
+        startDate,
+        endDate,
+      });
+    }
+
+    // 매체명 매칭 여부 필터
+    if (isMediumMatched !== undefined && isMediumMatched !== null) {
+      const isMediumMatchedBoolean = isMediumMatched === "true";
+      queryBuilder.andWhere("order.isMediumMatched = :isMediumMatched", {
+        isMediumMatched: isMediumMatchedBoolean,
+      });
+    }
+
+    // 매체명 검색 조건
+    if (mediumName) {
+      queryBuilder.andWhere("order.mediumName LIKE :mediumName", {
+        mediumName: `%${mediumName}%`,
+      });
+    }
+
+    // 정산업체명 매칭 여부 필터
+    if (
+      isSettlementCompanyMatched !== undefined &&
+      isSettlementCompanyMatched !== null
+    ) {
+      const isSettlementCompanyMatchedBoolean =
+        isSettlementCompanyMatched === "true";
+      queryBuilder.andWhere(
+        "order.isSettleCompanyMatched = :isSettleCompanyMatched",
+        { isSettleCompanyMatched: isSettlementCompanyMatchedBoolean }
+      );
+    }
+
+    // 정산업체명 검색 조건
+    if (settlementCompanyName) {
+      queryBuilder.andWhere(
+        "order.settleCompanyName LIKE :settlementCompanyName",
+        {
+          settlementCompanyName: `%${settlementCompanyName}%`,
+        }
+      );
+    }
+
+    // 검색창에서 검색 (상품명, 구매처, 판매처 등)
+    if (searchQuery) {
+      queryBuilder.andWhere(
+        "(order.productName LIKE :searchQuery OR order.purchasePlace LIKE :searchQuery OR order.salesPlace LIKE :searchQuery)",
+        { searchQuery: `%${searchQuery}%` }
+      );
+    }
+
+    // 기간 필터
+    const now = new Date();
+    switch (periodType) {
+      case "어제":
+        const yesterday = new Date(now);
+        yesterday.setDate(now.getDate() - 1);
+        queryBuilder.andWhere("order.orderDate BETWEEN :start AND :end", {
+          start: yesterday,
+          end: now,
+        });
+        break;
+      case "지난 3일":
+        const threeDaysAgo = new Date(now);
+        threeDaysAgo.setDate(now.getDate() - 3);
+        queryBuilder.andWhere("order.orderDate BETWEEN :start AND :end", {
+          start: threeDaysAgo,
+          end: now,
+        });
+        break;
+      case "일주일":
+        const oneWeekAgo = new Date(now);
+        oneWeekAgo.setDate(now.getDate() - 7);
+        queryBuilder.andWhere("order.orderDate BETWEEN :start AND :end", {
+          start: oneWeekAgo,
+          end: now,
+        });
+        break;
+      case "1개월":
+        const oneMonthAgo = new Date(now);
+        oneMonthAgo.setMonth(now.getMonth() - 1);
+        queryBuilder.andWhere("order.orderDate BETWEEN :start AND :end", {
+          start: oneMonthAgo,
+          end: now,
+        });
+        break;
+      case "3개월":
+        const threeMonthsAgo = new Date(now);
+        threeMonthsAgo.setMonth(now.getMonth() - 3);
+        queryBuilder.andWhere("order.orderDate BETWEEN :start AND :end", {
+          start: threeMonthsAgo,
+          end: now,
+        });
+        break;
+      case "6개월":
+        const sixMonthsAgo = new Date(now);
+        sixMonthsAgo.setMonth(now.getMonth() - 6);
+        queryBuilder.andWhere("order.orderDate BETWEEN :start AND :end", {
+          start: sixMonthsAgo,
+          end: now,
+        });
+        break;
+      default:
+        break;
+    }
+
+    const orders = await queryBuilder.getMany();
+
+    if (!orders.length) {
+      throw new NotFoundException("검색 조건에 맞는 주문이 없습니다.");
+    }
+
+    const items = orders.map((order) =>
+      plainToInstance(OrderDetailDto, {
+        id: order.id,
+        mediumName: order.mediumName,
+        settleCompanyName: order.settleCompanyName,
+        productName: order.productName,
+        quantity: order.quantity,
+        orderDate: order.orderDate,
+        purchasePlace: order.purchasePlace,
+        salesPlace: order.salesPlace,
+        purchasePrice: order.purchasePrice,
+        salesPrice: order.salesPrice,
+        purchaseShippingFee: order.purchaseShippingFee,
+        salesShippingFee: order.salesShippingFee,
+        taxType: order.taxType,
+        marginAmount: order.marginAmount,
+        shippingDifference: order.shippingDifference,
+        isMediumMatched: order.isMediumMatched,
+        isSettleCompanyMatched: order.isSettleCompanyMatched,
+      })
+    );
+
     const orderItemsDto = new GetOrdersDto();
     orderItemsDto.items = items;
 
