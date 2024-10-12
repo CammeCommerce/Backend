@@ -8,8 +8,9 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
 } from "@nestjs/common";
-import { ApiOperation } from "@nestjs/swagger";
+import { ApiOperation, ApiQuery } from "@nestjs/swagger";
 import { OnlineService } from "src/domain/online/service/online.service";
 import { CreateOnlineDto } from "src/domain/online/dto/request/create-online.dto";
 import { CreateOnlineResultDto } from "src/domain/online/dto/response/create-online.result.dto";
@@ -41,6 +42,49 @@ export class OnlineController {
   @Get()
   async getOnlines(): Promise<GetOnlineDto> {
     return await this.onlineService.getOnlines();
+  }
+
+  @ApiOperation({
+    summary: "온라인(행) 검색 및 필터링",
+    operationId: "searchOnlines",
+    tags: ["online"],
+  })
+  @ApiQuery({
+    name: "startDate",
+    required: false,
+    description: "매출일자 시작 (월 기준 검색)",
+  })
+  @ApiQuery({
+    name: "endDate",
+    required: false,
+    description: "매출일자 종료 (월 기준 검색)",
+  })
+  @ApiQuery({
+    name: "periodType",
+    required: false,
+    description: "기간 필터 (어제, 지난 3일, 일주일, 1개월, 3개월, 6개월)",
+  })
+  @ApiQuery({ name: "mediumName", required: false, description: "매체명" })
+  @ApiQuery({
+    name: "searchQuery",
+    required: false,
+    description: "키워드 검색",
+  })
+  @Get("search")
+  async searchOnlines(
+    @Query("startDate") startDate: string,
+    @Query("endDate") endDate: string,
+    @Query("periodType") periodType: string,
+    @Query("mediumName") mediumName: string,
+    @Query("searchQuery") searchQuery: string
+  ): Promise<GetOnlineDto> {
+    return await this.onlineService.searchOnlines(
+      startDate ? new Date(startDate) : null,
+      endDate ? new Date(endDate) : null,
+      periodType,
+      mediumName,
+      searchQuery
+    );
   }
 
   @ApiOperation({
