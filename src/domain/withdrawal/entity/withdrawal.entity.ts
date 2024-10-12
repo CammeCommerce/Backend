@@ -32,4 +32,7 @@ export class Withdrawal extends BaseEntity {
 
   @Column({ comment: "거래처" })
   clientName: string;
+
+  @Column({ comment: "매체명 매칭 여부", default: false })
+  isMediumMatched: boolean;
 }

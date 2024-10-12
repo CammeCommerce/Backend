@@ -8,11 +8,12 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   UploadedFile,
   UseInterceptors,
 } from "@nestjs/common";
 import { WithdrawalService } from "src/domain/withdrawal/service/withdrawal.service";
-import { ApiBody, ApiConsumes, ApiOperation } from "@nestjs/swagger";
+import { ApiBody, ApiConsumes, ApiOperation, ApiQuery } from "@nestjs/swagger";
 import { GetWithdrawalDto } from "src/domain/withdrawal/dto/response/get-withdrawal.dto";
 import { ModifyWithdrawalDto } from "src/domain/withdrawal/dto/request/modify-withdrawal.dto";
 import { ModifyWithdrawalResultDto } from "src/domain/withdrawal/dto/response/modify-withdrawal-result.dto";
@@ -70,6 +71,56 @@ export class WithdrawalController {
   @Get()
   async getWithdrawals(): Promise<GetWithdrawalDto> {
     return await this.withdrawalService.getWithdrawals();
+  }
+
+  @ApiOperation({
+    summary: "출금 검색 및 필터링",
+    operationId: "searchWithdrawals",
+    tags: ["withdrawal"],
+  })
+  @ApiQuery({
+    name: "startDate",
+    required: false,
+    description: "출금일자 시작 날짜",
+  })
+  @ApiQuery({
+    name: "endDate",
+    required: false,
+    description: "출금일자 종료 날짜",
+  })
+  @ApiQuery({
+    name: "periodType",
+    required: false,
+    description: "기간 필터 (어제, 지난 3일, 일주일, 1개월, 3개월, 6개월)",
+  })
+  @ApiQuery({ name: "mediumName", required: false, description: "매체명" })
+  @ApiQuery({
+    name: "isMediumMatched",
+    required: false,
+    description: "매체명 매칭 여부",
+  })
+  @ApiQuery({
+    name: "searchQuery",
+    required: false,
+    description: "계좌별칭 또는 용도 검색",
+  })
+  @Get("search")
+  async searchWithdrawals(
+    @Query("startDate") startDate: string,
+    @Query("endDate") endDate: string,
+    @Query("periodType") periodType: string,
+    @Query("mediumName") mediumName: string,
+    @Query("isMediumMatched") isMediumMatched: any,
+    @Query("searchQuery") searchQuery: string
+  ): Promise<GetWithdrawalDto> {
+    return await this.withdrawalService.searchWithdrawals(
+      startDate ? new Date(startDate) : null,
+      endDate ? new Date(endDate) : null,
+      periodType,
+      mediumName,
+      isMediumMatched,
+      searchQuery
+    );
   }
 
   @ApiOperation({
