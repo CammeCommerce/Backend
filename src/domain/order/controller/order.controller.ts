@@ -9,17 +9,25 @@ import {
   Patch,
   Post,
   Query,
+  Res,
   UploadedFile,
   UseInterceptors,
 } from "@nestjs/common";
 import { OrderService } from "src/domain/order/service/order.service";
-import { ApiBody, ApiConsumes, ApiOperation, ApiQuery } from "@nestjs/swagger";
+import {
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+} from "@nestjs/swagger";
 import { GetOrdersDto } from "src/domain/order/dto/response/get-order.dto";
 import { ModifyOrderDto } from "src/domain/order/dto/request/modify-order.dto";
 import { ModifyOrderResultDto } from "src/domain/order/dto/response/modify-order-result.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { UploadOrderExcelDto } from "src/domain/order/dto/request/upload-order-excel.dto";
 import { GetSortedOrdersDto } from "src/domain/order/dto/response/get-sorted-order.dto";
+import { Response } from "express";
 
 @Controller("order")
 export class OrderController {
@@ -159,6 +167,89 @@ export class OrderController {
     @Query("order") order: "asc" | "desc"
   ): Promise<GetSortedOrdersDto> {
     return await this.orderService.sortOrders(field, order);
+  }
+
+  @ApiOperation({
+    summary: "검색된 주문값 엑셀 다운로드",
+    operationId: "downloadOrdersExcel",
+    tags: ["order"],
+  })
+  @ApiQuery({
+    name: "startDate",
+    required: false,
+    description: "발주일자 시작 날짜",
+  })
+  @ApiQuery({
+    name: "endDate",
+    required: false,
+    description: "발주일자 종료 날짜",
+  })
+  @ApiQuery({
+    name: "periodType",
+    required: false,
+    description: "기간 필터 (어제, 지난 3일, 일주일, 1개월, 3개월, 6개월)",
+  })
+  @ApiQuery({ name: "mediumName", required: false, description: "매체명" })
+  @ApiQuery({
+    name: "isMediumMatched",
+    required: false,
+    description: "매체명 매칭 여부",
+  })
+  @ApiQuery({
+    name: "settlementCompanyName",
+    required: false,
+    description: "정산업체명",
+  })
+  @ApiQuery({
+    name: "isSettlementCompanyMatched",
+    required: false,
+    description: "정산업체명 매칭 여부",
+  })
+  @ApiQuery({
+    name: "searchQuery",
+    required: false,
+    description: "검색창에서 검색 (상품명, 구매처, 판매처 등)",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "엑셀 파일 다운로드",
+    schema: {
+      type: "string",
+      format: "binary",
+    },
+  })
+  @Get("excel/download")
+  async downloadOrdersExcel(
+    @Query("startDate") startDate: string,
+    @Query("endDate") endDate: string,
+    @Query("periodType") periodType: string,
+    @Query("mediumName") mediumName: string,
+    @Query("isMediumMatched") isMediumMatched: any,
+    @Query("settlementCompanyName") settlementCompanyName: string,
+    @Query("isSettlementCompanyMatched") isSettlementCompanyMatched: any,
+    @Query("searchQuery") searchQuery: string,
+    @Res() res: Response
+  ): Promise<void> {
+    const excelFile = await this.orderService.downloadOrdersExcel(
+      startDate ? new Date(startDate) : null,
+      endDate ? new Date(endDate) : null,
+      periodType,
+      mediumName,
+      isMediumMatched,
+      settlementCompanyName,
+      isSettlementCompanyMatched,
+      searchQuery
+    );
+
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="orders_${new Date().toISOString()}.xlsx"`
+    );
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.end(excelFile);
   }
 
   @ApiOperation({

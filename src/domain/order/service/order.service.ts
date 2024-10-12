@@ -361,7 +361,7 @@ export class OrderService {
     return orderItemsDto;
   }
 
-  // 주문값 오름차순/내림차순 정렬 로직
+  // 주문값 오름차순/내림차순 정렬
   async sortOrders(
     field: string,
     order: "asc" | "desc"
@@ -428,6 +428,63 @@ export class OrderService {
     sortedOrderItemsDto.items = items;
 
     return sortedOrderItemsDto;
+  }
+
+  // 엑셀 파일 다운로드
+  async downloadOrdersExcel(
+    startDate: Date,
+    endDate: Date,
+    periodType: string,
+    mediumName: string,
+    isMediumMatched: any,
+    settlementCompanyName: string,
+    isSettlementCompanyMatched: any,
+    searchQuery: string
+  ): Promise<Buffer> {
+    // 검색 로직을 이용해 데이터를 가져오기
+    const ordersDto = await this.searchOrders(
+      startDate,
+      endDate,
+      periodType,
+      mediumName,
+      isMediumMatched,
+      settlementCompanyName,
+      isSettlementCompanyMatched,
+      searchQuery
+    );
+
+    const orders = ordersDto.items;
+
+    // 엑셀 워크북 생성
+    const workbook = XLSX.utils.book_new();
+    const worksheetData = orders.map((order) => ({
+      매체명: order.mediumName,
+      정산업체명: order.settlementCompanyName,
+      상품명: order.productName,
+      수량: order.quantity,
+      발주일자: order.orderDate,
+      매입처: order.purchasePlace,
+      매출처: order.salesPlace,
+      매입가: order.purchasePrice,
+      판매가: order.salesPrice,
+      "매입 배송비": order.purchaseShippingFee,
+      "매출 배송비": order.salesShippingFee,
+      과세여부: order.taxType,
+      마진액: order.marginAmount,
+      배송차액: order.shippingDifference,
+    }));
+
+    // 엑셀 시트에 데이터 추가
+    const worksheet = XLSX.utils.json_to_sheet(worksheetData);
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Orders");
+
+    // 엑셀 파일을 버퍼로 변환
+    const excelBuffer = XLSX.write(workbook, {
+      type: "buffer",
+      bookType: "xlsx",
+    });
+
+    return excelBuffer;
   }
 
   // 주문값 수정
