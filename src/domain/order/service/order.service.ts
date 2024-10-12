@@ -430,7 +430,7 @@ export class OrderService {
     return sortedOrderItemsDto;
   }
 
-  // 엑셀 파일 다운로드
+  // 검색된 주문 데이터를 엑셀로 다운로드
   async downloadOrdersExcel(
     startDate: Date,
     endDate: Date,
@@ -441,7 +441,6 @@ export class OrderService {
     isSettlementCompanyMatched: any,
     searchQuery: string
   ): Promise<Buffer> {
-    // 검색 로직을 이용해 데이터를 가져오기
     const ordersDto = await this.searchOrders(
       startDate,
       endDate,
@@ -455,7 +454,7 @@ export class OrderService {
 
     const orders = ordersDto.items;
 
-    // 엑셀 워크북 생성
+    // 엑셀에 포함할 필드만 추출
     const workbook = XLSX.utils.book_new();
     const worksheetData = orders.map((order) => ({
       매체명: order.mediumName,
@@ -474,11 +473,11 @@ export class OrderService {
       배송차액: order.shippingDifference,
     }));
 
-    // 엑셀 시트에 데이터 추가
+    // 엑셀 데이터 생성
     const worksheet = XLSX.utils.json_to_sheet(worksheetData);
     XLSX.utils.book_append_sheet(workbook, worksheet, "Orders");
 
-    // 엑셀 파일을 버퍼로 변환
+    // 엑셀 파일 버퍼 생성
     const excelBuffer = XLSX.write(workbook, {
       type: "buffer",
       bookType: "xlsx",
