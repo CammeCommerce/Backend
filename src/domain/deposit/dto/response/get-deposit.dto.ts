@@ -40,6 +40,9 @@ export class DepositDetailDto {
 
   @ApiProperty({ example: "거래처", description: "거래처" })
   clientName: string;
+
+  @ApiProperty({ example: false, description: "매체명 매칭 여부" })
+  isMediumMatched: boolean;
 }
 
 export class GetDepositsDto {

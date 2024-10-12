@@ -91,6 +91,7 @@ export class DepositService {
         counterpartyName: row[counterpartyNameIdx],
         purpose: row[purposeIdx],
         clientName: row[clientNameIdx],
+        isMediumMatched: false,
       };
 
       // 매체명이 비어 있을 경우 계좌 별칭과 용도를 기준으로 자동 매칭
@@ -104,6 +105,7 @@ export class DepositService {
 
         if (matchedRecord) {
           deposit.mediumName = matchedRecord.mediumName;
+          deposit.isMediumMatched = !!deposit.mediumName;
         }
       }
 
@@ -151,10 +153,143 @@ export class DepositService {
         counterpartyName: deposit.counterpartyName,
         purpose: deposit.purpose,
         clientName: deposit.clientName,
+        isMediumMatched: deposit.isMediumMatched,
       })
     );
 
     // 입금 배열 DTO 생성
+    const depositItemsDto = new GetDepositsDto();
+    depositItemsDto.items = items;
+
+    return depositItemsDto;
+  }
+
+  // 입금 검색 및 필터링
+  async searchDeposits(
+    startDate: Date,
+    endDate: Date,
+    periodType: string,
+    mediumName: string,
+    isMediumMatched: any,
+    searchQuery: string
+  ): Promise<GetDepositsDto> {
+    const queryBuilder = this.depositRepository
+      .createQueryBuilder("deposit")
+      .where("deposit.isDeleted = false");
+
+    // 발주일자 범위 검색 조건
+    if (startDate && endDate) {
+      queryBuilder.andWhere(
+        "deposit.depositDate BETWEEN :startDate AND :endDate",
+        {
+          startDate,
+          endDate,
+        }
+      );
+    }
+
+    // 매체명 매칭 여부 필터
+    if (isMediumMatched !== undefined && isMediumMatched !== null) {
+      const isMediumMatchedBoolean = isMediumMatched === "true";
+      queryBuilder.andWhere("deposit.isMediumMatched = :isMediumMatched", {
+        isMediumMatched: isMediumMatchedBoolean,
+      });
+    }
+
+    // 매체명 검색 조건
+    if (mediumName) {
+      queryBuilder.andWhere("deposit.mediumName LIKE :mediumName", {
+        mediumName: `%${mediumName}%`,
+      });
+    }
+
+    // 계좌별칭 또는 용도 검색 조건
+    if (searchQuery) {
+      queryBuilder.andWhere(
+        "(deposit.accountAlias LIKE :searchQuery OR deposit.purpose LIKE :searchQuery)",
+        { searchQuery: `%${searchQuery}%` }
+      );
+    }
+
+    // 기간 필터
+    const now = new Date();
+    switch (periodType) {
+      case "어제":
+        const yesterday = new Date(now);
+        yesterday.setDate(now.getDate() - 1);
+        queryBuilder.andWhere("deposit.depositDate BETWEEN :start AND :end", {
+          start: yesterday,
+          end: now,
+        });
+        break;
+      case "지난 3일":
+        const threeDaysAgo = new Date(now);
+        threeDaysAgo.setDate(now.getDate() - 3);
+        queryBuilder.andWhere("deposit.depositDate BETWEEN :start AND :end", {
+          start: threeDaysAgo,
+          end: now,
+        });
+        break;
+      case "일주일":
+        const oneWeekAgo = new Date(now);
+        oneWeekAgo.setDate(now.getDate() - 7);
+        queryBuilder.andWhere("deposit.depositDate BETWEEN :start AND :end", {
+          start: oneWeekAgo,
+          end: now,
+        });
+        break;
+      case "1개월":
+        const oneMonthAgo = new Date(now);
+        oneMonthAgo.setMonth(now.getMonth() - 1);
+        queryBuilder.andWhere("deposit.depositDate BETWEEN :start AND :end", {
+          start: oneMonthAgo,
+          end: now,
+        });
+        break;
+      case "3개월":
+        const threeMonthsAgo = new Date(now);
+        threeMonthsAgo.setMonth(now.getMonth() - 3);
+        queryBuilder.andWhere("deposit.depositDate BETWEEN :start AND :end", {
+          start: threeMonthsAgo,
+          end: now,
+        });
+        break;
+      case "6개월":
+        const sixMonthsAgo = new Date(now);
+        sixMonthsAgo.setMonth(now.getMonth() - 6);
+        queryBuilder.andWhere("deposit.depositDate BETWEEN :start AND :end", {
+          start: sixMonthsAgo,
+          end: now,
+        });
+        break;
+      default:
+        break;
+    }
+
+    const deposits = await queryBuilder.getMany();
+
+    if (!deposits.length) {
+      throw new NotFoundException("검색 조건에 맞는 입금값이 없습니다.");
+    }
+
+    const items = deposits.map((deposit) =>
+      plainToInstance(DepositDetailDto, {
+        id: deposit.id,
+        mediumName: deposit.mediumName,
+        depositDate: deposit.depositDate,
+        accountAlias: deposit.accountAlias,
+        depositAmount: deposit.depositAmount,
+        accountDescription: deposit.accountDescription,
+        transactionMethod1: deposit.transactionMethod1,
+        transactionMethod2: deposit.transactionMethod2,
+        accountMemo: deposit.accountMemo,
+        counterpartyName: deposit.counterpartyName,
+        purpose: deposit.purpose,
+        clientName: deposit.clientName,
+        isMediumMatched: deposit.isMediumMatched,
+      })
+    );
+
     const depositItemsDto = new GetDepositsDto();
     depositItemsDto.items = items;
 
