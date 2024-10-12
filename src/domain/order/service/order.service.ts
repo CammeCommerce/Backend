@@ -35,9 +35,9 @@ export class OrderService {
   private convertTaxTypeToString(taxType: TaxType): string | undefined {
     switch (taxType) {
       case TaxType.TAXABLE:
-        return "과세";
+        return "11";
       case TaxType.NON_TAXABLE:
-        return "면세";
+        return "12";
       default:
         return undefined;
     }
@@ -561,9 +561,12 @@ export class OrderService {
     order.purchaseShippingFee = dto.purchaseShippingFee;
     order.salesShippingFee = dto.salesShippingFee;
     order.taxType = taxTypeString;
-    order.marginAmount = dto.marginAmount;
-    order.shippingDifference = dto.shippingDifference;
     order.updatedAt = new Date();
+
+    // 마진액과 배송차액 계산
+    order.marginAmount = order.salesPrice - order.purchasePrice;
+    order.shippingDifference =
+      order.salesShippingFee - order.purchaseShippingFee;
 
     await this.orderRepository.save(order);
 
