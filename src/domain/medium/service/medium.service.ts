@@ -60,7 +60,6 @@ export class MediumService {
     return mediumItemsDto;
   }
 
-  // TODO: 검색 분리하기(현재 임시 구현한 상태)
   // 매체명/등록일자 검색 및 기간 필터링
   async searchMediums(
     name: string,
@@ -80,19 +79,9 @@ export class MediumService {
       });
     }
 
-    // 등록일자 범위 검색 조건 추가
-    if (startDate && endDate) {
-      queryBuilder.andWhere(
-        "medium.createdAt BETWEEN :startDate AND :endDate",
-        {
-          startDate,
-          endDate,
-        }
-      );
-    }
-
-    // 특정 기간 필터 적용
+    // 기간 필터가 존재하는 경우 기간 필터를 우선 적용
     const now = new Date();
+    let usePeriodFilter = false;
     switch (periodType) {
       case "어제":
         const yesterday = new Date();
@@ -101,6 +90,7 @@ export class MediumService {
           start: yesterday,
           end: now,
         });
+        usePeriodFilter = true;
         break;
       case "지난 3일":
         const threeDaysAgo = new Date();
@@ -109,6 +99,7 @@ export class MediumService {
           start: threeDaysAgo,
           end: now,
         });
+        usePeriodFilter = true;
         break;
       case "일주일":
         const oneWeekAgo = new Date();
@@ -117,6 +108,7 @@ export class MediumService {
           start: oneWeekAgo,
           end: now,
         });
+        usePeriodFilter = true;
         break;
       case "1개월":
         const oneMonthAgo = new Date();
@@ -125,6 +117,7 @@ export class MediumService {
           start: oneMonthAgo,
           end: now,
         });
+        usePeriodFilter = true;
         break;
       case "3개월":
         const threeMonthsAgo = new Date();
@@ -133,6 +126,7 @@ export class MediumService {
           start: threeMonthsAgo,
           end: now,
         });
+        usePeriodFilter = true;
         break;
       case "6개월":
         const sixMonthsAgo = new Date();
@@ -141,9 +135,21 @@ export class MediumService {
           start: sixMonthsAgo,
           end: now,
         });
+        usePeriodFilter = true;
         break;
       default:
         break;
+    }
+
+    // 기간 필터가 없을 경우 등록일자 시작~종료를 조건으로 추가
+    if (!usePeriodFilter && startDate && endDate) {
+      queryBuilder.andWhere(
+        "medium.createdAt BETWEEN :startDate AND :endDate",
+        {
+          startDate,
+          endDate,
+        }
+      );
     }
 
     const mediums = await queryBuilder.getMany();

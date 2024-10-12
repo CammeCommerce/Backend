@@ -44,7 +44,6 @@ export class MediumController {
     return await this.mediumService.getMediums();
   }
 
-  // TODO: 검색 분리하기(현재 임시 구현한 상태)
   @ApiOperation({
     summary: "매체명 검색 및 필터링",
     operationId: "searchMediums",
