@@ -8,9 +8,10 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
 } from "@nestjs/common";
 import { SettlementCompanyService } from "src/domain/settlement-company/service/settlement-company.service";
-import { ApiOperation } from "@nestjs/swagger";
+import { ApiOperation, ApiQuery } from "@nestjs/swagger";
 import { CreateSettlementCompanyDto } from "src/domain/settlement-company/dto/request/create-settlement-company.dto";
 import { CreateSettlementCompanyResultDto } from "src/domain/settlement-company/dto/response/create-settlement-company-result.dto";
 import { GetSettlementCompaniesDto } from "src/domain/settlement-company/dto/response/get-settlement-company.dto";
@@ -43,6 +44,43 @@ export class SettlementCompanyController {
   @Get()
   async getSettlementCompanies(): Promise<GetSettlementCompaniesDto> {
     return await this.settlementCompanyService.getSettlementCompanies();
+  }
+
+  @ApiOperation({
+    summary: "정산업체명 검색 및 필터링",
+    operationId: "searchSettlementCompanies",
+    tags: ["settlement-company"],
+  })
+  @ApiQuery({ name: "name", required: false, description: "검색할 정산업체명" })
+  @ApiQuery({
+    name: "startDate",
+    required: false,
+    description: "검색할 등록일자 시작 날짜",
+  })
+  @ApiQuery({
+    name: "endDate",
+    required: false,
+    description: "검색할 등록일자 종료 날짜",
+  })
+  @ApiQuery({
+    name: "periodType",
+    required: false,
+    description:
+      '기간 필터 ("어제", "지난 3일", "일주일", "1개월", "3개월", "6개월")',
+  })
+  @Get("search")
+  async searchSettlementCompanies(
+    @Query("name") name: string,
+    @Query("startDate") startDate: string,
+    @Query("endDate") endDate: string,
+    @Query("periodType") periodType: string
+  ): Promise<GetSettlementCompaniesDto> {
+    return await this.settlementCompanyService.searchSettlementCompanies(
+      name,
+      startDate ? new Date(startDate) : null,
+      endDate ? new Date(endDate) : null,
+      periodType
+    );
   }
 
   @ApiOperation({
