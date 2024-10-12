@@ -86,6 +86,147 @@ export class OrderMatchingService {
     return orderMatchingItemsDto;
   }
 
+  // 주문 매칭 검색 및 필터링
+  async searchOrderMatchings(
+    startDate: Date,
+    endDate: Date,
+    periodType: string,
+    mediumName: string,
+    settlementCompanyName: string,
+    searchQuery: string
+  ): Promise<GetOrderMatchingsDto> {
+    const queryBuilder = this.orderMatchingRepository
+      .createQueryBuilder("orderMatching")
+      .where("orderMatching.isDeleted = false");
+
+    // 매칭일자 범위 검색 조건
+    if (startDate && endDate) {
+      queryBuilder.andWhere(
+        "orderMatching.createdAt BETWEEN :startDate AND :endDate",
+        { startDate, endDate }
+      );
+    }
+
+    // 기간 필터
+    const now = new Date();
+    switch (periodType) {
+      case "어제":
+        const yesterday = new Date(now);
+        yesterday.setDate(now.getDate() - 1);
+        queryBuilder.andWhere(
+          "orderMatching.createdAt BETWEEN :start AND :end",
+          {
+            start: yesterday,
+            end: now,
+          }
+        );
+        break;
+      case "지난 3일":
+        const threeDaysAgo = new Date(now);
+        threeDaysAgo.setDate(now.getDate() - 3);
+        queryBuilder.andWhere(
+          "orderMatching.createdAt BETWEEN :start AND :end",
+          {
+            start: threeDaysAgo,
+            end: now,
+          }
+        );
+        break;
+      case "일주일":
+        const oneWeekAgo = new Date(now);
+        oneWeekAgo.setDate(now.getDate() - 7);
+        queryBuilder.andWhere(
+          "orderMatching.createdAt BETWEEN :start AND :end",
+          {
+            start: oneWeekAgo,
+            end: now,
+          }
+        );
+        break;
+      case "1개월":
+        const oneMonthAgo = new Date(now);
+        oneMonthAgo.setMonth(now.getMonth() - 1);
+        queryBuilder.andWhere(
+          "orderMatching.createdAt BETWEEN :start AND :end",
+          {
+            start: oneMonthAgo,
+            end: now,
+          }
+        );
+        break;
+      case "3개월":
+        const threeMonthsAgo = new Date(now);
+        threeMonthsAgo.setMonth(now.getMonth() - 3);
+        queryBuilder.andWhere(
+          "orderMatching.createdAt BETWEEN :start AND :end",
+          {
+            start: threeMonthsAgo,
+            end: now,
+          }
+        );
+        break;
+      case "6개월":
+        const sixMonthsAgo = new Date(now);
+        sixMonthsAgo.setMonth(now.getMonth() - 6);
+        queryBuilder.andWhere(
+          "orderMatching.createdAt BETWEEN :start AND :end",
+          {
+            start: sixMonthsAgo,
+            end: now,
+          }
+        );
+        break;
+      default:
+        break;
+    }
+
+    // 매체명 검색 조건
+    if (mediumName) {
+      queryBuilder.andWhere("orderMatching.mediumName LIKE :mediumName", {
+        mediumName: `%${mediumName}%`,
+      });
+    }
+
+    // 정산업체명 검색 조건
+    if (settlementCompanyName) {
+      queryBuilder.andWhere(
+        "orderMatching.settlementCompanyName LIKE :settlementCompanyName",
+        {
+          settlementCompanyName: `%${settlementCompanyName}%`,
+        }
+      );
+    }
+
+    // 매입처 또는 매출처 검색 조건
+    if (searchQuery) {
+      queryBuilder.andWhere(
+        "(orderMatching.purchasePlace LIKE :searchQuery OR orderMatching.salesPlace LIKE :searchQuery)",
+        { searchQuery: `%${searchQuery}%` }
+      );
+    }
+
+    const orderMatchings = await queryBuilder.getMany();
+
+    if (!orderMatchings.length) {
+      throw new NotFoundException("검색 조건에 맞는 주문 매칭이 없습니다.");
+    }
+
+    const items = orderMatchings.map((orderMatching) =>
+      plainToInstance(OrderMatchingDetailDto, {
+        id: orderMatching.id,
+        mediumName: orderMatching.mediumName,
+        settlementCompanyName: orderMatching.settlementCompanyName,
+        purchasePlace: orderMatching.purchasePlace,
+        salesPlace: orderMatching.salesPlace,
+      })
+    );
+
+    const orderMatchingItemsDto = new GetOrderMatchingsDto();
+    orderMatchingItemsDto.items = items;
+
+    return orderMatchingItemsDto;
+  }
+
   // 주문 매칭 삭제
   async deleteOrderMatching(id: number): Promise<void> {
     const orderMatching = await this.orderMatchingRepository.findOne({
