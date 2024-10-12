@@ -3,7 +3,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { DepositMatching } from "src/domain/deposit-matching/entity/deposit-matching.entity";
 import { Deposit } from "src/domain/deposit/entity/deposit.entity";
-import { IncomeStatement } from "src/domain/income-statement/entity/income-statement.entity";
+import { ProfitLoss } from "src/domain/profit-loss/entity/profit-loss.entity";
 import { Medium } from "src/domain/medium/entity/medium.entity";
 import { Online } from "src/domain/online/entity/online.entity";
 import { OrderMatching } from "src/domain/order-matching/entity/order-matching.entity";
@@ -36,7 +36,7 @@ import { Withdrawal } from "src/domain/withdrawal/entity/withdrawal.entity";
           Withdrawal,
           WithdrawalMatching,
           Online,
-          IncomeStatement,
+          ProfitLoss,
         ],
         synchronize: true,
         logging: true,

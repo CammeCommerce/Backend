@@ -11,7 +11,7 @@ import { DepositMatchingModule } from "src/domain/deposit-matching/deposit-match
 import { WithdrawalModule } from "src/domain/withdrawal/withdrawal.module";
 import { WithdrawalMatchingModule } from "src/domain/withdrawal-matching/withdrawal-matching.module";
 import { OnlineModule } from "src/domain/online/online.module";
-import { IncomeStatementModule } from "src/domain/income-statement/income-statement.module";
+import { ProfitLossModule } from "src/domain/profit-loss/profit-loss.module";
 import { DBModule } from "src/db/db.module";
 
 @Module({
@@ -27,7 +27,7 @@ import { DBModule } from "src/db/db.module";
     WithdrawalModule,
     WithdrawalMatchingModule,
     OnlineModule,
-    IncomeStatementModule,
+    ProfitLossModule,
   ],
   controllers: [AppController],
   providers: [AppService],
