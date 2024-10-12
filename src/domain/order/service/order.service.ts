@@ -63,9 +63,7 @@ export class OrderService {
     salesPriceIndex: string,
     purchaseShippingFeeIndex: string,
     salesShippingFeeIndex: string,
-    taxTypeIndex: string,
-    marginAmountIndex: string,
-    shippingDifferenceIndex: string
+    taxTypeIndex: string
   ): Promise<void> {
     // 엑셀 파일 파싱
     const workbook = XLSX.read(file.buffer, { type: "buffer" });
@@ -88,8 +86,6 @@ export class OrderService {
     const purchaseShippingFeeIdx = this.columnToIndex(purchaseShippingFeeIndex);
     const salesShippingFeeIdx = this.columnToIndex(salesShippingFeeIndex);
     const taxTypeIdx = this.columnToIndex(taxTypeIndex);
-    const marginAmountIdx = this.columnToIndex(marginAmountIndex);
-    const shippingDifferenceIdx = this.columnToIndex(shippingDifferenceIndex);
 
     const orders = [];
 
@@ -104,8 +100,10 @@ export class OrderService {
       const purchaseShippingFee =
         parseInt(row[purchaseShippingFeeIdx], 10) || 0;
       const salesShippingFee = parseInt(row[salesShippingFeeIdx], 10) || 0;
-      const marginAmount = parseInt(row[marginAmountIdx], 10) || 0;
-      const shippingDifference = parseInt(row[shippingDifferenceIdx], 10) || 0;
+
+      // 마진액과 배송차액 계산
+      const marginAmount = salesPrice - purchasePrice;
+      const shippingDifference = salesShippingFee - purchaseShippingFee;
 
       // 각 행의 값을 객체로 생성하여 orders 배열에 추가
       const order = {

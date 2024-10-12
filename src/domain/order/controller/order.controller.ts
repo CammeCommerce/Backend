@@ -70,9 +70,7 @@ export class OrderController {
       salesPriceIndex,
       purchaseShippingFeeIndex,
       salesShippingFeeIndex,
-      taxTypeIndex,
-      marginAmountIndex,
-      shippingDifferenceIndex
+      taxTypeIndex
     );
   }
 
