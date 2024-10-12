@@ -9,6 +9,7 @@ import {
   Patch,
   Post,
   Query,
+  Res,
   UploadedFile,
   UseInterceptors,
 } from "@nestjs/common";
@@ -19,6 +20,7 @@ import { ModifyDepositDto } from "src/domain/deposit/dto/request/modify-deposit.
 import { ModifyDepositResultDto } from "src/domain/deposit/dto/response/modify-deposit-result.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { UploadDepositExcelDto } from "src/domain/deposit/dto/request/upload-deposit-excel.dto";
+import { Response } from "express";
 
 @Controller("deposit")
 export class DepositController {
@@ -122,6 +124,67 @@ export class DepositController {
       isMediumMatched,
       searchQuery
     );
+  }
+
+  @ApiOperation({
+    summary: "검색된 입금값 엑셀 다운로드",
+    operationId: "downloadDepositsExcel",
+    tags: ["deposit"],
+  })
+  @ApiQuery({
+    name: "startDate",
+    required: false,
+    description: "발주일자 시작 날짜",
+  })
+  @ApiQuery({
+    name: "endDate",
+    required: false,
+    description: "발주일자 종료 날짜",
+  })
+  @ApiQuery({
+    name: "periodType",
+    required: false,
+    description: "기간 필터 (어제, 지난 3일, 일주일, 1개월, 3개월, 6개월)",
+  })
+  @ApiQuery({ name: "mediumName", required: false, description: "매체명" })
+  @ApiQuery({
+    name: "isMediumMatched",
+    required: false,
+    description: "매체명 매칭 여부",
+  })
+  @ApiQuery({
+    name: "searchQuery",
+    required: false,
+    description: "계좌별칭 또는 용도 검색",
+  })
+  @Get("excel/download")
+  async downloadDepositsExcel(
+    @Query("startDate") startDate: string,
+    @Query("endDate") endDate: string,
+    @Query("periodType") periodType: string,
+    @Query("mediumName") mediumName: string,
+    @Query("isMediumMatched") isMediumMatched: any,
+    @Query("searchQuery") searchQuery: string,
+    @Res() res: Response
+  ): Promise<void> {
+    const excelFile = await this.depositService.downloadDepositsExcel(
+      startDate ? new Date(startDate) : null,
+      endDate ? new Date(endDate) : null,
+      periodType,
+      mediumName,
+      isMediumMatched,
+      searchQuery
+    );
+
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="deposits.xlsx"`
+    );
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.end(excelFile);
   }
 
   @ApiOperation({

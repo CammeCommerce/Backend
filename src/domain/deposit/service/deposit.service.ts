@@ -296,6 +296,53 @@ export class DepositService {
     return depositItemsDto;
   }
 
+  // 검색된 입금 데이터를 엑셀로 다운로드
+  async downloadDepositsExcel(
+    startDate: Date,
+    endDate: Date,
+    periodType: string,
+    mediumName: string,
+    isMediumMatched: any,
+    searchQuery: string
+  ): Promise<Buffer> {
+    const depositDto = await this.searchDeposits(
+      startDate,
+      endDate,
+      periodType,
+      mediumName,
+      isMediumMatched,
+      searchQuery
+    );
+
+    // 엑셀에 포함할 필드만 추출
+    const dataForExcel = depositDto.items.map((deposit) => ({
+      매체명: deposit.mediumName,
+      입금일자: deposit.depositDate,
+      "계좌 별칭": deposit.accountAlias,
+      입금액: deposit.depositAmount,
+      "계좌 설명": deposit.accountDescription,
+      "거래 수단1": deposit.transactionMethod1,
+      "거래 수단2": deposit.transactionMethod2,
+      "계좌 메모": deposit.accountMemo,
+      "상대 계좌 예금주명": deposit.counterpartyName,
+      용도: deposit.purpose,
+      거래처: deposit.clientName,
+    }));
+
+    // 엑셀 데이터 생성
+    const worksheet = XLSX.utils.json_to_sheet(dataForExcel);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Deposits");
+
+    // 엑셀 파일 버퍼 생성
+    const excelBuffer = XLSX.write(workbook, {
+      type: "buffer",
+      bookType: "xlsx",
+    });
+
+    return excelBuffer;
+  }
+
   // 입금값 수정
   async modifyDeposit(
     id: number,
