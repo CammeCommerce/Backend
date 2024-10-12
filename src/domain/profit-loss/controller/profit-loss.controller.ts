@@ -23,7 +23,7 @@ export class ProfitLossController {
     required: false,
     description: "매체명으로 검색",
   })
-  @Get("calculate")
+  @Get()
   async getProfitLoss(
     @Query("startDate") startDate: string,
     @Query("endDate") endDate: string,
