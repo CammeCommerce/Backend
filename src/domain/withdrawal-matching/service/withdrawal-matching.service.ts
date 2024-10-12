@@ -58,6 +58,135 @@ export class WithdrawalMatchingService {
     return createWithdrawalMatchingDto;
   }
 
+  // 출금 매칭 검색 및 필터링
+  async searchWithdrawalMatchings(
+    startDate: Date,
+    endDate: Date,
+    periodType: string,
+    mediumName: string,
+    searchQuery: string
+  ): Promise<GetWithdrawalMatchingsDto> {
+    const queryBuilder = this.withdrawalMatchingRepository
+      .createQueryBuilder("withdrawalMatching")
+      .where("withdrawalMatching.isDeleted = false");
+
+    // 매칭일자 범위 검색 조건
+    if (startDate && endDate) {
+      queryBuilder.andWhere(
+        "withdrawalMatching.createdAt BETWEEN :startDate AND :endDate",
+        { startDate, endDate }
+      );
+    }
+
+    // 기간 필터
+    const now = new Date();
+    switch (periodType) {
+      case "어제":
+        const yesterday = new Date(now);
+        yesterday.setDate(now.getDate() - 1);
+        queryBuilder.andWhere(
+          "withdrawalMatching.createdAt BETWEEN :start AND :end",
+          {
+            start: yesterday,
+            end: now,
+          }
+        );
+        break;
+      case "지난 3일":
+        const threeDaysAgo = new Date(now);
+        threeDaysAgo.setDate(now.getDate() - 3);
+        queryBuilder.andWhere(
+          "withdrawalMatching.createdAt BETWEEN :start AND :end",
+          {
+            start: threeDaysAgo,
+            end: now,
+          }
+        );
+        break;
+      case "일주일":
+        const oneWeekAgo = new Date(now);
+        oneWeekAgo.setDate(now.getDate() - 7);
+        queryBuilder.andWhere(
+          "withdrawalMatching.createdAt BETWEEN :start AND :end",
+          {
+            start: oneWeekAgo,
+            end: now,
+          }
+        );
+        break;
+      case "1개월":
+        const oneMonthAgo = new Date(now);
+        oneMonthAgo.setMonth(now.getMonth() - 1);
+        queryBuilder.andWhere(
+          "withdrawalMatching.createdAt BETWEEN :start AND :end",
+          {
+            start: oneMonthAgo,
+            end: now,
+          }
+        );
+        break;
+      case "3개월":
+        const threeMonthsAgo = new Date(now);
+        threeMonthsAgo.setMonth(now.getMonth() - 3);
+        queryBuilder.andWhere(
+          "withdrawalMatching.createdAt BETWEEN :start AND :end",
+          {
+            start: threeMonthsAgo,
+            end: now,
+          }
+        );
+        break;
+      case "6개월":
+        const sixMonthsAgo = new Date(now);
+        sixMonthsAgo.setMonth(now.getMonth() - 6);
+        queryBuilder.andWhere(
+          "withdrawalMatching.createdAt BETWEEN :start AND :end",
+          {
+            start: sixMonthsAgo,
+            end: now,
+          }
+        );
+        break;
+      default:
+        break;
+    }
+
+    // 매체명 검색 조건
+    if (mediumName) {
+      queryBuilder.andWhere("withdrawalMatching.mediumName LIKE :mediumName", {
+        mediumName: `%${mediumName}%`,
+      });
+    }
+
+    // 계좌 별칭 또는 용도 키워드 검색 조건
+    if (searchQuery) {
+      queryBuilder.andWhere(
+        "(withdrawalMatching.accountAlias LIKE :searchQuery OR withdrawalMatching.purpose LIKE :searchQuery)",
+        { searchQuery: `%${searchQuery}%` }
+      );
+    }
+
+    const withdrawalMatchings = await queryBuilder.getMany();
+
+    if (!withdrawalMatchings.length) {
+      throw new NotFoundException("검색 조건에 맞는 출금 매칭이 없습니다.");
+    }
+
+    const items = withdrawalMatchings.map((withdrawalMatching) =>
+      plainToInstance(WithdrawalMatchingDetailDto, {
+        id: withdrawalMatching.id,
+        mediumName: withdrawalMatching.mediumName,
+        accountAlias: withdrawalMatching.accountAlias,
+        purpose: withdrawalMatching.purpose,
+      })
+    );
+
+    const withdrawalMatchingItemsDto = new GetWithdrawalMatchingsDto();
+    withdrawalMatchingItemsDto.items = items;
+
+    return withdrawalMatchingItemsDto;
+  }
+
   // 출금 매칭 조회
   async getWithdrawalMatchings(): Promise<GetWithdrawalMatchingsDto> {
     const withdrawalMatchings = await this.withdrawalMatchingRepository.find({
