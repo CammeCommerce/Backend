@@ -28,7 +28,6 @@ export class ProfitLossService {
   ): Promise<GetProfitLossDto> {
     const queryConditions = { startDate, endDate, mediumName };
 
-    // 손익계산서 데이터 계산
     const wholesaleSales = await this.calculateWholesaleSales(queryConditions);
     const wholesaleShippingFee =
       await this.calculateWholesaleShippingFee(queryConditions);
@@ -45,7 +44,7 @@ export class ProfitLossService {
       await this.calculateOnlinePurchase(queryConditions);
 
     return {
-      medium: mediumName,
+      mediumName: mediumName,
       period: `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, "0")} ~ ${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, "0")}`,
       wholesaleSales,
       wholesaleShippingFee,
@@ -109,7 +108,7 @@ export class ProfitLossService {
       .getRawMany();
 
     return deposits.reduce((acc, curr) => {
-      acc[curr.purpose || "기타"] = parseInt(curr.total, 10);
+      acc[curr.purpose] = parseInt(curr.total, 10);
       return acc;
     }, {});
   }
@@ -131,7 +130,7 @@ export class ProfitLossService {
       .getRawMany();
 
     return sales.reduce((acc, curr) => {
-      acc[curr.mediumName || "기타"] = parseInt(curr.total, 10);
+      acc[curr.mediumName] = parseInt(curr.total, 10);
       return acc;
     }, {});
   }
@@ -192,7 +191,7 @@ export class ProfitLossService {
       .getRawMany();
 
     return withdrawals.reduce((acc, curr) => {
-      acc[curr.purpose || "기타"] = parseInt(curr.total, 10);
+      acc[curr.purpose] = parseInt(curr.total, 10);
       return acc;
     }, {});
   }
@@ -214,7 +213,7 @@ export class ProfitLossService {
       .getRawMany();
 
     return purchases.reduce((acc, curr) => {
-      acc[curr.mediumName || "기타"] = parseInt(curr.total, 10);
+      acc[curr.mediumName] = parseInt(curr.total, 10);
       return acc;
     }, {});
   }

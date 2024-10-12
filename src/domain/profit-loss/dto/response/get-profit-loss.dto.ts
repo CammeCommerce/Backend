@@ -2,7 +2,7 @@ import { ApiProperty } from "@nestjs/swagger";
 
 export class GetProfitLossDto {
   @ApiProperty({ example: "캄므커머스", description: "매체명" })
-  medium: string;
+  mediumName: string;
 
   @ApiProperty({ example: "2024-09 ~ 2024-10", description: "기간" })
   period: string;
