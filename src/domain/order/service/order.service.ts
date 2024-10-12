@@ -20,6 +20,7 @@ import {
   GetSortedOrdersDto,
   SortedOrderDetailDto,
 } from "src/domain/order/dto/response/get-sorted-order.dto";
+import { GetOrderTotalsDto } from "src/domain/order/dto/response/get-order-total.dto";
 
 @Injectable()
 export class OrderService {
@@ -482,6 +483,51 @@ export class OrderService {
     });
 
     return excelBuffer;
+  }
+
+  // 주문 리스트 총합계 계산
+  async getOrderTotals(): Promise<GetOrderTotalsDto> {
+    const orders = await this.orderRepository.find({
+      where: { isDeleted: false },
+    });
+
+    if (!orders.length) {
+      throw new NotFoundException("No orders found.");
+    }
+
+    const totalPurchasePrice = orders.reduce(
+      (acc, order) => acc + order.purchasePrice,
+      0
+    );
+    const totalSalesPrice = orders.reduce(
+      (acc, order) => acc + order.salesPrice,
+      0
+    );
+    const totalPurchaseShippingFee = orders.reduce(
+      (acc, order) => acc + order.purchaseShippingFee,
+      0
+    );
+    const totalSalesShippingFee = orders.reduce(
+      (acc, order) => acc + order.salesShippingFee,
+      0
+    );
+    const totalMarginAmount = orders.reduce(
+      (acc, order) => acc + order.marginAmount,
+      0
+    );
+    const totalShippingDifference = orders.reduce(
+      (acc, order) => acc + order.shippingDifference,
+      0
+    );
+
+    return {
+      totalPurchasePrice,
+      totalSalesPrice,
+      totalPurchaseShippingFee,
+      totalSalesShippingFee,
+      totalMarginAmount,
+      totalShippingDifference,
+    };
   }
 
   // 주문값 수정

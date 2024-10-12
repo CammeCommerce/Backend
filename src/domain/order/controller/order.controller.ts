@@ -28,6 +28,7 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { UploadOrderExcelDto } from "src/domain/order/dto/request/upload-order-excel.dto";
 import { GetSortedOrdersDto } from "src/domain/order/dto/response/get-sorted-order.dto";
 import { Response } from "express";
+import { GetOrderTotalsDto } from "src/domain/order/dto/response/get-order-total.dto";
 
 @Controller("order")
 export class OrderController {
@@ -248,6 +249,16 @@ export class OrderController {
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     );
     res.end(excelFile);
+  }
+
+  @ApiOperation({
+    summary: "주문 리스트 총합계 계산",
+    operationId: "getOrderTotals",
+    tags: ["order"],
+  })
+  @Get("calculate")
+  async getOrderTotals(): Promise<GetOrderTotalsDto> {
+    return await this.orderService.getOrderTotals();
   }
 
   @ApiOperation({
