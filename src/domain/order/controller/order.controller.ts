@@ -19,6 +19,7 @@ import { ModifyOrderDto } from "src/domain/order/dto/request/modify-order.dto";
 import { ModifyOrderResultDto } from "src/domain/order/dto/response/modify-order-result.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { UploadOrderExcelDto } from "src/domain/order/dto/request/upload-order-excel.dto";
+import { GetSortedOrdersDto } from "src/domain/order/dto/response/get-sorted-order.dto";
 
 @Controller("order")
 export class OrderController {
@@ -139,6 +140,25 @@ export class OrderController {
       isSettlementCompanyMatched,
       searchQuery
     );
+  }
+
+  @ApiOperation({
+    summary: "주문값 정렬",
+    operationId: "sortOrders",
+    tags: ["order"],
+  })
+  @ApiQuery({ name: "field", required: true, description: "정렬할 필드명" })
+  @ApiQuery({
+    name: "order",
+    required: true,
+    description: "정렬 방식 (asc=오름차순, desc=내림차순)",
+  })
+  @Get("sort")
+  async sortOrders(
+    @Query("field") field: string,
+    @Query("order") order: "asc" | "desc"
+  ): Promise<GetSortedOrdersDto> {
+    return await this.orderService.sortOrders(field, order);
   }
 
   @ApiOperation({

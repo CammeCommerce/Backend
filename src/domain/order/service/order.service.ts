@@ -16,6 +16,10 @@ import { ModifyOrderDto } from "src/domain/order/dto/request/modify-order.dto";
 import { ModifyOrderResultDto } from "src/domain/order/dto/response/modify-order-result.dto";
 import * as XLSX from "xlsx";
 import { OrderMatching } from "src/domain/order-matching/entity/order-matching.entity";
+import {
+  GetSortedOrdersDto,
+  SortedOrderDetailDto,
+} from "src/domain/order/dto/response/get-sorted-order.dto";
 
 @Injectable()
 export class OrderService {
@@ -174,7 +178,7 @@ export class OrderService {
       plainToInstance(OrderDetailDto, {
         id: order.id,
         mediumName: order.mediumName,
-        settleCompanyName: order.settleCompanyName,
+        settlementCompanyName: order.settlementCompanyName,
         productName: order.productName,
         quantity: order.quantity,
         orderDate: order.orderDate,
@@ -188,7 +192,7 @@ export class OrderService {
         marginAmount: order.marginAmount,
         shippingDifference: order.shippingDifference,
         isMediumMatched: order.isMediumMatched,
-        isSettleCompanyMatched: order.isSettleCompanyMatched,
+        isSettlementCompanyMatched: order.isSettlementCompanyMatched,
       })
     );
 
@@ -245,15 +249,15 @@ export class OrderService {
       const isSettlementCompanyMatchedBoolean =
         isSettlementCompanyMatched === "true";
       queryBuilder.andWhere(
-        "order.isSettleCompanyMatched = :isSettleCompanyMatched",
-        { isSettleCompanyMatched: isSettlementCompanyMatchedBoolean }
+        "order.isSettlementCompanyMatched = :isSettlementCompanyMatched",
+        { isSettlementCompanyMatched: isSettlementCompanyMatchedBoolean }
       );
     }
 
     // 정산업체명 검색 조건
     if (settlementCompanyName) {
       queryBuilder.andWhere(
-        "order.settleCompanyName LIKE :settlementCompanyName",
+        "order.settlementCompanyName LIKE :settlementCompanyName",
         {
           settlementCompanyName: `%${settlementCompanyName}%`,
         }
@@ -333,7 +337,7 @@ export class OrderService {
       plainToInstance(OrderDetailDto, {
         id: order.id,
         mediumName: order.mediumName,
-        settleCompanyName: order.settleCompanyName,
+        settlementCompanyName: order.settlementCompanyName,
         productName: order.productName,
         quantity: order.quantity,
         orderDate: order.orderDate,
@@ -347,7 +351,7 @@ export class OrderService {
         marginAmount: order.marginAmount,
         shippingDifference: order.shippingDifference,
         isMediumMatched: order.isMediumMatched,
-        isSettleCompanyMatched: order.isSettleCompanyMatched,
+        isSettlementCompanyMatched: order.isSettlementCompanyMatched,
       })
     );
 
@@ -355,6 +359,75 @@ export class OrderService {
     orderItemsDto.items = items;
 
     return orderItemsDto;
+  }
+
+  // 주문값 오름차순/내림차순 정렬 로직
+  async sortOrders(
+    field: string,
+    order: "asc" | "desc"
+  ): Promise<GetSortedOrdersDto> {
+    const validFields = [
+      "mediumName",
+      "settleCompanyName",
+      "productName",
+      "quantity",
+      "orderDate",
+      "purchasePlace",
+      "salesPlace",
+      "purchasePrice",
+      "salesPrice",
+      "purchaseShippingFee",
+      "salesShippingFee",
+      "taxType",
+      "marginAmount",
+      "shippingDifference",
+    ];
+
+    if (!validFields.includes(field)) {
+      throw new BadRequestException(`잘못된 필드명입니다: ${field}`);
+    }
+
+    if (order !== "asc" && order !== "desc") {
+      throw new BadRequestException(`잘못된 정렬 방식입니다: ${order}`);
+    }
+
+    const orders = await this.orderRepository.find({
+      where: { isDeleted: false },
+      order: {
+        [field]: order.toUpperCase(),
+      },
+    });
+
+    if (!orders.length) {
+      throw new NotFoundException("등록된 주문이 없습니다.");
+    }
+
+    const items = orders.map((order) =>
+      plainToInstance(SortedOrderDetailDto, {
+        id: order.id,
+        mediumName: order.mediumName,
+        settlementCompanyName: order.settlementCompanyName,
+        productName: order.productName,
+        quantity: order.quantity,
+        orderDate: order.orderDate,
+        purchasePlace: order.purchasePlace,
+        salesPlace: order.salesPlace,
+        purchasePrice: order.purchasePrice,
+        salesPrice: order.salesPrice,
+        purchaseShippingFee: order.purchaseShippingFee,
+        salesShippingFee: order.salesShippingFee,
+        taxType: order.taxType,
+        marginAmount: order.marginAmount,
+        shippingDifference: order.shippingDifference,
+        sortField: field,
+        sortOrder: order,
+      })
+    );
+
+    const sortedOrderItemsDto = new GetSortedOrdersDto();
+    sortedOrderItemsDto.items = items;
+
+    return sortedOrderItemsDto;
   }
 
   // 주문값 수정
@@ -377,7 +450,7 @@ export class OrderService {
     }
 
     order.mediumName = dto.mediumName;
-    order.settleCompanyName = dto.settleCompanyName;
+    order.settlementCompanyName = dto.settlementCompanyName;
     order.productName = dto.productName;
     order.quantity = dto.quantity;
     order.orderDate = dto.orderDate;
@@ -398,7 +471,7 @@ export class OrderService {
     const modifyOrderResultDto = plainToInstance(ModifyOrderResultDto, {
       id: order.id,
       mediumName: order.mediumName,
-      settleCompanyName: order.settleCompanyName,
+      settlementCompanyName: order.settlementCompanyName,
       productName: order.productName,
       quantity: order.quantity,
       orderDate: order.orderDate,
