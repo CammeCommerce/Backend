@@ -5,7 +5,7 @@ import {
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Deposit } from "src/domain/deposit/entity/deposit.entity";
-import { DeepPartial, Repository } from "typeorm";
+import { DeepPartial, In, Repository } from "typeorm";
 import { plainToInstance } from "class-transformer";
 import {
   DepositDetailDto,
@@ -391,19 +391,27 @@ export class DepositService {
   }
 
   // 입금값 삭제
-  async deleteDeposit(id: number): Promise<void> {
-    const deposit = await this.depositRepository.findOne({
-      where: { id, isDeleted: false },
-    });
-
-    if (!deposit) {
-      throw new NotFoundException("입금값을 찾을 수 없습니다.");
+  async deleteDeposits(ids: number[]): Promise<void> {
+    if (!ids || ids.length === 0) {
+      throw new BadRequestException("삭제할 입금 ID가 없습니다.");
     }
 
-    deposit.deletedAt = new Date();
-    deposit.isDeleted = true;
+    const deposits = await this.depositRepository.find({
+      where: {
+        id: In(ids),
+        isDeleted: false,
+      },
+    });
 
-    await this.depositRepository.save(deposit);
+    if (deposits.length !== ids.length) {
+      throw new NotFoundException("일부 입금값을 찾을 수 없습니다.");
+    }
+
+    for (const deposit of deposits) {
+      deposit.deletedAt = new Date();
+      deposit.isDeleted = true;
+      await this.depositRepository.save(deposit);
+    }
 
     return;
   }

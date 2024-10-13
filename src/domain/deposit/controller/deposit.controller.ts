@@ -201,13 +201,27 @@ export class DepositController {
   }
 
   @ApiOperation({
-    summary: "입금값 삭제",
-    operationId: "deleteDeposit",
+    summary: "입금값 선택 삭제",
+    operationId: "deleteDeposits",
     tags: ["deposit"],
   })
-  @Delete(":id")
+  @ApiBody({
+    description: "삭제할 입금 ID 목록",
+    schema: {
+      type: "object",
+      properties: {
+        ids: {
+          type: "array",
+          items: {
+            type: "number",
+          },
+        },
+      },
+    },
+  })
+  @Delete()
   @HttpCode(204)
-  async deleteDeposit(@Param("id", ParseIntPipe) id: number): Promise<void> {
-    return await this.depositService.deleteDeposit(id);
+  async deleteDeposits(@Body("ids") ids: number[]): Promise<void> {
+    return await this.depositService.deleteDeposits(ids);
   }
 }
