@@ -47,12 +47,6 @@ export class SortedOrderDetailDto {
 
   @ApiProperty({ example: 3000, description: "배송차액" })
   shippingDifference: number;
-
-  @ApiProperty({ example: "salesPrice", description: "정렬할 필드명" })
-  sortField: string;
-
-  @ApiProperty({ example: "asc", description: "정렬 방식" })
-  sortOrder: string;
 }
 
 export class GetSortedOrdersDto {
@@ -62,4 +56,10 @@ export class GetSortedOrdersDto {
   })
   @Type(() => SortedOrderDetailDto)
   items: SortedOrderDetailDto[];
+
+  @ApiProperty({ example: "salesPrice", description: "정렬할 필드명" })
+  sortField: string;
+
+  @ApiProperty({ example: "asc", description: "정렬 방식" })
+  sortOrder: string;
 }

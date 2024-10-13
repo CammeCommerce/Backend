@@ -442,6 +442,7 @@ export class OrderService {
     order: "asc" | "desc"
   ): Promise<GetSortedOrdersDto> {
     const validFields = [
+      "id",
       "mediumName",
       "settleCompanyName",
       "productName",
@@ -494,13 +495,13 @@ export class OrderService {
         taxType: order.taxType,
         marginAmount: order.marginAmount,
         shippingDifference: order.shippingDifference,
-        sortField: field,
-        sortOrder: order,
       })
     );
 
     const sortedOrderItemsDto = new GetSortedOrdersDto();
     sortedOrderItemsDto.items = items;
+    sortedOrderItemsDto.sortField = field;
+    sortedOrderItemsDto.sortOrder = order;
 
     return sortedOrderItemsDto;
   }
