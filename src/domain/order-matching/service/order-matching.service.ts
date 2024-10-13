@@ -1,11 +1,12 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { OrderMatching } from "src/domain/order-matching/entity/order-matching.entity";
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import { CreateOrderMatchingDto } from "src/domain/order-matching/dto/request/create-order-matching.dto";
 import { CreateOrderMatchingResultDto } from "src/domain/order-matching/dto/response/create-order-matching-result.dto";
 import { plainToInstance } from "class-transformer";
@@ -228,19 +229,27 @@ export class OrderMatchingService {
   }
 
   // 주문 매칭 삭제
-  async deleteOrderMatching(id: number): Promise<void> {
-    const orderMatching = await this.orderMatchingRepository.findOne({
-      where: { id, isDeleted: false },
-    });
-
-    if (!orderMatching) {
-      throw new NotFoundException("주문 매칭을 찾을 수 없습니다.");
+  async deleteOrderMatchings(ids: number[]): Promise<void> {
+    if (!ids || ids.length === 0) {
+      throw new BadRequestException("삭제할 주문 매칭 ID가 없습니다.");
     }
 
-    orderMatching.deletedAt = new Date();
-    orderMatching.isDeleted = true;
+    const orderMatchings = await this.orderMatchingRepository.find({
+      where: {
+        id: In(ids),
+        isDeleted: false,
+      },
+    });
 
-    await this.orderMatchingRepository.save(orderMatching);
+    if (orderMatchings.length !== ids.length) {
+      throw new NotFoundException("일부 주문 매칭을 찾을 수 없습니다.");
+    }
+
+    for (const orderMatching of orderMatchings) {
+      orderMatching.deletedAt = new Date();
+      orderMatching.isDeleted = true;
+      await this.orderMatchingRepository.save(orderMatching);
+    }
 
     return;
   }

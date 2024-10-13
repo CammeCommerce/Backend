@@ -10,7 +10,7 @@ import {
   Query,
 } from "@nestjs/common";
 import { OrderMatchingService } from "src/domain/order-matching/service/order-matching.service";
-import { ApiOperation, ApiQuery } from "@nestjs/swagger";
+import { ApiBody, ApiOperation, ApiQuery } from "@nestjs/swagger";
 import { CreateOrderMatchingDto } from "src/domain/order-matching/dto/request/create-order-matching.dto";
 import { CreateOrderMatchingResultDto } from "src/domain/order-matching/dto/response/create-order-matching-result.dto";
 import { GetOrderMatchingsDto } from "src/domain/order-matching/dto/response/get-order-matching.dto";
@@ -92,15 +92,27 @@ export class OrderMatchingController {
   }
 
   @ApiOperation({
-    summary: "주문 매칭 삭제",
-    operationId: "deleteOrderMatching",
+    summary: "주문 매칭 선택 삭제",
+    operationId: "deleteOrderMatchings",
     tags: ["order-matching"],
   })
-  @Delete(":id")
+  @ApiBody({
+    description: "삭제할 주문 매칭 ID 목록",
+    schema: {
+      type: "object",
+      properties: {
+        ids: {
+          type: "array",
+          items: {
+            type: "number",
+          },
+        },
+      },
+    },
+  })
+  @Delete()
   @HttpCode(204)
-  async deleteOrderMatching(
-    @Param("id", ParseIntPipe) id: number
-  ): Promise<void> {
-    return await this.orderMatchingService.deleteOrderMatching(id);
+  async deleteOrderMatchings(@Body("ids") ids: number[]): Promise<void> {
+    return await this.orderMatchingService.deleteOrderMatchings(ids);
   }
 }
