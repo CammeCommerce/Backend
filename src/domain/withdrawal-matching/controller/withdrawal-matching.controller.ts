@@ -9,7 +9,7 @@ import {
   Post,
   Query,
 } from "@nestjs/common";
-import { ApiOperation, ApiQuery } from "@nestjs/swagger";
+import { ApiBody, ApiOperation, ApiQuery } from "@nestjs/swagger";
 import { WithdrawalMatchingService } from "src/domain/withdrawal-matching/service/withdrawal-matching.service";
 import { CreateWithdrawalMatchingDto } from "src/domain/withdrawal-matching/dto/request/create-withdrawal-matching.dto";
 import { CreateWithdrawalMatchingResultDto } from "src/domain/withdrawal-matching/dto/response/create-withdrawal-matching-result.dto";
@@ -87,15 +87,27 @@ export class WithdrawalMatchingController {
   }
 
   @ApiOperation({
-    summary: "출금 매칭 삭제",
-    operationId: "deleteWithdrawalMatching",
+    summary: "출금 매칭 선택 삭제",
+    operationId: "deleteWithdrawalMatchings",
     tags: ["withdrawal-matching"],
   })
-  @Delete(":id")
+  @ApiBody({
+    description: "삭제할 출금 매칭 ID 목록",
+    schema: {
+      type: "object",
+      properties: {
+        ids: {
+          type: "array",
+          items: {
+            type: "number",
+          },
+        },
+      },
+    },
+  })
+  @Delete()
   @HttpCode(204)
-  async deleteWithdrawalMatching(
-    @Param("id", ParseIntPipe) id: number
-  ): Promise<void> {
-    return await this.withdrawalMatchingService.deleteWithdrawalMatching(id);
+  async deleteWithdrawalMatchings(@Body("ids") ids: number[]): Promise<void> {
+    return await this.withdrawalMatchingService.deleteWithdrawalMatchings(ids);
   }
 }

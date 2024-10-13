@@ -1,11 +1,12 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { WithdrawalMatching } from "src/domain/withdrawal-matching/entity/withdrawal-matching.entity";
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import { CreateWithdrawalMatchingDto } from "src/domain/withdrawal-matching/dto/request/create-withdrawal-matching.dto";
 import { CreateWithdrawalMatchingResultDto } from "src/domain/withdrawal-matching/dto/response/create-withdrawal-matching-result.dto";
 import { plainToInstance } from "class-transformer";
@@ -215,19 +216,27 @@ export class WithdrawalMatchingService {
   }
 
   // 출금 매칭 삭제
-  async deleteWithdrawalMatching(id: number): Promise<void> {
-    const withdrawalMatching = await this.withdrawalMatchingRepository.findOne({
-      where: { id, isDeleted: false },
-    });
-
-    if (!withdrawalMatching) {
-      throw new NotFoundException("출금 매칭을 찾을 수 없습니다.");
+  async deleteWithdrawalMatchings(ids: number[]): Promise<void> {
+    if (!ids || ids.length === 0) {
+      throw new BadRequestException("삭제할 출금 매칭 ID가 없습니다.");
     }
 
-    withdrawalMatching.deletedAt = new Date();
-    withdrawalMatching.isDeleted = true;
+    const withdrawalMatchings = await this.withdrawalMatchingRepository.find({
+      where: {
+        id: In(ids),
+        isDeleted: false,
+      },
+    });
 
-    await this.withdrawalMatchingRepository.save(withdrawalMatching);
+    if (withdrawalMatchings.length !== ids.length) {
+      throw new NotFoundException("일부 출금 매칭을 찾을 수 없습니다.");
+    }
+
+    for (const withdrawalMatching of withdrawalMatchings) {
+      withdrawalMatching.deletedAt = new Date();
+      withdrawalMatching.isDeleted = true;
+      await this.withdrawalMatchingRepository.save(withdrawalMatching);
+    }
 
     return;
   }
