@@ -52,6 +52,51 @@ export class OrderService {
     return index - 1;
   }
 
+  // 파싱된 주문값을 저장하는 메서드
+  async saveParsedOrders(parsedOrders: any[]): Promise<void> {
+    for (const orderData of parsedOrders) {
+      const orderEntity: DeepPartial<Order> = {
+        ...orderData,
+      };
+
+      const order = this.orderRepository.create(orderEntity);
+      await this.orderRepository.save(order);
+    }
+  }
+
+  // 매체명과 정산업체명 매칭하는 메서드
+  async matchOrders(): Promise<void> {
+    const unmatchedOrders = await this.orderRepository.find({
+      where: [
+        { mediumName: null, isDeleted: false },
+        { settlementCompanyName: null, isDeleted: false },
+      ],
+    });
+
+    if (!unmatchedOrders.length) {
+      return;
+    }
+
+    for (const order of unmatchedOrders) {
+      const matchedRecord = await this.orderMatchingRepository.findOne({
+        where: {
+          purchasePlace: order.purchasePlace,
+          salesPlace: order.salesPlace,
+          isDeleted: false,
+        },
+      });
+
+      if (matchedRecord) {
+        order.mediumName = matchedRecord.mediumName;
+        order.settlementCompanyName = matchedRecord.settlementCompanyName;
+        order.isMediumMatched = !!order.mediumName;
+        order.isSettlementCompanyMatched = !!order.settlementCompanyName;
+
+        await this.orderRepository.save(order);
+      }
+    }
+  }
+
   // 엑셀 파일 파싱 및 주문 데이터 저장 메서드
   async parseExcelAndSaveOrders(
     file: Express.Multer.File,
@@ -127,20 +172,18 @@ export class OrderService {
       };
 
       // 매체명과 정산업체명이 비어 있을 경우, 매입처와 매출처를 기준으로 자동 매칭
-      if (!order.mediumName || !order.settlementCompanyName) {
-        const matchedRecord = await this.orderMatchingRepository.findOne({
-          where: {
-            purchasePlace: order.purchasePlace,
-            salesPlace: order.salesPlace,
-          },
-        });
+      const matchedRecord = await this.orderMatchingRepository.findOne({
+        where: {
+          purchasePlace: order.purchasePlace,
+          salesPlace: order.salesPlace,
+        },
+      });
 
-        if (matchedRecord) {
-          order.mediumName = matchedRecord.mediumName;
-          order.settlementCompanyName = matchedRecord.settlementCompanyName;
-          order.isMediumMatched = !!order.mediumName;
-          order.isSettlementCompanyMatched = !!order.settlementCompanyName;
-        }
+      if (matchedRecord) {
+        order.mediumName = matchedRecord.mediumName;
+        order.settlementCompanyName = matchedRecord.settlementCompanyName;
+        order.isMediumMatched = !!order.mediumName;
+        order.isSettlementCompanyMatched = !!order.settlementCompanyName;
       }
 
       orders.push(order);
@@ -148,22 +191,16 @@ export class OrderService {
 
     // 파싱된 주문값 저장
     await this.saveParsedOrders(orders);
-  }
 
-  // 파싱된 주문값 등록
-  async saveParsedOrders(parsedOrders: any[]): Promise<void> {
-    for (const orderData of parsedOrders) {
-      const orderEntity: DeepPartial<Order> = {
-        ...orderData,
-      };
-
-      const order = this.orderRepository.create(orderEntity);
-      await this.orderRepository.save(order);
-    }
+    // 주문 저장 후 매칭되지 않은 주문을 다시 확인하고 매칭하는 로직
+    await this.matchOrders();
   }
 
   // 주문값 조회
   async getOrders(): Promise<GetOrdersDto> {
+    // 매칭되지 않은 주문들에 대해 매칭 로직을 수행
+    await this.matchOrders(); // 조회 시 매칭 로직 실행
+
     const orders = await this.orderRepository.find({
       where: { isDeleted: false },
       order: { createdAt: "DESC" },
