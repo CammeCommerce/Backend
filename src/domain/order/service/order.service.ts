@@ -21,6 +21,7 @@ import {
   SortedOrderDetailDto,
 } from "src/domain/order/dto/response/get-sorted-order.dto";
 import { GetOrderTotalsDto } from "src/domain/order/dto/response/get-order-total.dto";
+import { In } from "typeorm";
 
 @Injectable()
 export class OrderService {
@@ -593,19 +594,27 @@ export class OrderService {
   }
 
   // 주문값 삭제
-  async deleteOrder(id: number): Promise<void> {
-    const order = await this.orderRepository.findOne({
-      where: { id, isDeleted: false },
-    });
-
-    if (!order) {
-      throw new NotFoundException("주문을 찾을 수 없습니다.");
+  async deleteOrders(ids: number[]): Promise<void> {
+    if (!ids || ids.length === 0) {
+      throw new BadRequestException("삭제할 주문 ID가 없습니다.");
     }
 
-    order.deletedAt = new Date();
-    order.isDeleted = true;
+    const orders = await this.orderRepository.find({
+      where: {
+        id: In(ids),
+        isDeleted: false,
+      },
+    });
 
-    await this.orderRepository.save(order);
+    if (orders.length !== ids.length) {
+      throw new NotFoundException("일부 주문을 찾을 수 없습니다.");
+    }
+
+    for (const order of orders) {
+      order.deletedAt = new Date();
+      order.isDeleted = true;
+      await this.orderRepository.save(order);
+    }
 
     return;
   }

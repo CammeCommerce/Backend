@@ -275,13 +275,27 @@ export class OrderController {
   }
 
   @ApiOperation({
-    summary: "주문값 삭제",
-    operationId: "deleteOrder",
+    summary: "주문값 선택 삭제",
+    operationId: "deleteOrders",
     tags: ["order"],
   })
-  @Delete(":id")
+  @ApiBody({
+    description: "삭제할 주문 ID 목록",
+    schema: {
+      type: "object",
+      properties: {
+        ids: {
+          type: "array",
+          items: {
+            type: "number",
+          },
+        },
+      },
+    },
+  })
+  @Delete()
   @HttpCode(204)
-  async deleteOrder(@Param("id", ParseIntPipe) id: number): Promise<void> {
-    return await this.orderService.deleteOrder(id);
+  async deleteOrders(@Body("ids") ids: number[]): Promise<void> {
+    return await this.orderService.deleteOrders(ids);
   }
 }
