@@ -20,7 +20,6 @@ import {
   GetSortedOrdersDto,
   SortedOrderDetailDto,
 } from "src/domain/order/dto/response/get-sorted-order.dto";
-import { GetOrderTotalsDto } from "src/domain/order/dto/response/get-order-total.dto";
 import { In } from "typeorm";
 
 @Injectable()
@@ -174,8 +173,22 @@ export class OrderService {
       throw new NotFoundException("등록된 주문이 없습니다.");
     }
 
-    const items = orders.map((order) =>
-      plainToInstance(OrderDetailDto, {
+    let totalPurchasePrice = 0;
+    let totalSalesPrice = 0;
+    let totalPurchaseShippingFee = 0;
+    let totalSalesShippingFee = 0;
+    let totalMarginAmount = 0;
+    let totalShippingDifference = 0;
+
+    const items = orders.map((order) => {
+      totalPurchasePrice += order.purchasePrice;
+      totalSalesPrice += order.salesPrice;
+      totalPurchaseShippingFee += order.purchaseShippingFee;
+      totalSalesShippingFee += order.salesShippingFee;
+      totalMarginAmount += order.marginAmount;
+      totalShippingDifference += order.shippingDifference;
+
+      return plainToInstance(OrderDetailDto, {
         id: order.id,
         mediumName: order.mediumName,
         settlementCompanyName: order.settlementCompanyName,
@@ -193,12 +206,17 @@ export class OrderService {
         shippingDifference: order.shippingDifference,
         isMediumMatched: order.isMediumMatched,
         isSettlementCompanyMatched: order.isSettlementCompanyMatched,
-      })
-    );
+      });
+    });
 
-    // 주문 배열 DTO 생성
     const orderItemsDto = new GetOrdersDto();
     orderItemsDto.items = items;
+    orderItemsDto.totalPurchasePrice = totalPurchasePrice;
+    orderItemsDto.totalSalesPrice = totalSalesPrice;
+    orderItemsDto.totalPurchaseShippingFee = totalPurchaseShippingFee;
+    orderItemsDto.totalSalesShippingFee = totalSalesShippingFee;
+    orderItemsDto.totalMarginAmount = totalMarginAmount;
+    orderItemsDto.totalShippingDifference = totalShippingDifference;
 
     return orderItemsDto;
   }
@@ -484,51 +502,6 @@ export class OrderService {
     });
 
     return excelBuffer;
-  }
-
-  // 주문 리스트 총합계 계산
-  async getOrderTotals(): Promise<GetOrderTotalsDto> {
-    const orders = await this.orderRepository.find({
-      where: { isDeleted: false },
-    });
-
-    if (!orders.length) {
-      throw new NotFoundException("No orders found.");
-    }
-
-    const totalPurchasePrice = orders.reduce(
-      (acc, order) => acc + order.purchasePrice,
-      0
-    );
-    const totalSalesPrice = orders.reduce(
-      (acc, order) => acc + order.salesPrice,
-      0
-    );
-    const totalPurchaseShippingFee = orders.reduce(
-      (acc, order) => acc + order.purchaseShippingFee,
-      0
-    );
-    const totalSalesShippingFee = orders.reduce(
-      (acc, order) => acc + order.salesShippingFee,
-      0
-    );
-    const totalMarginAmount = orders.reduce(
-      (acc, order) => acc + order.marginAmount,
-      0
-    );
-    const totalShippingDifference = orders.reduce(
-      (acc, order) => acc + order.shippingDifference,
-      0
-    );
-
-    return {
-      totalPurchasePrice,
-      totalSalesPrice,
-      totalPurchaseShippingFee,
-      totalSalesShippingFee,
-      totalMarginAmount,
-      totalShippingDifference,
-    };
   }
 
   // 주문값 수정

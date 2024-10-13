@@ -62,4 +62,22 @@ export class GetOrdersDto {
   })
   @Type(() => OrderDetailDto)
   items: OrderDetailDto[];
+
+  @ApiProperty({ example: 500000, description: "총 매입가" })
+  totalPurchasePrice: number;
+
+  @ApiProperty({ example: 700000, description: "총 판매가" })
+  totalSalesPrice: number;
+
+  @ApiProperty({ example: 50000, description: "총 매입 배송비" })
+  totalPurchaseShippingFee: number;
+
+  @ApiProperty({ example: 80000, description: "총 매출 배송비" })
+  totalSalesShippingFee: number;
+
+  @ApiProperty({ example: 200000, description: "총 마진액" })
+  totalMarginAmount: number;
+
+  @ApiProperty({ example: 30000, description: "총 배송차액" })
+  totalShippingDifference: number;
 }
