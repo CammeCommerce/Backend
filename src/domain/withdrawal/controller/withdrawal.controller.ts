@@ -200,13 +200,27 @@ export class WithdrawalController {
   }
 
   @ApiOperation({
-    summary: "출금값 삭제",
-    operationId: "deleteWithdrawal",
+    summary: "출금값 선택 삭제",
+    operationId: "deleteWithdrawals",
     tags: ["withdrawal"],
   })
-  @Delete(":id")
+  @ApiBody({
+    description: "삭제할 출금 ID 목록",
+    schema: {
+      type: "object",
+      properties: {
+        ids: {
+          type: "array",
+          items: {
+            type: "number",
+          },
+        },
+      },
+    },
+  })
+  @Delete()
   @HttpCode(204)
-  async deleteWithdrawal(@Param("id", ParseIntPipe) id: number): Promise<void> {
-    return await this.withdrawalService.deleteWithdrawal(id);
+  async deleteWithdrawals(@Body("ids") ids: number[]): Promise<void> {
+    return await this.withdrawalService.deleteWithdrawals(ids);
   }
 }

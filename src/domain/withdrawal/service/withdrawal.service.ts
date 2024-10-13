@@ -5,7 +5,7 @@ import {
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Withdrawal } from "src/domain/withdrawal/entity/withdrawal.entity";
-import { DeepPartial, Repository } from "typeorm";
+import { DeepPartial, In, Repository } from "typeorm";
 import { plainToInstance } from "class-transformer";
 import {
   GetWithdrawalDto,
@@ -404,19 +404,27 @@ export class WithdrawalService {
   }
 
   // 출금값 삭제
-  async deleteWithdrawal(id: number): Promise<void> {
-    const withdrawal = await this.withdrawalRepository.findOne({
-      where: { id, isDeleted: false },
-    });
-
-    if (!withdrawal) {
-      throw new NotFoundException("출금값을 찾을 수 없습니다.");
+  async deleteWithdrawals(ids: number[]): Promise<void> {
+    if (!ids || ids.length === 0) {
+      throw new BadRequestException("삭제할 출금 ID가 없습니다.");
     }
 
-    withdrawal.deletedAt = new Date();
-    withdrawal.isDeleted = true;
+    const withdrawals = await this.withdrawalRepository.find({
+      where: {
+        id: In(ids),
+        isDeleted: false,
+      },
+    });
 
-    await this.withdrawalRepository.save(withdrawal);
+    if (withdrawals.length !== ids.length) {
+      throw new NotFoundException("일부 출금을 찾을 수 없습니다.");
+    }
+
+    for (const withdrawal of withdrawals) {
+      withdrawal.deletedAt = new Date();
+      withdrawal.isDeleted = true;
+      await this.withdrawalRepository.save(withdrawal);
+    }
 
     return;
   }
