@@ -221,7 +221,7 @@ export class OrderService {
     return orderItemsDto;
   }
 
-  // 주문 검색 및 필터링 로직
+  // 주문 검색 및 필터링
   async searchOrders(
     startDate: Date,
     endDate: Date,
@@ -351,8 +351,22 @@ export class OrderService {
       throw new NotFoundException("검색 조건에 맞는 주문이 없습니다.");
     }
 
-    const items = orders.map((order) =>
-      plainToInstance(OrderDetailDto, {
+    let totalPurchasePrice = 0;
+    let totalSalesPrice = 0;
+    let totalPurchaseShippingFee = 0;
+    let totalSalesShippingFee = 0;
+    let totalMarginAmount = 0;
+    let totalShippingDifference = 0;
+
+    const items = orders.map((order) => {
+      totalPurchasePrice += order.purchasePrice;
+      totalSalesPrice += order.salesPrice;
+      totalPurchaseShippingFee += order.purchaseShippingFee;
+      totalSalesShippingFee += order.salesShippingFee;
+      totalMarginAmount += order.marginAmount;
+      totalShippingDifference += order.shippingDifference;
+
+      return plainToInstance(OrderDetailDto, {
         id: order.id,
         mediumName: order.mediumName,
         settlementCompanyName: order.settlementCompanyName,
@@ -370,11 +384,17 @@ export class OrderService {
         shippingDifference: order.shippingDifference,
         isMediumMatched: order.isMediumMatched,
         isSettlementCompanyMatched: order.isSettlementCompanyMatched,
-      })
-    );
+      });
+    });
 
     const orderItemsDto = new GetOrdersDto();
     orderItemsDto.items = items;
+    orderItemsDto.totalPurchasePrice = totalPurchasePrice;
+    orderItemsDto.totalSalesPrice = totalSalesPrice;
+    orderItemsDto.totalPurchaseShippingFee = totalPurchaseShippingFee;
+    orderItemsDto.totalSalesShippingFee = totalSalesShippingFee;
+    orderItemsDto.totalMarginAmount = totalMarginAmount;
+    orderItemsDto.totalShippingDifference = totalShippingDifference;
 
     return orderItemsDto;
   }
