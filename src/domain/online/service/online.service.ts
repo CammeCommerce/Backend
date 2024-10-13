@@ -1,7 +1,11 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Online } from "src/domain/online/entity/online.entity";
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import { plainToInstance } from "class-transformer";
 import { CreateOnlineDto } from "src/domain/online/dto/request/create-online.dto";
 import { CreateOnlineResultDto } from "src/domain/online/dto/response/create-online.result.dto";
@@ -225,19 +229,27 @@ export class OnlineService {
   }
 
   // 온라인(행) 삭제
-  async deleteOnline(id: number): Promise<void> {
-    const online = await this.onlineRepository.findOne({
-      where: { id, isDeleted: false },
-    });
-
-    if (!online) {
-      throw new NotFoundException("온라인(행)을 찾을 수 없습니다.");
+  async deleteOnlines(ids: number[]): Promise<void> {
+    if (!ids || ids.length === 0) {
+      throw new BadRequestException("삭제할 온라인 ID가 없습니다.");
     }
 
-    online.deletedAt = new Date();
-    online.isDeleted = true;
+    const onlines = await this.onlineRepository.find({
+      where: {
+        id: In(ids),
+        isDeleted: false,
+      },
+    });
 
-    await this.onlineRepository.save(online);
+    if (onlines.length !== ids.length) {
+      throw new NotFoundException("일부 온라인 값을 찾을 수 없습니다.");
+    }
+
+    for (const online of onlines) {
+      online.deletedAt = new Date();
+      online.isDeleted = true;
+      await this.onlineRepository.save(online);
+    }
 
     return;
   }

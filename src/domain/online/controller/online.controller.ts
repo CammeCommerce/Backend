@@ -10,7 +10,7 @@ import {
   Post,
   Query,
 } from "@nestjs/common";
-import { ApiOperation, ApiQuery } from "@nestjs/swagger";
+import { ApiBody, ApiOperation, ApiQuery } from "@nestjs/swagger";
 import { OnlineService } from "src/domain/online/service/online.service";
 import { CreateOnlineDto } from "src/domain/online/dto/request/create-online.dto";
 import { CreateOnlineResultDto } from "src/domain/online/dto/response/create-online.result.dto";
@@ -101,13 +101,27 @@ export class OnlineController {
   }
 
   @ApiOperation({
-    summary: "온라인 값 삭제",
-    operationId: "deleteOnline",
+    summary: "온라인 값 선택 삭제",
+    operationId: "deleteOnlines",
     tags: ["online"],
   })
-  @Delete(":id")
+  @ApiBody({
+    description: "삭제할 온라인 ID 목록",
+    schema: {
+      type: "object",
+      properties: {
+        ids: {
+          type: "array",
+          items: {
+            type: "number",
+          },
+        },
+      },
+    },
+  })
+  @Delete()
   @HttpCode(204)
-  async deleteOnline(@Param("id", ParseIntPipe) id: number): Promise<void> {
-    return await this.onlineService.deleteOnline(id);
+  async deleteOnlines(@Body("ids") ids: number[]): Promise<void> {
+    return await this.onlineService.deleteOnlines(ids);
   }
 }
