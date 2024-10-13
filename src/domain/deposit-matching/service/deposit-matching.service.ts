@@ -1,11 +1,12 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { DepositMatching } from "src/domain/deposit-matching/entity/deposit-matching.entity";
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import { CreateDepositMatchingResultDto } from "src/domain/deposit-matching/dto/response/create-deposit-matching-result.dto";
 import { plainToInstance } from "class-transformer";
 import { CreateDepositMatchingDto } from "src/domain/deposit-matching/dto/request/create-deposit-matching.dto";
@@ -214,19 +215,27 @@ export class DepositMatchingService {
   }
 
   // 입금 매칭 삭제
-  async deleteDepositMatching(id: number): Promise<void> {
-    const depositMatching = await this.depositMatchingRepository.findOne({
-      where: { id, isDeleted: false },
-    });
-
-    if (!depositMatching) {
-      throw new NotFoundException("입금 매칭을 찾을 수 없습니다.");
+  async deleteDepositMatchings(ids: number[]): Promise<void> {
+    if (!ids || ids.length === 0) {
+      throw new BadRequestException("삭제할 입금 매칭 ID가 없습니다.");
     }
 
-    depositMatching.deletedAt = new Date();
-    depositMatching.isDeleted = true;
+    const depositMatchings = await this.depositMatchingRepository.find({
+      where: {
+        id: In(ids),
+        isDeleted: false,
+      },
+    });
 
-    await this.depositMatchingRepository.save(depositMatching);
+    if (depositMatchings.length !== ids.length) {
+      throw new NotFoundException("일부 입금 매칭을 찾을 수 없습니다.");
+    }
+
+    for (const depositMatching of depositMatchings) {
+      depositMatching.deletedAt = new Date();
+      depositMatching.isDeleted = true;
+      await this.depositMatchingRepository.save(depositMatching);
+    }
 
     return;
   }

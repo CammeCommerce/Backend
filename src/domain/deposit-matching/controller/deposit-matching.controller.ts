@@ -10,7 +10,7 @@ import {
   Query,
 } from "@nestjs/common";
 import { DepositMatchingService } from "src/domain/deposit-matching/service/deposit-matching.service";
-import { ApiOperation, ApiQuery } from "@nestjs/swagger";
+import { ApiBody, ApiOperation, ApiQuery } from "@nestjs/swagger";
 import { CreateDepositMatchingDto } from "src/domain/deposit-matching/dto/request/create-deposit-matching.dto";
 import { CreateDepositMatchingResultDto } from "src/domain/deposit-matching/dto/response/create-deposit-matching-result.dto";
 import { GetDepositMatchingsDto } from "src/domain/deposit-matching/dto/response/get-deposit-matching.dto";
@@ -87,15 +87,27 @@ export class DepositMatchingController {
   }
 
   @ApiOperation({
-    summary: "입금 매칭 삭제",
-    operationId: "deleteDepositMatching",
+    summary: "입금 매칭 선택 삭제",
+    operationId: "deleteDepositMatchings",
     tags: ["deposit-matching"],
   })
-  @Delete(":id")
+  @ApiBody({
+    description: "삭제할 입금 매칭 ID 목록",
+    schema: {
+      type: "object",
+      properties: {
+        ids: {
+          type: "array",
+          items: {
+            type: "number",
+          },
+        },
+      },
+    },
+  })
+  @Delete()
   @HttpCode(204)
-  async deleteDepositMatching(
-    @Param("id", ParseIntPipe) id: number
-  ): Promise<void> {
-    return await this.depositMatchingService.deleteDepositMatching(id);
+  async deleteDepositMatchings(@Body("ids") ids: number[]): Promise<void> {
+    return await this.depositMatchingService.deleteDepositMatchings(ids);
   }
 }
