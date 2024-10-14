@@ -444,7 +444,7 @@ export class OrderService {
     const validFields = [
       "id",
       "mediumName",
-      "settleCompanyName",
+      "settlementCompanyName",
       "productName",
       "quantity",
       "orderDate",
