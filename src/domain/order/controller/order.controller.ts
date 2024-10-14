@@ -99,18 +99,6 @@ export class OrderController {
   }
 
   @ApiOperation({
-    summary: "주문값 상세 조회",
-    operationId: "getOrderDetailById",
-    tags: ["order"],
-  })
-  @Get(":id")
-  async getOrderDetailById(
-    @Param("id", ParseIntPipe) id: number
-  ): Promise<OrderDetailDto> {
-    return await this.orderService.getOrderDetailById(id);
-  }
-
-  @ApiOperation({
     summary: "주문 검색 및 필터링",
     operationId: "searchOrders",
     tags: ["order"],
@@ -277,19 +265,6 @@ export class OrderController {
   }
 
   @ApiOperation({
-    summary: "주문값 수정",
-    operationId: "modifyOrder",
-    tags: ["order"],
-  })
-  @Patch(":id")
-  async modifyOrder(
-    @Param("id", ParseIntPipe) id: number,
-    @Body() dto: ModifyOrderDto
-  ): Promise<ModifyOrderResultDto> {
-    return await this.orderService.modifyOrder(id, dto);
-  }
-
-  @ApiOperation({
     summary: "주문값 선택 삭제",
     operationId: "deleteOrders",
     tags: ["order"],
@@ -312,5 +287,30 @@ export class OrderController {
   @HttpCode(204)
   async deleteOrders(@Body("ids") ids: number[]): Promise<void> {
     return await this.orderService.deleteOrders(ids);
+  }
+
+  @ApiOperation({
+    summary: "주문값 상세 조회",
+    operationId: "getOrderDetailById",
+    tags: ["order"],
+  })
+  @Get(":id")
+  async getOrderDetailById(
+    @Param("id", ParseIntPipe) id: number
+  ): Promise<OrderDetailDto> {
+    return await this.orderService.getOrderDetailById(id);
+  }
+
+  @ApiOperation({
+    summary: "주문값 수정",
+    operationId: "modifyOrder",
+    tags: ["order"],
+  })
+  @Patch(":id")
+  async modifyOrder(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() dto: ModifyOrderDto
+  ): Promise<ModifyOrderResultDto> {
+    return await this.orderService.modifyOrder(id, dto);
   }
 }
