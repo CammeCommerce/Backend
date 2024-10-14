@@ -14,6 +14,7 @@ import { WithdrawalMatching } from "src/domain/withdrawal-matching/entity/withdr
 import { Withdrawal } from "src/domain/withdrawal/entity/withdrawal.entity";
 import { OrderColumnIndex } from "src/domain/order/entity/order-column-index.entity";
 import { DepositColumnIndex } from "src/domain/deposit/entity/deposit-column-index.entity";
+import { WithdrawalColumnIndex } from "src/domain/withdrawal/entity/withdrawal-column-index.entity";
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { DepositColumnIndex } from "src/domain/deposit/entity/deposit-column-ind
           ProfitLoss,
           OrderColumnIndex,
           DepositColumnIndex,
+          WithdrawalColumnIndex,
         ],
         synchronize: true,
         logging: true,

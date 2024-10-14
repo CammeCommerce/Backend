@@ -4,9 +4,16 @@ import { Withdrawal } from "src/domain/withdrawal/entity/withdrawal.entity";
 import { WithdrawalController } from "src/domain/withdrawal/controller/withdrawal.controller";
 import { WithdrawalService } from "src/domain/withdrawal/service/withdrawal.service";
 import { WithdrawalMatching } from "src/domain/withdrawal-matching/entity/withdrawal-matching.entity";
+import { WithdrawalColumnIndex } from "src/domain/withdrawal/entity/withdrawal-column-index.entity";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Withdrawal, WithdrawalMatching])],
+  imports: [
+    TypeOrmModule.forFeature([
+      Withdrawal,
+      WithdrawalMatching,
+      WithdrawalColumnIndex,
+    ]),
+  ],
   controllers: [WithdrawalController],
   providers: [WithdrawalService],
 })

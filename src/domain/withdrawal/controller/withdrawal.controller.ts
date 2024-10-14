@@ -21,6 +21,7 @@ import { ModifyWithdrawalResultDto } from "src/domain/withdrawal/dto/response/mo
 import { FileInterceptor } from "@nestjs/platform-express";
 import { UploadWithdrawalExcelDto } from "src/domain/withdrawal/dto/request/upload-withdrawal-excel.dto";
 import { Response } from "express";
+import { GetWithdrawalColumnIndexDto } from "src/domain/withdrawal/dto/response/get-withdrawal-column-index.dto";
 
 @Controller("withdrawal")
 export class WithdrawalController {
@@ -63,6 +64,16 @@ export class WithdrawalController {
       purposeIndex,
       clientNameIndex
     );
+  }
+
+  @ApiOperation({
+    summary: "저장된 열 인덱스 조회",
+    operationId: "getWithdrawalColumnIndex",
+    tags: ["withdrawal"],
+  })
+  @Get("column-index")
+  async getWithdrawalColumnIndex(): Promise<GetWithdrawalColumnIndexDto> {
+    return await this.withdrawalService.getWithdrawalColumnIndex();
   }
 
   @ApiOperation({

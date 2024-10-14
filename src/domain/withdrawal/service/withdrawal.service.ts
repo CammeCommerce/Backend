@@ -15,6 +15,8 @@ import { ModifyWithdrawalDto } from "src/domain/withdrawal/dto/request/modify-wi
 import { ModifyWithdrawalResultDto } from "src/domain/withdrawal/dto/response/modify-withdrawal-result.dto";
 import { WithdrawalMatching } from "src/domain/withdrawal-matching/entity/withdrawal-matching.entity";
 import * as XLSX from "xlsx";
+import { WithdrawalColumnIndex } from "src/domain/withdrawal/entity/withdrawal-column-index.entity";
+import { GetWithdrawalColumnIndexDto } from "src/domain/withdrawal/dto/response/get-withdrawal-column-index.dto";
 
 @Injectable()
 export class WithdrawalService {
@@ -22,7 +24,9 @@ export class WithdrawalService {
     @InjectRepository(Withdrawal)
     private readonly withdrawalRepository: Repository<Withdrawal>,
     @InjectRepository(WithdrawalMatching)
-    private readonly withdrawalMatchingRepository: Repository<WithdrawalMatching>
+    private readonly withdrawalMatchingRepository: Repository<WithdrawalMatching>,
+    @InjectRepository(WithdrawalColumnIndex)
+    private readonly withdrawalColumnIndexRepository: Repository<WithdrawalColumnIndex>
   ) {}
 
   // 엑셀 열 이름을 숫자 인덱스로 변환하는 메서드
@@ -47,7 +51,7 @@ export class WithdrawalService {
   }
 
   // 매체명 매칭하는 메서드
-  async matchOrders(): Promise<void> {
+  async matchWithdrawals(): Promise<void> {
     const unmatchedWithdrawal = await this.withdrawalRepository.find({
       where: [{ mediumName: null, isDeleted: false }],
     });
@@ -74,6 +78,21 @@ export class WithdrawalService {
     }
   }
 
+  // 열 인덱스 저장 메서드
+  async saveWithdrawalColumnIndex(
+    columnIndexes: DeepPartial<WithdrawalColumnIndex>
+  ): Promise<void> {
+    const existingIndexes = await this.withdrawalColumnIndexRepository.find();
+    if (existingIndexes && existingIndexes.length > 0) {
+      await this.withdrawalColumnIndexRepository.update(
+        existingIndexes[0].id,
+        columnIndexes
+      );
+    } else {
+      await this.withdrawalColumnIndexRepository.save(columnIndexes);
+    }
+  }
+
   // 엑셀 파일 파싱 및 출금값 저장 메서드
   async parseExcelAndSaveWithdrawals(
     file: Express.Multer.File,
@@ -87,6 +106,22 @@ export class WithdrawalService {
     purposeIndex: string,
     clientNameIndex: string
   ): Promise<void> {
+    // 엑셀 열 인덱스 저장
+    const withdrawalColumnIndexes: DeepPartial<WithdrawalColumnIndex> = {
+      withdrawalDateIdx: withdrawalDateIndex,
+      accountAliasIdx: accountAliasIndex,
+      withdrawalAmountIdx: withdrawalAmountIndex,
+      accountDescriptionIdx: accountDescriptionIndex,
+      transactionMethod1Idx: transactionMethod1Index,
+      transactionMethod2Idx: transactionMethod2Index,
+      accountMemoIdx: accountMemoIndex,
+      purposeIdx: purposeIndex,
+      clientNameIdx: clientNameIndex,
+    };
+
+    // 열 인덱스 저장
+    await this.saveWithdrawalColumnIndex(withdrawalColumnIndexes);
+
     // 엑셀 파일 파싱
     const workbook = XLSX.read(file.buffer, { type: "buffer" });
     const sheetName = workbook.SheetNames[0];
@@ -153,13 +188,25 @@ export class WithdrawalService {
     await this.saveParsedWithdrawals(withdrawals);
 
     // 출금 저장 후 매칭되지 않은 주문을 다시 확인하고 매칭하는 로직
-    await this.matchOrders();
+    await this.matchWithdrawals();
+  }
+
+  // 열 인덱스 조회 메서드
+  async getWithdrawalColumnIndex(): Promise<GetWithdrawalColumnIndexDto> {
+    const columnIndexes = await this.withdrawalColumnIndexRepository.find();
+
+    if (!columnIndexes || columnIndexes.length === 0) {
+      throw new NotFoundException("저장된 열 인덱스가 없습니다.");
+    }
+
+    // 조회한 열 인덱스를 DTO로 변환하여 반환
+    return plainToInstance(GetWithdrawalColumnIndexDto, columnIndexes[0]);
   }
 
   // 출금값 조회
   async getWithdrawals(): Promise<GetWithdrawalDto> {
     // 매칭되지 않은 출금들에 대해 매칭 로직을 수행
-    await this.matchOrders();
+    await this.matchWithdrawals();
 
     const withdrawals = await this.withdrawalRepository.find({
       where: { isDeleted: false },
