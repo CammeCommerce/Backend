@@ -356,7 +356,7 @@ export class OrderService {
     // 시작 날짜와 종료 날짜를 시간 없이 날짜만으로 비교
     if (startDate && endDate) {
       queryBuilder.andWhere(
-        "DATE(order.createdAt) BETWEEN :startDate AND :endDate",
+        "DATE(order.orderDate) BETWEEN :startDate AND :endDate",
         {
           startDate: startDate.toISOString().split("T")[0],
           endDate: endDate.toISOString().split("T")[0],
@@ -364,7 +364,7 @@ export class OrderService {
       );
     } else if (startDate) {
       // 종료 날짜가 없을 때 시작 날짜로만 조회
-      queryBuilder.andWhere("DATE(order.createdAt) = :startDate", {
+      queryBuilder.andWhere("DATE(order.orderDate) = :startDate", {
         startDate: startDate.toISOString().split("T")[0],
       });
     }
