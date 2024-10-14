@@ -34,6 +34,46 @@ export class DepositService {
     return index - 1;
   }
 
+  // 파싱된 입금값 등록
+  async saveParsedDeposits(parsedDeposits: any[]): Promise<void> {
+    for (const depositData of parsedDeposits) {
+      const depositEntity: DeepPartial<Deposit> = {
+        ...depositData,
+      };
+
+      const deposit = this.depositRepository.create(depositEntity);
+      await this.depositRepository.save(deposit);
+    }
+  }
+
+  // 매체명 매칭하는 메서드
+  async matchOrders(): Promise<void> {
+    const unmatchedDeposits = await this.depositRepository.find({
+      where: [{ mediumName: null, isDeleted: false }],
+    });
+
+    if (!unmatchedDeposits.length) {
+      return;
+    }
+
+    for (const deposit of unmatchedDeposits) {
+      const matchedRecord = await this.depositMatchingRepository.findOne({
+        where: {
+          accountAlias: deposit.accountAlias,
+          purpose: deposit.purpose,
+          isDeleted: false,
+        },
+      });
+
+      if (matchedRecord) {
+        deposit.mediumName = matchedRecord.mediumName;
+        deposit.isMediumMatched = !!deposit.mediumName;
+
+        await this.depositRepository.save(deposit);
+      }
+    }
+  }
+
   // 엑셀 파일 파싱 및 입금값 저장 메서드
   async parseExcelAndSaveDeposits(
     file: Express.Multer.File,
@@ -114,22 +154,16 @@ export class DepositService {
 
     // 파싱된 입금값 저장
     await this.saveParsedDeposits(deposits);
-  }
 
-  // 파싱된 입금값 등록
-  async saveParsedDeposits(parsedDeposits: any[]): Promise<void> {
-    for (const depositData of parsedDeposits) {
-      const depositEntity: DeepPartial<Deposit> = {
-        ...depositData,
-      };
-
-      const deposit = this.depositRepository.create(depositEntity);
-      await this.depositRepository.save(deposit);
-    }
+    // 입금 저장 후 매칭되지 않은 주문을 다시 확인하고 매칭하는 로직
+    await this.matchOrders();
   }
 
   // 입금값 조회
   async getDeposits(): Promise<GetDepositsDto> {
+    // 매칭되지 않은 입금들에 대해 매칭 로직을 수행
+    await this.matchOrders();
+
     const deposits = await this.depositRepository.find({
       where: { isDeleted: false },
       order: { createdAt: "ASC" },
