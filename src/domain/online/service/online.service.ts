@@ -114,9 +114,16 @@ export class OnlineService {
     // 매출일자 범위 검색 조건
     if (startDate && endDate) {
       queryBuilder.andWhere(
-        "DATE_FORMAT(online.salesMonth, '%Y-%m') BETWEEN :startDate AND :endDate",
-        { startDate, endDate }
+        "online.salesMonth BETWEEN :startDate AND :endDate",
+        {
+          startDate: startDate.toISOString().split("T")[0].substring(0, 7),
+          endDate: endDate.toISOString().split("T")[0].substring(0, 7),
+        }
       );
+    } else if (startDate) {
+      queryBuilder.andWhere("online.salesMonth = :startDate", {
+        startDate: startDate.toISOString().split("T")[0].substring(0, 7),
+      });
     }
 
     // 기간 필터

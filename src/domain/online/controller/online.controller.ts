@@ -48,18 +48,6 @@ export class OnlineController {
   }
 
   @ApiOperation({
-    summary: "온라인(행) 상세 조회",
-    operationId: "getOnlineDetailById",
-    tags: ["online"],
-  })
-  @Get(":id")
-  async getOnlineDetailById(
-    @Param("id", ParseIntPipe) id: number
-  ): Promise<OnlineDetailDto> {
-    return await this.onlineService.getOnlineDetailById(id);
-  }
-
-  @ApiOperation({
     summary: "온라인(행) 검색 및 필터링",
     operationId: "searchOnlines",
     tags: ["online"],
@@ -103,19 +91,6 @@ export class OnlineController {
   }
 
   @ApiOperation({
-    summary: "온라인(행) 수정",
-    operationId: "modifyOnline",
-    tags: ["online"],
-  })
-  @Patch(":id")
-  async modifyOnline(
-    @Param("id", ParseIntPipe) id: number,
-    @Body() dto: ModifyOnlineDto
-  ): Promise<ModifyOnlineResultDto> {
-    return await this.onlineService.modifyOnline(id, dto);
-  }
-
-  @ApiOperation({
     summary: "온라인 값 선택 삭제",
     operationId: "deleteOnlines",
     tags: ["online"],
@@ -138,5 +113,30 @@ export class OnlineController {
   @HttpCode(204)
   async deleteOnlines(@Body("ids") ids: number[]): Promise<void> {
     return await this.onlineService.deleteOnlines(ids);
+  }
+
+  @ApiOperation({
+    summary: "온라인(행) 상세 조회",
+    operationId: "getOnlineDetailById",
+    tags: ["online"],
+  })
+  @Get(":id")
+  async getOnlineDetailById(
+    @Param("id", ParseIntPipe) id: number
+  ): Promise<OnlineDetailDto> {
+    return await this.onlineService.getOnlineDetailById(id);
+  }
+
+  @ApiOperation({
+    summary: "온라인(행) 수정",
+    operationId: "modifyOnline",
+    tags: ["online"],
+  })
+  @Patch(":id")
+  async modifyOnline(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() dto: ModifyOnlineDto
+  ): Promise<ModifyOnlineResultDto> {
+    return await this.onlineService.modifyOnline(id, dto);
   }
 }
