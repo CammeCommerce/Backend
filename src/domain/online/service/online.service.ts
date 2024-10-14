@@ -74,6 +74,31 @@ export class OnlineService {
     return onlineItemsDto;
   }
 
+  // 온라인 ID로 상세 조회 메서드
+  async getOnlineDetailById(id: number): Promise<OnlineDetailDto> {
+    const online = await this.onlineRepository.findOne({
+      where: { id, isDeleted: false },
+    });
+
+    if (!online) {
+      throw new NotFoundException(
+        `ID가 ${id}인 온라인(행)을 찾을 수 없습니다.`
+      );
+    }
+
+    // 온라인 데이터를 DTO로 변환하여 반환
+    return plainToInstance(OnlineDetailDto, {
+      id: online.id,
+      salesMonth: online.salesMonth,
+      mediumName: online.mediumName,
+      onlineCompanyName: online.onlineCompanyName,
+      salesAmount: online.salesAmount,
+      purchaseAmount: online.purchaseAmount,
+      marginAmount: online.marginAmount,
+      memo: online.memo,
+    });
+  }
+
   // 온라인 검색 및 필터링
   async searchOnlines(
     startDate: Date,
