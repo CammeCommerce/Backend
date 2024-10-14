@@ -306,6 +306,38 @@ export class OrderService {
     return orderItemsDto;
   }
 
+  // 주문 ID로 상세 조회 메서드
+  async getOrderDetailById(id: number): Promise<OrderDetailDto> {
+    const order = await this.orderRepository.findOne({
+      where: { id, isDeleted: false },
+    });
+
+    if (!order) {
+      throw new NotFoundException(`ID가 ${id}인 주문을 찾을 수 없습니다.`);
+    }
+
+    // 주문 데이터를 DTO로 변환
+    return plainToInstance(OrderDetailDto, {
+      id: order.id,
+      mediumName: order.mediumName,
+      settlementCompanyName: order.settlementCompanyName,
+      productName: order.productName,
+      quantity: order.quantity,
+      orderDate: order.orderDate,
+      purchasePlace: order.purchasePlace,
+      salesPlace: order.salesPlace,
+      purchasePrice: order.purchasePrice,
+      salesPrice: order.salesPrice,
+      purchaseShippingFee: order.purchaseShippingFee,
+      salesShippingFee: order.salesShippingFee,
+      taxType: order.taxType,
+      marginAmount: order.marginAmount,
+      shippingDifference: order.shippingDifference,
+      isMediumMatched: order.isMediumMatched,
+      isSettlementCompanyMatched: order.isSettlementCompanyMatched,
+    });
+  }
+
   // 주문 검색 및 필터링
   async searchOrders(
     startDate: Date,

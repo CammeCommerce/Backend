@@ -21,7 +21,10 @@ import {
   ApiQuery,
   ApiResponse,
 } from "@nestjs/swagger";
-import { GetOrdersDto } from "src/domain/order/dto/response/get-order.dto";
+import {
+  GetOrdersDto,
+  OrderDetailDto,
+} from "src/domain/order/dto/response/get-order.dto";
 import { ModifyOrderDto } from "src/domain/order/dto/request/modify-order.dto";
 import { ModifyOrderResultDto } from "src/domain/order/dto/response/modify-order-result.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
@@ -93,6 +96,18 @@ export class OrderController {
   @Get()
   async getOrders(): Promise<GetOrdersDto> {
     return await this.orderService.getOrders();
+  }
+
+  @ApiOperation({
+    summary: "주문값 상세 조회",
+    operationId: "getOrderDetailById",
+    tags: ["order"],
+  })
+  @Get(":id")
+  async getOrderDetailById(
+    @Param("id", ParseIntPipe) id: number
+  ): Promise<OrderDetailDto> {
+    return await this.orderService.getOrderDetailById(id);
   }
 
   @ApiOperation({
