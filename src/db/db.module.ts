@@ -12,6 +12,7 @@ import { SettlementCompany } from "src/domain/settlement-company/entity/settleme
 import { User } from "src/domain/user/entity/user.entity";
 import { WithdrawalMatching } from "src/domain/withdrawal-matching/entity/withdrawal-matching.entity";
 import { Withdrawal } from "src/domain/withdrawal/entity/withdrawal.entity";
+import { OrderColumnIndex } from "src/domain/order/entity/order-column-index.entity";
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { Withdrawal } from "src/domain/withdrawal/entity/withdrawal.entity";
           WithdrawalMatching,
           Online,
           ProfitLoss,
+          OrderColumnIndex,
         ],
         synchronize: true,
         logging: true,

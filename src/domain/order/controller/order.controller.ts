@@ -28,6 +28,7 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { UploadOrderExcelDto } from "src/domain/order/dto/request/upload-order-excel.dto";
 import { GetSortedOrdersDto } from "src/domain/order/dto/response/get-sorted-order.dto";
 import { Response } from "express";
+import { GetOrderColumnIndexDto } from "src/domain/order/dto/response/get-order-column-setting.dto";
 
 @Controller("order")
 export class OrderController {
@@ -72,6 +73,16 @@ export class OrderController {
       salesShippingFeeIndex,
       taxTypeIndex
     );
+  }
+
+  @ApiOperation({
+    summary: "저장된 열 인덱스 조회",
+    operationId: "getOrderColumnIndex",
+    tags: ["order"],
+  })
+  @Get("column-index")
+  async getOrderColumnIndex(): Promise<GetOrderColumnIndexDto> {
+    return await this.orderService.getOrderColumnIndex();
   }
 
   @ApiOperation({

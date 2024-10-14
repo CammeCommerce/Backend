@@ -21,6 +21,8 @@ import {
   SortedOrderDetailDto,
 } from "src/domain/order/dto/response/get-sorted-order.dto";
 import { In } from "typeorm";
+import { OrderColumnIndex } from "src/domain/order/entity/order-column-index.entity";
+import { GetOrderColumnIndexDto } from "src/domain/order/dto/response/get-order-column-setting.dto";
 
 @Injectable()
 export class OrderService {
@@ -28,7 +30,9 @@ export class OrderService {
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
     @InjectRepository(OrderMatching)
-    private readonly orderMatchingRepository: Repository<OrderMatching>
+    private readonly orderMatchingRepository: Repository<OrderMatching>,
+    @InjectRepository(OrderColumnIndex)
+    private readonly orderColumnIndexRepository: Repository<OrderColumnIndex>
   ) {}
 
   // taxType 숫자 값을 문자열(과세, 면세)로 변환하는 메서드
@@ -97,6 +101,21 @@ export class OrderService {
     }
   }
 
+  // 열 인덱스 저장 메서드
+  async saveOrderColumnIndex(
+    columnIndexes: DeepPartial<OrderColumnIndex>
+  ): Promise<void> {
+    const existingIndexes = await this.orderColumnIndexRepository.find();
+    if (existingIndexes && existingIndexes.length > 0) {
+      await this.orderColumnIndexRepository.update(
+        existingIndexes[0].id,
+        columnIndexes
+      );
+    } else {
+      await this.orderColumnIndexRepository.save(columnIndexes);
+    }
+  }
+
   // 엑셀 파일 파싱 및 주문 데이터 저장 메서드
   async parseExcelAndSaveOrders(
     file: Express.Multer.File,
@@ -111,6 +130,23 @@ export class OrderService {
     salesShippingFeeIndex: string,
     taxTypeIndex: string
   ): Promise<void> {
+    // 엑셀 열 인덱스 저장
+    const orderColumnIndexes: DeepPartial<OrderColumnIndex> = {
+      productNameIndex,
+      quantityIndex,
+      orderDateIndex,
+      purchasePlaceIndex,
+      salesPlaceIndex,
+      purchasePriceIndex,
+      salesPriceIndex,
+      purchaseShippingFeeIndex,
+      salesShippingFeeIndex,
+      taxTypeIndex,
+    };
+
+    // 열 인덱스 저장
+    await this.saveOrderColumnIndex(orderColumnIndexes);
+
     // 엑셀 파일 파싱
     const workbook = XLSX.read(file.buffer, { type: "buffer" });
     const sheetName = workbook.SheetNames[0];
@@ -194,6 +230,18 @@ export class OrderService {
 
     // 주문 저장 후 매칭되지 않은 주문을 다시 확인하고 매칭하는 로직
     await this.matchOrders();
+  }
+
+  // 열 인덱스 조회 메서드
+  async getOrderColumnIndex(): Promise<GetOrderColumnIndexDto> {
+    const columnIndexes = await this.orderColumnIndexRepository.find();
+
+    if (!columnIndexes || columnIndexes.length === 0) {
+      throw new NotFoundException("저장된 열 인덱스가 없습니다.");
+    }
+
+    // 조회한 열 인덱스를 DTO로 변환하여 반환
+    return plainToInstance(GetOrderColumnIndexDto, columnIndexes[0]);
   }
 
   // 주문값 조회
