@@ -90,18 +90,6 @@ export class WithdrawalController {
   }
 
   @ApiOperation({
-    summary: "출금값 상세 조회",
-    operationId: "getWithdrawalDetailById",
-    tags: ["withdrawal"],
-  })
-  @Get(":id")
-  async getWithdrawalDetailById(
-    @Param("id", ParseIntPipe) id: number
-  ): Promise<WithdrawalDetailDto> {
-    return await this.withdrawalService.getWithdrawalDetailById(id);
-  }
-
-  @ApiOperation({
     summary: "출금 검색 및 필터링",
     operationId: "searchWithdrawals",
     tags: ["withdrawal"],
@@ -213,19 +201,6 @@ export class WithdrawalController {
   }
 
   @ApiOperation({
-    summary: "출금값 수정",
-    operationId: "modifyWithdrawal",
-    tags: ["withdrawal"],
-  })
-  @Patch(":id")
-  async modifyWithdrawal(
-    @Param("id", ParseIntPipe) id: number,
-    @Body() dto: ModifyWithdrawalDto
-  ): Promise<ModifyWithdrawalResultDto> {
-    return await this.withdrawalService.modifyWithdrawal(id, dto);
-  }
-
-  @ApiOperation({
     summary: "출금값 선택 삭제",
     operationId: "deleteWithdrawals",
     tags: ["withdrawal"],
@@ -248,5 +223,30 @@ export class WithdrawalController {
   @HttpCode(204)
   async deleteWithdrawals(@Body("ids") ids: number[]): Promise<void> {
     return await this.withdrawalService.deleteWithdrawals(ids);
+  }
+
+  @ApiOperation({
+    summary: "출금값 상세 조회",
+    operationId: "getWithdrawalDetailById",
+    tags: ["withdrawal"],
+  })
+  @Get(":id")
+  async getWithdrawalDetailById(
+    @Param("id", ParseIntPipe) id: number
+  ): Promise<WithdrawalDetailDto> {
+    return await this.withdrawalService.getWithdrawalDetailById(id);
+  }
+
+  @ApiOperation({
+    summary: "출금값 수정",
+    operationId: "modifyWithdrawal",
+    tags: ["withdrawal"],
+  })
+  @Patch(":id")
+  async modifyWithdrawal(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() dto: ModifyWithdrawalDto
+  ): Promise<ModifyWithdrawalResultDto> {
+    return await this.withdrawalService.modifyWithdrawal(id, dto);
   }
 }
