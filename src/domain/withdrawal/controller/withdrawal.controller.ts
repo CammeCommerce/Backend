@@ -15,7 +15,10 @@ import {
 } from "@nestjs/common";
 import { WithdrawalService } from "src/domain/withdrawal/service/withdrawal.service";
 import { ApiBody, ApiConsumes, ApiOperation, ApiQuery } from "@nestjs/swagger";
-import { GetWithdrawalDto } from "src/domain/withdrawal/dto/response/get-withdrawal.dto";
+import {
+  GetWithdrawalDto,
+  WithdrawalDetailDto,
+} from "src/domain/withdrawal/dto/response/get-withdrawal.dto";
 import { ModifyWithdrawalDto } from "src/domain/withdrawal/dto/request/modify-withdrawal.dto";
 import { ModifyWithdrawalResultDto } from "src/domain/withdrawal/dto/response/modify-withdrawal-result.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
@@ -84,6 +87,18 @@ export class WithdrawalController {
   @Get()
   async getWithdrawals(): Promise<GetWithdrawalDto> {
     return await this.withdrawalService.getWithdrawals();
+  }
+
+  @ApiOperation({
+    summary: "출금값 상세 조회",
+    operationId: "getWithdrawalDetailById",
+    tags: ["withdrawal"],
+  })
+  @Get(":id")
+  async getWithdrawalDetailById(
+    @Param("id", ParseIntPipe) id: number
+  ): Promise<WithdrawalDetailDto> {
+    return await this.withdrawalService.getWithdrawalDetailById(id);
   }
 
   @ApiOperation({

@@ -241,6 +241,33 @@ export class WithdrawalService {
     return withdrawalItemsDto;
   }
 
+  // 출금 ID로 상세 조회 메서드
+  async getWithdrawalDetailById(id: number): Promise<WithdrawalDetailDto> {
+    const withdrawal = await this.withdrawalRepository.findOne({
+      where: { id, isDeleted: false },
+    });
+
+    if (!withdrawal) {
+      throw new NotFoundException(`ID가 ${id}인 출금값을 찾을 수 없습니다.`);
+    }
+
+    // 출금 데이터를 DTO로 변환
+    return plainToInstance(WithdrawalDetailDto, {
+      id: withdrawal.id,
+      mediumName: withdrawal.mediumName,
+      withdrawalDate: withdrawal.withdrawalDate,
+      accountAlias: withdrawal.accountAlias,
+      withdrawalAmount: withdrawal.withdrawalAmount,
+      accountDescription: withdrawal.accountDescription,
+      transactionMethod1: withdrawal.transactionMethod1,
+      transactionMethod2: withdrawal.transactionMethod2,
+      accountMemo: withdrawal.accountMemo,
+      purpose: withdrawal.purpose,
+      clientName: withdrawal.clientName,
+      isMediumMatched: withdrawal.isMediumMatched,
+    });
+  }
+
   // 출금 검색 및 필터링
   async searchWithdrawals(
     startDate: Date,
