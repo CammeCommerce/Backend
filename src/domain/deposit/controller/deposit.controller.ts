@@ -15,7 +15,10 @@ import {
 } from "@nestjs/common";
 import { DepositService } from "src/domain/deposit/service/deposit.service";
 import { ApiBody, ApiConsumes, ApiOperation, ApiQuery } from "@nestjs/swagger";
-import { GetDepositsDto } from "src/domain/deposit/dto/response/get-deposit.dto";
+import {
+  DepositDetailDto,
+  GetDepositsDto,
+} from "src/domain/deposit/dto/response/get-deposit.dto";
 import { ModifyDepositDto } from "src/domain/deposit/dto/request/modify-deposit.dto";
 import { ModifyDepositResultDto } from "src/domain/deposit/dto/response/modify-deposit-result.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
@@ -85,6 +88,18 @@ export class DepositController {
   @Get()
   async getDeposits(): Promise<GetDepositsDto> {
     return await this.depositService.getDeposits();
+  }
+
+  @ApiOperation({
+    summary: "입금값 상세 조회",
+    operationId: "getDepositDetailById",
+    tags: ["deposit"],
+  })
+  @Get(":id")
+  async getDepositDetailById(
+    @Param("id", ParseIntPipe) id: number
+  ): Promise<DepositDetailDto> {
+    return await this.depositService.getDepositDetailById(id);
   }
 
   @ApiOperation({

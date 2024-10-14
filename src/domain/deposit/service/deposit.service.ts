@@ -246,6 +246,34 @@ export class DepositService {
     return depositItemsDto;
   }
 
+  // 입금 ID로 상세 조회 메서드
+  async getDepositDetailById(id: number): Promise<DepositDetailDto> {
+    const deposit = await this.depositRepository.findOne({
+      where: { id, isDeleted: false },
+    });
+
+    if (!deposit) {
+      throw new NotFoundException(`ID가 ${id}인 입금값을 찾을 수 없습니다.`);
+    }
+
+    // 입금 데이터를 DTO로 변환
+    return plainToInstance(DepositDetailDto, {
+      id: deposit.id,
+      mediumName: deposit.mediumName,
+      depositDate: deposit.depositDate,
+      accountAlias: deposit.accountAlias,
+      depositAmount: deposit.depositAmount,
+      accountDescription: deposit.accountDescription,
+      transactionMethod1: deposit.transactionMethod1,
+      transactionMethod2: deposit.transactionMethod2,
+      accountMemo: deposit.accountMemo,
+      counterpartyName: deposit.counterpartyName,
+      purpose: deposit.purpose,
+      clientName: deposit.clientName,
+      isMediumMatched: deposit.isMediumMatched,
+    });
+  }
+
   // 입금 검색 및 필터링
   async searchDeposits(
     startDate: Date,
