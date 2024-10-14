@@ -91,18 +91,6 @@ export class DepositController {
   }
 
   @ApiOperation({
-    summary: "입금값 상세 조회",
-    operationId: "getDepositDetailById",
-    tags: ["deposit"],
-  })
-  @Get(":id")
-  async getDepositDetailById(
-    @Param("id", ParseIntPipe) id: number
-  ): Promise<DepositDetailDto> {
-    return await this.depositService.getDepositDetailById(id);
-  }
-
-  @ApiOperation({
     summary: "입금 검색 및 필터링",
     operationId: "searchDeposits",
     tags: ["deposit"],
@@ -214,19 +202,6 @@ export class DepositController {
   }
 
   @ApiOperation({
-    summary: "입금값 수정",
-    operationId: "modifyDeposit",
-    tags: ["deposit"],
-  })
-  @Patch(":id")
-  async modifyDeposit(
-    @Param("id", ParseIntPipe) id: number,
-    @Body() dto: ModifyDepositDto
-  ): Promise<ModifyDepositResultDto> {
-    return await this.depositService.modifyDeposit(id, dto);
-  }
-
-  @ApiOperation({
     summary: "입금값 선택 삭제",
     operationId: "deleteDeposits",
     tags: ["deposit"],
@@ -249,5 +224,30 @@ export class DepositController {
   @HttpCode(204)
   async deleteDeposits(@Body("ids") ids: number[]): Promise<void> {
     return await this.depositService.deleteDeposits(ids);
+  }
+
+  @ApiOperation({
+    summary: "입금값 상세 조회",
+    operationId: "getDepositDetailById",
+    tags: ["deposit"],
+  })
+  @Get(":id")
+  async getDepositDetailById(
+    @Param("id", ParseIntPipe) id: number
+  ): Promise<DepositDetailDto> {
+    return await this.depositService.getDepositDetailById(id);
+  }
+
+  @ApiOperation({
+    summary: "입금값 수정",
+    operationId: "modifyDeposit",
+    tags: ["deposit"],
+  })
+  @Patch(":id")
+  async modifyDeposit(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() dto: ModifyDepositDto
+  ): Promise<ModifyDepositResultDto> {
+    return await this.depositService.modifyDeposit(id, dto);
   }
 }

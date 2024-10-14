@@ -287,15 +287,20 @@ export class DepositService {
       .createQueryBuilder("deposit")
       .where("deposit.isDeleted = false");
 
-    // 발주일자 범위 검색 조건
+    // 시작 날짜와 종료 날짜를 시간 없이 날짜만으로 비교
     if (startDate && endDate) {
       queryBuilder.andWhere(
-        "deposit.depositDate BETWEEN :startDate AND :endDate",
+        "DATE(deposit.depositDate) BETWEEN :startDate AND :endDate",
         {
-          startDate,
-          endDate,
+          startDate: startDate.toISOString().split("T")[0],
+          endDate: endDate.toISOString().split("T")[0],
         }
       );
+    } else if (startDate) {
+      // 종료 날짜가 없을 때 시작 날짜로만 조회
+      queryBuilder.andWhere("DATE(deposit.depositDate) = :startDate", {
+        startDate: startDate.toISOString().split("T")[0],
+      });
     }
 
     // 매체명 매칭 여부 필터
