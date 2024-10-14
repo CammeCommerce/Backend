@@ -158,14 +158,18 @@ export class SettlementCompanyService {
           break;
       }
     } else if (startDate && endDate) {
-      // 기간 필터가 없을 경우에만 등록일자 필터 적용
       queryBuilder.andWhere(
-        "settlementCompany.createdAt BETWEEN :startDate AND :endDate",
+        "DATE(settlementCompany.createdAt) BETWEEN :startDate AND :endDate",
         {
-          startDate,
-          endDate,
+          startDate: startDate.toISOString().split("T")[0],
+          endDate: endDate.toISOString().split("T")[0],
         }
       );
+    } else if (startDate) {
+      // 종료 날짜가 없을 때 시작 날짜로만 조회
+      queryBuilder.andWhere("DATE(settlementCompany.createdAt) = :startDate", {
+        startDate: startDate.toISOString().split("T")[0],
+      });
     }
 
     const settlementCompanies = await queryBuilder.getMany();
