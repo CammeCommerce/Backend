@@ -22,7 +22,7 @@ import {
 } from "src/domain/order/dto/response/get-sorted-order.dto";
 import { In } from "typeorm";
 import { OrderColumnIndex } from "src/domain/order/entity/order-column-index.entity";
-import { GetOrderColumnIndexDto } from "src/domain/order/dto/response/get-order-column-setting.dto";
+import { GetOrderColumnIndexDto } from "src/domain/order/dto/response/get-order-column-index.dto";
 
 @Injectable()
 export class OrderService {

@@ -21,6 +21,7 @@ import { ModifyDepositResultDto } from "src/domain/deposit/dto/response/modify-d
 import { FileInterceptor } from "@nestjs/platform-express";
 import { UploadDepositExcelDto } from "src/domain/deposit/dto/request/upload-deposit-excel.dto";
 import { Response } from "express";
+import { GetDepositColumnIndexDto } from "src/domain/deposit/dto/response/get-deposit-column-index.dto";
 
 @Controller("deposit")
 export class DepositController {
@@ -64,6 +65,16 @@ export class DepositController {
       purposeIndex,
       clientNameIndex
     );
+  }
+
+  @ApiOperation({
+    summary: "저장된 열 인덱스 조회",
+    operationId: "getDepositColumnIndex",
+    tags: ["deposit"],
+  })
+  @Get("column-index")
+  async getDepositColumnIndex(): Promise<GetDepositColumnIndexDto> {
+    return await this.depositService.getDepositColumnIndex();
   }
 
   @ApiOperation({

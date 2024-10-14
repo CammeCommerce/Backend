@@ -15,6 +15,8 @@ import { ModifyDepositDto } from "src/domain/deposit/dto/request/modify-deposit.
 import { ModifyDepositResultDto } from "src/domain/deposit/dto/response/modify-deposit-result.dto";
 import * as XLSX from "xlsx";
 import { DepositMatching } from "src/domain/deposit-matching/entity/deposit-matching.entity";
+import { DepositColumnIndex } from "src/domain/deposit/entity/deposit-column-index.entity";
+import { GetDepositColumnIndexDto } from "src/domain/deposit/dto/response/get-deposit-column-index.dto";
 
 @Injectable()
 export class DepositService {
@@ -22,7 +24,9 @@ export class DepositService {
     @InjectRepository(Deposit)
     private readonly depositRepository: Repository<Deposit>,
     @InjectRepository(DepositMatching)
-    private readonly depositMatchingRepository: Repository<DepositMatching>
+    private readonly depositMatchingRepository: Repository<DepositMatching>,
+    @InjectRepository(DepositColumnIndex)
+    private readonly depositColumnIndexRepository: Repository<DepositColumnIndex>
   ) {}
 
   // 엑셀 열 이름을 숫자 인덱스로 변환하는 메서드
@@ -47,7 +51,7 @@ export class DepositService {
   }
 
   // 매체명 매칭하는 메서드
-  async matchOrders(): Promise<void> {
+  async matchDeposits(): Promise<void> {
     const unmatchedDeposits = await this.depositRepository.find({
       where: [{ mediumName: null, isDeleted: false }],
     });
@@ -74,6 +78,21 @@ export class DepositService {
     }
   }
 
+  // 열 인덱스 저장 메서드
+  async saveDepositColumnIndex(
+    columnIndexes: DeepPartial<DepositColumnIndex>
+  ): Promise<void> {
+    const existingIndexes = await this.depositColumnIndexRepository.find();
+    if (existingIndexes && existingIndexes.length > 0) {
+      await this.depositColumnIndexRepository.update(
+        existingIndexes[0].id,
+        columnIndexes
+      );
+    } else {
+      await this.depositColumnIndexRepository.save(columnIndexes);
+    }
+  }
+
   // 엑셀 파일 파싱 및 입금값 저장 메서드
   async parseExcelAndSaveDeposits(
     file: Express.Multer.File,
@@ -88,6 +107,23 @@ export class DepositService {
     purposeIndex: string,
     clientNameIndex: string
   ): Promise<void> {
+    // 엑셀 열 인덱스 저장
+    const depositColumnIndexes: DeepPartial<DepositColumnIndex> = {
+      depositDateIdx: depositDateIndex,
+      accountAliasIdx: accountAliasIndex,
+      depositAmountIdx: depositAmountIndex,
+      accountDescriptionIdx: accountDescriptionIndex,
+      transactionMethod1Idx: transactionMethod1Index,
+      transactionMethod2Idx: transactionMethod2Index,
+      accountMemoIdx: accountMemoIndex,
+      counterpartyNameIdx: counterpartyNameIndex,
+      purposeIdx: purposeIndex,
+      clientNameIdx: clientNameIndex,
+    };
+
+    // 열 인덱스 저장
+    await this.saveDepositColumnIndex(depositColumnIndexes);
+
     // 엑셀 파일 파싱
     const workbook = XLSX.read(file.buffer, { type: "buffer" });
     const sheetName = workbook.SheetNames[0];
@@ -156,13 +192,25 @@ export class DepositService {
     await this.saveParsedDeposits(deposits);
 
     // 입금 저장 후 매칭되지 않은 주문을 다시 확인하고 매칭하는 로직
-    await this.matchOrders();
+    await this.matchDeposits();
+  }
+
+  // 열 인덱스 조회 메서드
+  async getDepositColumnIndex(): Promise<GetDepositColumnIndexDto> {
+    const columnIndexes = await this.depositColumnIndexRepository.find();
+
+    if (!columnIndexes || columnIndexes.length === 0) {
+      throw new NotFoundException("저장된 열 인덱스가 없습니다.");
+    }
+
+    // 조회한 열 인덱스를 DTO로 변환하여 반환
+    return plainToInstance(GetDepositColumnIndexDto, columnIndexes[0]);
   }
 
   // 입금값 조회
   async getDeposits(): Promise<GetDepositsDto> {
     // 매칭되지 않은 입금들에 대해 매칭 로직을 수행
-    await this.matchOrders();
+    await this.matchDeposits();
 
     const deposits = await this.depositRepository.find({
       where: { isDeleted: false },

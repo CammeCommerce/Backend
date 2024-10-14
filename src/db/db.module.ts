@@ -13,6 +13,7 @@ import { User } from "src/domain/user/entity/user.entity";
 import { WithdrawalMatching } from "src/domain/withdrawal-matching/entity/withdrawal-matching.entity";
 import { Withdrawal } from "src/domain/withdrawal/entity/withdrawal.entity";
 import { OrderColumnIndex } from "src/domain/order/entity/order-column-index.entity";
+import { DepositColumnIndex } from "src/domain/deposit/entity/deposit-column-index.entity";
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { OrderColumnIndex } from "src/domain/order/entity/order-column-index.ent
           Online,
           ProfitLoss,
           OrderColumnIndex,
+          DepositColumnIndex,
         ],
         synchronize: true,
         logging: true,
