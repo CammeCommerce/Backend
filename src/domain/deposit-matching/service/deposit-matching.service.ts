@@ -100,9 +100,17 @@ export class DepositMatchingService {
     // 매칭일자 범위 검색 조건
     if (startDate && endDate) {
       queryBuilder.andWhere(
-        "depositMatching.createdAt BETWEEN :startDate AND :endDate",
-        { startDate, endDate }
+        "DATE(depositMatching.createdAt) BETWEEN :startDate AND :endDate",
+        {
+          startDate: startDate.toISOString().split("T")[0],
+          endDate: endDate.toISOString().split("T")[0],
+        }
       );
+    } else if (startDate) {
+      // 종료 날짜가 없을 때 시작 날짜로만 조회
+      queryBuilder.andWhere("DATE(depositMatching.createdAt) = :startDate", {
+        startDate: startDate.toISOString().split("T")[0],
+      });
     }
 
     // 기간 필터
