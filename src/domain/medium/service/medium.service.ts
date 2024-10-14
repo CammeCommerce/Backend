@@ -144,12 +144,17 @@ export class MediumService {
     // 기간 필터가 없을 경우 등록일자 시작~종료를 조건으로 추가
     if (!usePeriodFilter && startDate && endDate) {
       queryBuilder.andWhere(
-        "medium.createdAt BETWEEN :startDate AND :endDate",
+        "DATE(medium.createdAt) BETWEEN :startDate AND :endDate",
         {
-          startDate,
-          endDate,
+          startDate: startDate.toISOString().split("T")[0],
+          endDate: endDate.toISOString().split("T")[0],
         }
       );
+    } else if (startDate) {
+      // 종료 날짜가 없을 때 시작 날짜로만 조회
+      queryBuilder.andWhere("DATE(medium.createdAt) = :startDate", {
+        startDate: startDate.toISOString().split("T")[0],
+      });
     }
 
     const mediums = await queryBuilder.getMany();
