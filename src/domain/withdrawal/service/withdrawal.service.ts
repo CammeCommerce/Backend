@@ -34,6 +34,46 @@ export class WithdrawalService {
     return index - 1;
   }
 
+  // 파싱된 출금값 등록
+  async saveParsedWithdrawals(parsedWithdrawals: any[]): Promise<void> {
+    for (const withdrawalData of parsedWithdrawals) {
+      const withdrawalEntity: DeepPartial<Withdrawal> = {
+        ...withdrawalData,
+      };
+
+      const withdrawal = this.withdrawalRepository.create(withdrawalEntity);
+      await this.withdrawalRepository.save(withdrawal);
+    }
+  }
+
+  // 매체명 매칭하는 메서드
+  async matchOrders(): Promise<void> {
+    const unmatchedWithdrawal = await this.withdrawalRepository.find({
+      where: [{ mediumName: null, isDeleted: false }],
+    });
+
+    if (!unmatchedWithdrawal.length) {
+      return;
+    }
+
+    for (const withdrawal of unmatchedWithdrawal) {
+      const matchedRecord = await this.withdrawalMatchingRepository.findOne({
+        where: {
+          accountAlias: withdrawal.accountAlias,
+          purpose: withdrawal.purpose,
+          isDeleted: false,
+        },
+      });
+
+      if (matchedRecord) {
+        withdrawal.mediumName = matchedRecord.mediumName;
+        withdrawal.isMediumMatched = !!withdrawal.mediumName;
+
+        await this.withdrawalRepository.save(withdrawal);
+      }
+    }
+  }
+
   // 엑셀 파일 파싱 및 출금값 저장 메서드
   async parseExcelAndSaveWithdrawals(
     file: Express.Multer.File,
@@ -111,22 +151,16 @@ export class WithdrawalService {
 
     // 파싱된 출금값 저장
     await this.saveParsedWithdrawals(withdrawals);
-  }
 
-  // 파싱된 출금값 등록
-  async saveParsedWithdrawals(parsedWithdrawals: any[]): Promise<void> {
-    for (const withdrawalData of parsedWithdrawals) {
-      const withdrawalEntity: DeepPartial<Withdrawal> = {
-        ...withdrawalData,
-      };
-
-      const withdrawal = this.withdrawalRepository.create(withdrawalEntity);
-      await this.withdrawalRepository.save(withdrawal);
-    }
+    // 출금 저장 후 매칭되지 않은 주문을 다시 확인하고 매칭하는 로직
+    await this.matchOrders();
   }
 
   // 출금값 조회
   async getWithdrawals(): Promise<GetWithdrawalDto> {
+    // 매칭되지 않은 출금들에 대해 매칭 로직을 수행
+    await this.matchOrders();
+
     const withdrawals = await this.withdrawalRepository.find({
       where: { isDeleted: false },
       order: { createdAt: "ASC" },
