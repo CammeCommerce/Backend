@@ -20,7 +20,7 @@ export class UserController {
   }
 
   @ApiOperation({
-    summary: "이메일 발송 API",
+    summary: "이메일 발송",
     operationId: "sendEmailVerification",
     tags: ["user"],
   })
@@ -42,7 +42,7 @@ export class UserController {
   }
 
   @ApiOperation({
-    summary: "이메일 검증 API",
+    summary: "이메일 검증",
     operationId: "verifyEmail",
     tags: ["user"],
   })
@@ -72,7 +72,7 @@ export class UserController {
   }
 
   @ApiOperation({
-    summary: "비밀번호 재설정 API",
+    summary: "비밀번호 재설정",
     operationId: "resetPassword",
     tags: ["user"],
   })
