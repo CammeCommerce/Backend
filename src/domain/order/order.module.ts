@@ -5,9 +5,13 @@ import { OrderController } from "src/domain/order/controller/order.controller";
 import { OrderService } from "src/domain/order/service/order.service";
 import { OrderMatching } from "src/domain/order-matching/entity/order-matching.entity";
 import { OrderColumnIndex } from "src/domain/order/entity/order-column-index.entity";
+import { AuthModule } from "src/domain/auth/auth.module";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Order, OrderMatching, OrderColumnIndex])],
+  imports: [
+    TypeOrmModule.forFeature([Order, OrderMatching, OrderColumnIndex]),
+    AuthModule,
+  ],
   controllers: [OrderController],
   providers: [OrderService],
   exports: [OrderService],

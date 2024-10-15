@@ -11,6 +11,7 @@ import {
   Query,
   Res,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
 import { OrderService } from "src/domain/order/service/order.service";
@@ -32,6 +33,7 @@ import { UploadOrderExcelDto } from "src/domain/order/dto/request/upload-order-e
 import { GetSortedOrdersDto } from "src/domain/order/dto/response/get-sorted-order.dto";
 import { Response } from "express";
 import { GetOrderColumnIndexDto } from "src/domain/order/dto/response/get-order-column-index.dto";
+import { LoginGuard } from "src/domain/auth/login.guard";
 
 @Controller("order")
 export class OrderController {
@@ -46,6 +48,7 @@ export class OrderController {
     description: "엑셀 파일 업로드 및 각 열의 인덱스 설정",
     type: UploadOrderExcelDto,
   })
+  @UseGuards(LoginGuard)
   @Post("excel/upload")
   @UseInterceptors(FileInterceptor("file"))
   async uploadExcelAndSaveOrders(
@@ -83,6 +86,7 @@ export class OrderController {
     operationId: "getOrderColumnIndex",
     tags: ["order"],
   })
+  @UseGuards(LoginGuard)
   @Get("column-index")
   async getOrderColumnIndex(): Promise<GetOrderColumnIndexDto> {
     return await this.orderService.getOrderColumnIndex();
@@ -93,6 +97,7 @@ export class OrderController {
     operationId: "getOrders",
     tags: ["order"],
   })
+  @UseGuards(LoginGuard)
   @Get()
   async getOrders(): Promise<GetOrdersDto> {
     return await this.orderService.getOrders();
@@ -139,6 +144,7 @@ export class OrderController {
     required: false,
     description: "검색창에서 검색 (상품명, 구매처, 판매처 등)",
   })
+  @UseGuards(LoginGuard)
   @Get("search")
   async searchOrders(
     @Query("startDate") startDate: string,
@@ -173,6 +179,7 @@ export class OrderController {
     required: true,
     description: "정렬 방식 (asc=오름차순, desc=내림차순)",
   })
+  @UseGuards(LoginGuard)
   @Get("sort")
   async sortOrders(
     @Query("field") field: string,
@@ -230,6 +237,7 @@ export class OrderController {
       format: "binary",
     },
   })
+  @UseGuards(LoginGuard)
   @Get("excel/download")
   async downloadOrdersExcel(
     @Query("startDate") startDate: string,
@@ -283,6 +291,7 @@ export class OrderController {
       },
     },
   })
+  @UseGuards(LoginGuard)
   @Delete()
   @HttpCode(204)
   async deleteOrders(@Body("ids") ids: number[]): Promise<void> {
@@ -294,6 +303,7 @@ export class OrderController {
     operationId: "getOrderDetailById",
     tags: ["order"],
   })
+  @UseGuards(LoginGuard)
   @Get(":id")
   async getOrderDetailById(
     @Param("id", ParseIntPipe) id: number
@@ -306,6 +316,7 @@ export class OrderController {
     operationId: "modifyOrder",
     tags: ["order"],
   })
+  @UseGuards(LoginGuard)
   @Patch(":id")
   async modifyOrder(
     @Param("id", ParseIntPipe) id: number,
