@@ -4,16 +4,16 @@ import {
   Delete,
   Get,
   HttpCode,
-  Param,
-  ParseIntPipe,
   Post,
   Query,
+  UseGuards,
 } from "@nestjs/common";
 import { DepositMatchingService } from "src/domain/deposit-matching/service/deposit-matching.service";
 import { ApiBody, ApiOperation, ApiQuery } from "@nestjs/swagger";
 import { CreateDepositMatchingDto } from "src/domain/deposit-matching/dto/request/create-deposit-matching.dto";
 import { CreateDepositMatchingResultDto } from "src/domain/deposit-matching/dto/response/create-deposit-matching-result.dto";
 import { GetDepositMatchingsDto } from "src/domain/deposit-matching/dto/response/get-deposit-matching.dto";
+import { LoginGuard } from "src/domain/auth/login.guard";
 
 @Controller("deposit-matching")
 export class DepositMatchingController {
@@ -26,6 +26,7 @@ export class DepositMatchingController {
     operationId: "createDepositMatching",
     tags: ["deposit-matching"],
   })
+  @UseGuards(LoginGuard)
   @Post()
   async createDepositMatching(
     @Body() dto: CreateDepositMatchingDto
@@ -38,6 +39,7 @@ export class DepositMatchingController {
     operationId: "getDepositMatchings",
     tags: ["deposit-matching"],
   })
+  @UseGuards(LoginGuard)
   @Get()
   async getDepositMatchings(): Promise<GetDepositMatchingsDto> {
     return await this.depositMatchingService.getDepositMatchings();
@@ -69,6 +71,7 @@ export class DepositMatchingController {
     required: false,
     description: "계좌 별칭 또는 용도 키워드 검색",
   })
+  @UseGuards(LoginGuard)
   @Get("search")
   async searchDepositMatchings(
     @Query("startDate") startDate: string,
@@ -105,6 +108,7 @@ export class DepositMatchingController {
       },
     },
   })
+  @UseGuards(LoginGuard)
   @Delete()
   @HttpCode(204)
   async deleteDepositMatchings(@Body("ids") ids: number[]): Promise<void> {
