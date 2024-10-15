@@ -5,12 +5,14 @@ import { Repository } from "typeorm";
 import { UserLoginDto } from "src/domain/user/dto/request/user-login.dto";
 import { plainToInstance } from "class-transformer";
 import { UserLoginResultDto } from "src/domain/user/dto/response/user-login-result.dto";
+import { AuthService } from "src/domain/auth/auth.service";
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>
+    private readonly userRepository: Repository<User>,
+    private readonly authService: AuthService
   ) {}
 
   // 유저 로그인
@@ -22,6 +24,8 @@ export class UserService {
     if (!user) {
       throw new NotFoundException("관리자를 찾을 수 없습니다.");
     }
+
+    this.authService.loginSuccess();
 
     return plainToInstance(UserLoginResultDto, {
       id: user.id,
