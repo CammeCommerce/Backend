@@ -1,7 +1,8 @@
-import { Controller, Get, Query } from "@nestjs/common";
+import { Controller, Get, Query, UseGuards } from "@nestjs/common";
 import { ApiOperation, ApiQuery } from "@nestjs/swagger";
 import { ProfitLossService } from "src/domain/profit-loss/service/profit-loss.service";
 import { GetProfitLossDto } from "src/domain/profit-loss/dto/response/get-profit-loss.dto";
+import { LoginGuard } from "src/domain/auth/login.guard";
 
 @Controller("profit-loss")
 export class ProfitLossController {
@@ -23,6 +24,7 @@ export class ProfitLossController {
     required: false,
     description: "매체명으로 검색",
   })
+  @UseGuards(LoginGuard)
   @Get()
   async getProfitLoss(
     @Query("startDate") startDate: string,
