@@ -11,6 +11,7 @@ import {
   Query,
   Res,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
 import { WithdrawalService } from "src/domain/withdrawal/service/withdrawal.service";
@@ -25,6 +26,7 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { UploadWithdrawalExcelDto } from "src/domain/withdrawal/dto/request/upload-withdrawal-excel.dto";
 import { Response } from "express";
 import { GetWithdrawalColumnIndexDto } from "src/domain/withdrawal/dto/response/get-withdrawal-column-index.dto";
+import { LoginGuard } from "src/domain/auth/login.guard";
 
 @Controller("withdrawal")
 export class WithdrawalController {
@@ -40,6 +42,7 @@ export class WithdrawalController {
     description: "출금 데이터를 포함한 엑셀 파일 업로드 및 열 인덱스 설정",
     type: UploadWithdrawalExcelDto,
   })
+  @UseGuards(LoginGuard)
   @Post("excel/upload")
   @UseInterceptors(FileInterceptor("file"))
   async uploadWithdrawalExcel(
@@ -74,6 +77,7 @@ export class WithdrawalController {
     operationId: "getWithdrawalColumnIndex",
     tags: ["withdrawal"],
   })
+  @UseGuards(LoginGuard)
   @Get("column-index")
   async getWithdrawalColumnIndex(): Promise<GetWithdrawalColumnIndexDto> {
     return await this.withdrawalService.getWithdrawalColumnIndex();
@@ -84,6 +88,7 @@ export class WithdrawalController {
     operationId: "getWithdrawals",
     tags: ["withdrawal"],
   })
+  @UseGuards(LoginGuard)
   @Get()
   async getWithdrawals(): Promise<GetWithdrawalDto> {
     return await this.withdrawalService.getWithdrawals();
@@ -120,6 +125,7 @@ export class WithdrawalController {
     required: false,
     description: "계좌별칭 또는 용도 검색",
   })
+  @UseGuards(LoginGuard)
   @Get("search")
   async searchWithdrawals(
     @Query("startDate") startDate: string,
@@ -170,6 +176,7 @@ export class WithdrawalController {
     required: false,
     description: "계좌별칭 또는 용도 검색",
   })
+  @UseGuards(LoginGuard)
   @Get("excel/download")
   async downloadWithdrawalsExcel(
     @Query("startDate") startDate: string,
@@ -219,6 +226,7 @@ export class WithdrawalController {
       },
     },
   })
+  @UseGuards(LoginGuard)
   @Delete()
   @HttpCode(204)
   async deleteWithdrawals(@Body("ids") ids: number[]): Promise<void> {
@@ -230,6 +238,7 @@ export class WithdrawalController {
     operationId: "getWithdrawalDetailById",
     tags: ["withdrawal"],
   })
+  @UseGuards(LoginGuard)
   @Get(":id")
   async getWithdrawalDetailById(
     @Param("id", ParseIntPipe) id: number
@@ -242,6 +251,7 @@ export class WithdrawalController {
     operationId: "modifyWithdrawal",
     tags: ["withdrawal"],
   })
+  @UseGuards(LoginGuard)
   @Patch(":id")
   async modifyWithdrawal(
     @Param("id", ParseIntPipe) id: number,
