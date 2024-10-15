@@ -9,6 +9,7 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from "@nestjs/common";
 import { MediumService } from "src/domain/medium/service/medium.service";
 import { CreateMediumDto } from "src/domain/medium/dto/request/create-medium.dto";
@@ -17,6 +18,7 @@ import { GetMediumsDto } from "src/domain/medium/dto/response/get-medium.dto";
 import { ModifyMediumDto } from "src/domain/medium/dto/request/modify-medium.dto";
 import { ModifyMediumResultDto } from "src/domain/medium/dto/response/modify-medium-result.dto";
 import { CreateMediumResultDto } from "src/domain/medium/dto/response/create-medium-result.dto";
+import { LoginGuard } from "src/domain/auth/login.guard";
 
 @Controller("medium")
 export class MediumController {
@@ -27,6 +29,7 @@ export class MediumController {
     operationId: "createMedium",
     tags: ["medium"],
   })
+  @UseGuards(LoginGuard)
   @Post()
   async createMedium(
     @Body() dto: CreateMediumDto
@@ -39,6 +42,7 @@ export class MediumController {
     operationId: "getMediums",
     tags: ["medium"],
   })
+  @UseGuards(LoginGuard)
   @Get()
   async getMediums(): Promise<GetMediumsDto> {
     return await this.mediumService.getMediums();
@@ -66,6 +70,7 @@ export class MediumController {
     description:
       '기간 필터 ("어제", "지난 3일", "일주일", "1개월", "3개월", "6개월")',
   })
+  @UseGuards(LoginGuard)
   @Get("search")
   async searchMediums(
     @Query("name") name: string,
@@ -86,6 +91,7 @@ export class MediumController {
     operationId: "modifyMedium",
     tags: ["medium"],
   })
+  @UseGuards(LoginGuard)
   @Patch(":id")
   async modifyMedium(
     @Param("id", ParseIntPipe) id: number,
@@ -99,6 +105,7 @@ export class MediumController {
     operationId: "deleteMedium",
     tags: ["medium"],
   })
+  @UseGuards(LoginGuard)
   @Delete(":id")
   @HttpCode(204)
   async deleteMedium(@Param("id", ParseIntPipe) id: number): Promise<void> {
