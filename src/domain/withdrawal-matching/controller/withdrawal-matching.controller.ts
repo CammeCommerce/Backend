@@ -4,16 +4,16 @@ import {
   Delete,
   Get,
   HttpCode,
-  Param,
-  ParseIntPipe,
   Post,
   Query,
+  UseGuards,
 } from "@nestjs/common";
 import { ApiBody, ApiOperation, ApiQuery } from "@nestjs/swagger";
 import { WithdrawalMatchingService } from "src/domain/withdrawal-matching/service/withdrawal-matching.service";
 import { CreateWithdrawalMatchingDto } from "src/domain/withdrawal-matching/dto/request/create-withdrawal-matching.dto";
 import { CreateWithdrawalMatchingResultDto } from "src/domain/withdrawal-matching/dto/response/create-withdrawal-matching-result.dto";
 import { GetWithdrawalMatchingsDto } from "src/domain/withdrawal-matching/dto/response/get-withdrawal-matching.dto";
+import { LoginGuard } from "src/domain/auth/login.guard";
 
 @Controller("withdrawal-matching")
 export class WithdrawalMatchingController {
@@ -26,6 +26,7 @@ export class WithdrawalMatchingController {
     operationId: "createWithdrawalMatching",
     tags: ["withdrawal-matching"],
   })
+  @UseGuards(LoginGuard)
   @Post()
   async createWithdrawalMatching(
     @Body() dto: CreateWithdrawalMatchingDto
@@ -38,6 +39,7 @@ export class WithdrawalMatchingController {
     operationId: "getWithdrawalMatchings",
     tags: ["withdrawal-matching"],
   })
+  @UseGuards(LoginGuard)
   @Get()
   async getWithdrawalMatchings(): Promise<GetWithdrawalMatchingsDto> {
     return await this.withdrawalMatchingService.getWithdrawalMatchings();
@@ -69,6 +71,7 @@ export class WithdrawalMatchingController {
     required: false,
     description: "계좌 별칭 또는 용도 키워드 검색",
   })
+  @UseGuards(LoginGuard)
   @Get("search")
   async searchWithdrawalMatchings(
     @Query("startDate") startDate: string,
@@ -105,6 +108,7 @@ export class WithdrawalMatchingController {
       },
     },
   })
+  @UseGuards(LoginGuard)
   @Delete()
   @HttpCode(204)
   async deleteWithdrawalMatchings(@Body("ids") ids: number[]): Promise<void> {
