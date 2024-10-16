@@ -3,12 +3,27 @@ import { AppModule } from "./app.module";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import * as moment from "moment-timezone";
+import * as session from "express-session";
 
 async function bootstrap() {
   moment.tz.setDefault("Asia/Seoul");
 
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.enableCors();
+
+  app.use(
+    session({
+      secret: process.env.SESSION_SECRET,
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        httpOnly: true,
+        secure: true,
+        maxAge: 3600000,
+        sameSite: "none",
+      },
+    })
+  );
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle("API Documentation")

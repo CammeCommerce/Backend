@@ -13,7 +13,6 @@ import { ApiBody, ApiOperation, ApiQuery } from "@nestjs/swagger";
 import { CreateOrderMatchingDto } from "src/domain/order-matching/dto/request/create-order-matching.dto";
 import { CreateOrderMatchingResultDto } from "src/domain/order-matching/dto/response/create-order-matching-result.dto";
 import { GetOrderMatchingsDto } from "src/domain/order-matching/dto/response/get-order-matching.dto";
-import { LoginGuard } from "src/domain/auth/login.guard";
 
 @Controller("order-matching")
 export class OrderMatchingController {
@@ -24,7 +23,6 @@ export class OrderMatchingController {
     operationId: "createOrderMatching",
     tags: ["order-matching"],
   })
-  @UseGuards(LoginGuard)
   @Post()
   async createOrderMatching(
     @Body() dto: CreateOrderMatchingDto
@@ -37,7 +35,6 @@ export class OrderMatchingController {
     operationId: "getOrderMatchings",
     tags: ["order-matching"],
   })
-  @UseGuards(LoginGuard)
   @Get()
   async getOrderMatchings(): Promise<GetOrderMatchingsDto> {
     return await this.orderMatchingService.getOrderMatchings();
@@ -74,7 +71,6 @@ export class OrderMatchingController {
     required: false,
     description: "매입처 또는 매출처 키워드 검색",
   })
-  @UseGuards(LoginGuard)
   @Get("search")
   async searchOrderMatchings(
     @Query("startDate") startDate: string,
@@ -113,7 +109,6 @@ export class OrderMatchingController {
       },
     },
   })
-  @UseGuards(LoginGuard)
   @Delete()
   @HttpCode(204)
   async deleteOrderMatchings(@Body("ids") ids: number[]): Promise<void> {

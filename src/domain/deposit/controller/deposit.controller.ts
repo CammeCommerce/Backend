@@ -26,7 +26,6 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { UploadDepositExcelDto } from "src/domain/deposit/dto/request/upload-deposit-excel.dto";
 import { Response } from "express";
 import { GetDepositColumnIndexDto } from "src/domain/deposit/dto/response/get-deposit-column-index.dto";
-import { LoginGuard } from "src/domain/auth/login.guard";
 
 @Controller("deposit")
 export class DepositController {
@@ -42,7 +41,6 @@ export class DepositController {
     description: "엑셀 파일 업로드 및 각 열의 인덱스 설정",
     type: UploadDepositExcelDto,
   })
-  @UseGuards(LoginGuard)
   @Post("excel/upload")
   @UseInterceptors(FileInterceptor("file"))
   async uploadAndSaveDeposits(
@@ -78,7 +76,6 @@ export class DepositController {
     operationId: "getDepositColumnIndex",
     tags: ["deposit"],
   })
-  @UseGuards(LoginGuard)
   @Get("column-index")
   async getDepositColumnIndex(): Promise<GetDepositColumnIndexDto> {
     return await this.depositService.getDepositColumnIndex();
@@ -89,7 +86,6 @@ export class DepositController {
     operationId: "getDeposits",
     tags: ["deposit"],
   })
-  @UseGuards(LoginGuard)
   @Get()
   async getDeposits(): Promise<GetDepositsDto> {
     return await this.depositService.getDeposits();
@@ -126,7 +122,6 @@ export class DepositController {
     required: false,
     description: "계좌별칭 또는 용도 검색",
   })
-  @UseGuards(LoginGuard)
   @Get("search")
   async searchDeposits(
     @Query("startDate") startDate: string,
@@ -177,7 +172,6 @@ export class DepositController {
     required: false,
     description: "계좌별칭 또는 용도 검색",
   })
-  @UseGuards(LoginGuard)
   @Get("excel/download")
   async downloadDepositsExcel(
     @Query("startDate") startDate: string,
@@ -227,7 +221,6 @@ export class DepositController {
       },
     },
   })
-  @UseGuards(LoginGuard)
   @Delete()
   @HttpCode(204)
   async deleteDeposits(@Body("ids") ids: number[]): Promise<void> {
@@ -239,7 +232,6 @@ export class DepositController {
     operationId: "getDepositDetailById",
     tags: ["deposit"],
   })
-  @UseGuards(LoginGuard)
   @Get(":id")
   async getDepositDetailById(
     @Param("id", ParseIntPipe) id: number
@@ -252,7 +244,6 @@ export class DepositController {
     operationId: "modifyDeposit",
     tags: ["deposit"],
   })
-  @UseGuards(LoginGuard)
   @Patch(":id")
   async modifyDeposit(
     @Param("id", ParseIntPipe) id: number,

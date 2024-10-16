@@ -18,7 +18,6 @@ import { CreateSettlementCompanyResultDto } from "src/domain/settlement-company/
 import { GetSettlementCompaniesDto } from "src/domain/settlement-company/dto/response/get-settlement-company.dto";
 import { ModifySettlementCompanyDto } from "src/domain/settlement-company/dto/request/modify-settlement-company.dto";
 import { ModifySettlementCompanyResultDto } from "src/domain/settlement-company/dto/response/modify-settlement-company-result.dto";
-import { LoginGuard } from "src/domain/auth/login.guard";
 
 @Controller("settlement-company")
 export class SettlementCompanyController {
@@ -31,7 +30,6 @@ export class SettlementCompanyController {
     operationId: "createSettlementCompany",
     tags: ["settlement-company"],
   })
-  @UseGuards(LoginGuard)
   @Post()
   async createSettlementCompany(
     @Body() dto: CreateSettlementCompanyDto
@@ -44,7 +42,6 @@ export class SettlementCompanyController {
     operationId: "getSettlementCompanies",
     tags: ["settlement-company"],
   })
-  @UseGuards(LoginGuard)
   @Get()
   async getSettlementCompanies(): Promise<GetSettlementCompaniesDto> {
     return await this.settlementCompanyService.getSettlementCompanies();
@@ -72,7 +69,6 @@ export class SettlementCompanyController {
     description:
       '기간 필터 ("어제", "지난 3일", "일주일", "1개월", "3개월", "6개월")',
   })
-  @UseGuards(LoginGuard)
   @Get("search")
   async searchSettlementCompanies(
     @Query("name") name: string,
@@ -93,7 +89,6 @@ export class SettlementCompanyController {
     operationId: "modifySettlementCompany",
     tags: ["settlement-company"],
   })
-  @UseGuards(LoginGuard)
   @Patch(":id")
   async modifySettlementCompany(
     @Param("id", ParseIntPipe) id: number,
@@ -107,7 +102,6 @@ export class SettlementCompanyController {
     operationId: "deleteSettlementCompany",
     tags: ["settlement-company"],
   })
-  @UseGuards(LoginGuard)
   @Delete(":id")
   @HttpCode(204)
   async deleteSettlementCompany(
