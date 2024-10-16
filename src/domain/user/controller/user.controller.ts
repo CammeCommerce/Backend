@@ -1,9 +1,9 @@
-import { Body, Controller, Patch, Post } from "@nestjs/common";
+import { Body, Controller, Patch, Post, Get, Session } from "@nestjs/common";
 import { UserService } from "src/domain/user/service/user.service";
-import { ApiBody, ApiOperation } from "@nestjs/swagger";
 import { UserLoginDto } from "src/domain/user/dto/request/user-login.dto";
 import { UserLoginResultDto } from "src/domain/user/dto/response/user-login-result.dto";
 import { UpdatePasswordDto } from "src/domain/user/dto/request/update-password.dto";
+import { ApiOperation, ApiBody } from "@nestjs/swagger";
 
 @Controller("user")
 export class UserController {
@@ -14,17 +14,51 @@ export class UserController {
     operationId: "loginUser",
     tags: ["user"],
   })
+  @ApiBody({
+    description: "로그인을 위한 유저 정보",
+    type: UserLoginDto,
+  })
   @Post("login")
-  async loginUser(@Body() dto: UserLoginDto): Promise<UserLoginResultDto> {
-    return await this.userService.loginUser(dto);
+  async loginUser(
+    @Body() dto: UserLoginDto,
+    @Session() session: Record<string, any>
+  ): Promise<UserLoginResultDto> {
+    return await this.userService.loginUser(dto, session);
   }
 
   @ApiOperation({
-    summary: "이메일 발송",
+    summary: "로그인 상태 확인",
+    operationId: "getLoginStatus",
+    tags: ["user"],
+  })
+  @Get("status")
+  async getLoginStatus(
+    @Session() session: Record<string, any>
+  ): Promise<{ isLoggedIn: boolean }> {
+    const isLoggedIn = await this.userService.getLoginStatus(session);
+    return { isLoggedIn };
+  }
+
+  @ApiOperation({
+    summary: "유저 로그아웃",
+    operationId: "logoutUser",
+    tags: ["user"],
+  })
+  @Post("logout")
+  async logoutUser(
+    @Session() session: Record<string, any>
+  ): Promise<{ message: string }> {
+    this.userService.logoutUser(session);
+    return { message: "로그아웃에 성공했습니다." };
+  }
+
+  @ApiOperation({
+    summary: "이메일 인증 요청",
     operationId: "sendEmailVerification",
     tags: ["user"],
   })
   @ApiBody({
+    description: "인증 요청을 위한 이메일 주소",
     schema: {
       type: "object",
       properties: {
@@ -42,11 +76,12 @@ export class UserController {
   }
 
   @ApiOperation({
-    summary: "이메일 검증",
+    summary: "이메일 인증 확인",
     operationId: "verifyEmail",
     tags: ["user"],
   })
   @ApiBody({
+    description: "이메일과 인증 코드를 입력하여 인증 확인",
     schema: {
       type: "object",
       properties: {
@@ -73,17 +108,18 @@ export class UserController {
 
   @ApiOperation({
     summary: "비밀번호 재설정",
-    operationId: "resetPassword",
+    operationId: "updatePassword",
     tags: ["user"],
   })
   @ApiBody({
+    description: "비밀번호를 재설정하기 위한 정보",
     schema: {
       type: "object",
       properties: {
         email: {
           type: "string",
           example: "user@example.com",
-          description: "이메일 주소",
+          description: "비밀번호를 재설정할 이메일 주소",
         },
         newPassword: {
           type: "string",

@@ -7,23 +7,10 @@ dotenv.config();
 
 @Injectable()
 export class AuthService {
-  private isLoggedIn = false;
   private emailVerificationStatus: Map<
     string,
     { code: string; verified: boolean; expiration: number }
   > = new Map();
-
-  loginSuccess() {
-    this.isLoggedIn = true;
-  }
-
-  logout() {
-    this.isLoggedIn = false;
-  }
-
-  checkLogin(): boolean {
-    return this.isLoggedIn;
-  }
 
   // NodeMailer 트랜스포터 설정
   private transporter = nodemailer.createTransport({
@@ -38,7 +25,7 @@ export class AuthService {
   async sendEmailVerification(email: string) {
     const code = Math.random().toString(36).substring(2, 8);
     const expiration = Date.now() + 300000;
-    console.log(`Sending email verification to ${email} with code: ${code}`);
+    console.log(`Sending email verification to ${email}.`);
 
     // 이메일 전송
     const mailOptions = {

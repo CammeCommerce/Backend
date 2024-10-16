@@ -1,14 +1,14 @@
 import {
-  ForbiddenException,
   Injectable,
   NotFoundException,
+  ForbiddenException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { User } from "src/domain/user/entity/user.entity";
 import { Repository } from "typeorm";
+import { User } from "src/domain/user/entity/user.entity";
 import { UserLoginDto } from "src/domain/user/dto/request/user-login.dto";
-import { plainToInstance } from "class-transformer";
 import { UserLoginResultDto } from "src/domain/user/dto/response/user-login-result.dto";
+import { plainToInstance } from "class-transformer";
 import { AuthService } from "src/domain/auth/auth.service";
 import { UpdatePasswordDto } from "src/domain/user/dto/request/update-password.dto";
 
@@ -21,20 +21,41 @@ export class UserService {
   ) {}
 
   // 유저 로그인
-  async loginUser(dto: UserLoginDto): Promise<UserLoginResultDto> {
+  async loginUser(
+    dto: UserLoginDto,
+    session: Record<string, any>
+  ): Promise<UserLoginResultDto> {
     const user = await this.userRepository.findOne({
       where: { email: dto.email, password: dto.password },
     });
 
     if (!user) {
-      throw new NotFoundException("관리자를 찾을 수 없습니다.");
+      throw new NotFoundException("유저를 찾을 수 없습니다.");
     }
 
-    this.authService.loginSuccess();
+    session.userId = user.id;
+    session.email = user.email;
 
     return plainToInstance(UserLoginResultDto, {
       id: user.id,
       message: "로그인에 성공했습니다.",
+    });
+  }
+
+  // 로그인 상태 확인
+  async getLoginStatus(session: Record<string, any>): Promise<boolean> {
+    if (!session.userId) {
+      throw new ForbiddenException("로그인이 필요합니다.");
+    }
+    return true;
+  }
+
+  // 로그아웃
+  async logoutUser(session: Record<string, any>): Promise<void> {
+    session.destroy((err) => {
+      if (err) {
+        throw new Error("로그아웃에 실패했습니다.");
+      }
     });
   }
 
@@ -65,7 +86,7 @@ export class UserService {
   // 비밀번호 재설정
   async updatePassword(email: string, dto: UpdatePasswordDto): Promise<void> {
     const user = await this.userRepository.findOne({
-      where: { email: email },
+      where: { email },
     });
 
     if (!user) {
