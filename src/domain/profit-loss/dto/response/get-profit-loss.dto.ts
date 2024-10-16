@@ -36,4 +36,7 @@ export class GetProfitLossDto {
     description: "온라인 매체명: 온라인 매입액 총합",
   })
   onlinePurchaseByMedia: Record<string, number>;
+
+  @ApiProperty({ example: 5000000, description: "당기 순이익" })
+  netProfitOrLoss: number;
 }

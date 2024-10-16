@@ -1,10 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
 import { Order } from "src/domain/order/entity/order.entity";
 import { Deposit } from "src/domain/deposit/entity/deposit.entity";
 import { Withdrawal } from "src/domain/withdrawal/entity/withdrawal.entity";
 import { Online } from "src/domain/online/entity/online.entity";
-import { Repository } from "typeorm";
 import { GetProfitLossDto } from "src/domain/profit-loss/dto/response/get-profit-loss.dto";
 
 @Injectable()
@@ -20,7 +20,6 @@ export class ProfitLossService {
     private readonly onlineRepository: Repository<Online>
   ) {}
 
-  // 손익계산서 데이터 검색 및 필터링
   async getProfitLoss(
     startDate: Date,
     endDate: Date,
@@ -34,6 +33,7 @@ export class ProfitLossService {
     const depositByPurpose =
       await this.calculateDepositByPurpose(queryConditions);
     const onlineSalesByMedia = await this.calculateOnlineSales(queryConditions);
+
     const wholesalePurchase =
       await this.calculateWholesalePurchase(queryConditions);
     const wholesalePurchaseShippingFee =
@@ -42,6 +42,23 @@ export class ProfitLossService {
       await this.calculateWithdrawalByPurpose(queryConditions);
     const onlinePurchaseByMedia =
       await this.calculateOnlinePurchase(queryConditions);
+
+    // 총 매출 합계
+    const totalSales =
+      wholesaleSales +
+      wholesaleShippingFee +
+      Object.values(depositByPurpose).reduce((a, b) => a + b, 0) +
+      Object.values(onlineSalesByMedia).reduce((a, b) => a + b, 0);
+
+    // 총 매입 합계
+    const totalPurchases =
+      wholesalePurchase +
+      wholesalePurchaseShippingFee +
+      Object.values(withdrawalByPurpose).reduce((a, b) => a + b, 0) +
+      Object.values(onlinePurchaseByMedia).reduce((a, b) => a + b, 0);
+
+    // 당기 순이익(순손실) 계산
+    const netProfitOrLoss = totalSales - totalPurchases;
 
     return {
       mediumName: mediumName,
@@ -54,6 +71,7 @@ export class ProfitLossService {
       wholesalePurchaseShippingFee,
       withdrawalByPurpose,
       onlinePurchaseByMedia,
+      netProfitOrLoss,
     };
   }
 
@@ -67,10 +85,11 @@ export class ProfitLossService {
         startDate,
         endDate,
       })
+      .andWhere("order.isMediumMatched = true")
       .andWhere("order.mediumName = :mediumName", { mediumName })
       .getRawOne();
 
-    return result.total || 0;
+    return parseInt(result.total) || 0;
   }
 
   // 도매 배송비 계산
@@ -85,10 +104,11 @@ export class ProfitLossService {
         startDate,
         endDate,
       })
+      .andWhere("order.isMediumMatched = true")
       .andWhere("order.mediumName = :mediumName", { mediumName })
       .getRawOne();
 
-    return result.total || 0;
+    return parseInt(result.total) || 0;
   }
 
   // 입금 내역 용도별로 계산
@@ -98,17 +118,21 @@ export class ProfitLossService {
     const { startDate, endDate, mediumName } = queryConditions;
     const deposits = await this.depositRepository
       .createQueryBuilder("deposit")
-      .select(["deposit.purpose", "SUM(deposit.depositAmount) AS total"])
-      .where("deposit.createdAt BETWEEN :startDate AND :endDate", {
+      .select([
+        "deposit.purpose AS purpose",
+        "SUM(deposit.depositAmount) AS total",
+      ])
+      .where("deposit.depositDate BETWEEN :startDate AND :endDate", {
         startDate,
         endDate,
       })
+      .andWhere("deposit.isMediumMatched = true")
       .andWhere("deposit.mediumName = :mediumName", { mediumName })
       .groupBy("deposit.purpose")
       .getRawMany();
 
     return deposits.reduce((acc, curr) => {
-      acc[curr.purpose] = parseInt(curr.total, 10);
+      acc[curr.purpose || "Unknown"] = parseInt(curr.total, 10);
       return acc;
     }, {});
   }
@@ -120,8 +144,11 @@ export class ProfitLossService {
     const { startDate, endDate, mediumName } = queryConditions;
     const sales = await this.onlineRepository
       .createQueryBuilder("online")
-      .select(["online.mediumName", "SUM(online.salesAmount) AS total"])
-      .where("online.createdAt BETWEEN :startDate AND :endDate", {
+      .select([
+        "online.mediumName AS mediumName",
+        "SUM(online.salesAmount) AS total",
+      ])
+      .where("online.salesMonth BETWEEN :startDate AND :endDate", {
         startDate,
         endDate,
       })
@@ -130,7 +157,7 @@ export class ProfitLossService {
       .getRawMany();
 
     return sales.reduce((acc, curr) => {
-      acc[curr.mediumName] = parseInt(curr.total, 10);
+      acc[curr.mediumName || "Unknown"] = parseInt(curr.total, 10);
       return acc;
     }, {});
   }
@@ -147,10 +174,11 @@ export class ProfitLossService {
         startDate,
         endDate,
       })
+      .andWhere("order.isMediumMatched = true")
       .andWhere("order.mediumName = :mediumName", { mediumName })
       .getRawOne();
 
-    return result.total || 0;
+    return parseInt(result.total) || 0;
   }
 
   // 도매 매입 배송비 계산
@@ -165,10 +193,11 @@ export class ProfitLossService {
         startDate,
         endDate,
       })
+      .andWhere("order.isMediumMatched = true")
       .andWhere("order.mediumName = :mediumName", { mediumName })
       .getRawOne();
 
-    return result.total || 0;
+    return parseInt(result.total) || 0;
   }
 
   // 출금 내역 용도별로 계산
@@ -179,19 +208,20 @@ export class ProfitLossService {
     const withdrawals = await this.withdrawalRepository
       .createQueryBuilder("withdrawal")
       .select([
-        "withdrawal.purpose",
+        "withdrawal.purpose AS purpose",
         "SUM(withdrawal.withdrawalAmount) AS total",
       ])
-      .where("withdrawal.createdAt BETWEEN :startDate AND :endDate", {
+      .where("withdrawal.withdrawalDate BETWEEN :startDate AND :endDate", {
         startDate,
         endDate,
       })
+      .andWhere("withdrawal.isMediumMatched = true")
       .andWhere("withdrawal.mediumName = :mediumName", { mediumName })
       .groupBy("withdrawal.purpose")
       .getRawMany();
 
     return withdrawals.reduce((acc, curr) => {
-      acc[curr.purpose] = parseInt(curr.total, 10);
+      acc[curr.purpose || "Unknown"] = parseInt(curr.total, 10);
       return acc;
     }, {});
   }
@@ -203,8 +233,11 @@ export class ProfitLossService {
     const { startDate, endDate, mediumName } = queryConditions;
     const purchases = await this.onlineRepository
       .createQueryBuilder("online")
-      .select(["online.mediumName", "SUM(online.purchaseAmount) AS total"])
-      .where("online.createdAt BETWEEN :startDate AND :endDate", {
+      .select([
+        "online.mediumName AS mediumName",
+        "SUM(online.purchaseAmount) AS total",
+      ])
+      .where("online.salesMonth BETWEEN :startDate AND :endDate", {
         startDate,
         endDate,
       })
@@ -213,7 +246,7 @@ export class ProfitLossService {
       .getRawMany();
 
     return purchases.reduce((acc, curr) => {
-      acc[curr.mediumName] = parseInt(curr.total, 10);
+      acc[curr.mediumName || "Unknown"] = parseInt(curr.total, 10);
       return acc;
     }, {});
   }
