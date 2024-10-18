@@ -9,7 +9,11 @@ async function bootstrap() {
   moment.tz.setDefault("Asia/Seoul");
 
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  app.enableCors();
+
+  app.enableCors({
+    origin: true,
+    credentials: true,
+  });
 
   app.use(
     session({
