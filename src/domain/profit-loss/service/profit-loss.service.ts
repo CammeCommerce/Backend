@@ -44,18 +44,24 @@ export class ProfitLossService {
       await this.calculateOnlinePurchase(queryConditions);
 
     // 총 매출 합계
-    const totalSales =
-      wholesaleSales +
-      wholesaleShippingFee +
-      Object.values(depositByPurpose).reduce((a, b) => a + b, 0) +
-      Object.values(onlineSalesByMedia).reduce((a, b) => a + b, 0);
+    let totalSales = 0;
+    totalSales += wholesaleSales;
+    totalSales += wholesaleShippingFee;
+    totalSales += Object.values(depositByPurpose).reduce((a, b) => a + b, 0);
+    totalSales += Object.values(onlineSalesByMedia).reduce((a, b) => a + b, 0);
 
     // 총 매입 합계
-    const totalPurchases =
-      wholesalePurchase +
-      wholesalePurchaseShippingFee +
-      Object.values(withdrawalByPurpose).reduce((a, b) => a + b, 0) +
-      Object.values(onlinePurchaseByMedia).reduce((a, b) => a + b, 0);
+    let totalPurchases = 0;
+    totalPurchases += wholesalePurchase;
+    totalPurchases += wholesalePurchaseShippingFee;
+    totalPurchases += Object.values(withdrawalByPurpose).reduce(
+      (a, b) => a + b,
+      0
+    );
+    totalPurchases += Object.values(onlinePurchaseByMedia).reduce(
+      (a, b) => a + b,
+      0
+    );
 
     // 당기 순이익(순손실) 계산
     const netProfitOrLoss = totalSales - totalPurchases;
