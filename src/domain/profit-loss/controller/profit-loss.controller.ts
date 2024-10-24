@@ -29,9 +29,10 @@ export class ProfitLossController {
     @Query("endDate") endDate: string,
     @Query("mediumName") mediumName: string
   ): Promise<GetProfitLossDto> {
-    const start = startDate ? new Date(startDate) : null;
-    const end = endDate ? new Date(endDate) : null;
-
-    return await this.profitLossService.getProfitLoss(start, end, mediumName);
+    return await this.profitLossService.getProfitLoss(
+      startDate,
+      endDate,
+      mediumName
+    );
   }
 }

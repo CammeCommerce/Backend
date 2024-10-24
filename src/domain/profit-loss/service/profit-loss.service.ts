@@ -21,11 +21,21 @@ export class ProfitLossService {
   ) {}
 
   async getProfitLoss(
-    startDate: Date,
-    endDate: Date,
+    startDate: string,
+    endDate: string,
     mediumName: string
   ): Promise<GetProfitLossDto> {
-    const queryConditions = { startDate, endDate, mediumName };
+    // startDate와 endDate에서 연도와 월을 추출
+    const [startYear, startMonth] = startDate.split("-").map(Number);
+    const [endYear, endMonth] = endDate.split("-").map(Number);
+
+    const queryConditions = {
+      startYear,
+      startMonth,
+      endYear,
+      endMonth,
+      mediumName,
+    };
 
     const wholesaleSales = await this.calculateWholesaleSales(queryConditions);
     const wholesaleShippingFee =
@@ -68,7 +78,7 @@ export class ProfitLossService {
 
     return {
       mediumName: mediumName,
-      period: `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, "0")} ~ ${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, "0")}`,
+      period: `${startDate} ~ ${endDate}`,
       wholesaleSales,
       wholesaleShippingFee,
       depositByPurpose,
@@ -83,13 +93,18 @@ export class ProfitLossService {
 
   // 도매 매출 계산
   private async calculateWholesaleSales(queryConditions: any): Promise<number> {
-    const { startDate, endDate, mediumName } = queryConditions;
+    const { startYear, startMonth, endYear, endMonth, mediumName } =
+      queryConditions;
     const result = await this.orderRepository
       .createQueryBuilder("order")
       .select("SUM(order.salesPrice)", "total")
-      .where("order.createdAt BETWEEN :startDate AND :endDate", {
-        startDate,
-        endDate,
+      .where("YEAR(order.createdAt) BETWEEN :startYear AND :endYear", {
+        startYear,
+        endYear,
+      })
+      .andWhere("MONTH(order.createdAt) BETWEEN :startMonth AND :endMonth", {
+        startMonth,
+        endMonth,
       })
       .andWhere("order.isMediumMatched = true")
       .andWhere("order.mediumName = :mediumName", { mediumName })
@@ -102,13 +117,18 @@ export class ProfitLossService {
   private async calculateWholesaleShippingFee(
     queryConditions: any
   ): Promise<number> {
-    const { startDate, endDate, mediumName } = queryConditions;
+    const { startYear, startMonth, endYear, endMonth, mediumName } =
+      queryConditions;
     const result = await this.orderRepository
       .createQueryBuilder("order")
       .select("SUM(order.salesShippingFee)", "total")
-      .where("order.createdAt BETWEEN :startDate AND :endDate", {
-        startDate,
-        endDate,
+      .where("YEAR(order.createdAt) BETWEEN :startYear AND :endYear", {
+        startYear,
+        endYear,
+      })
+      .andWhere("MONTH(order.createdAt) BETWEEN :startMonth AND :endMonth", {
+        startMonth,
+        endMonth,
       })
       .andWhere("order.isMediumMatched = true")
       .andWhere("order.mediumName = :mediumName", { mediumName })
@@ -121,17 +141,22 @@ export class ProfitLossService {
   private async calculateDepositByPurpose(
     queryConditions: any
   ): Promise<Record<string, number>> {
-    const { startDate, endDate, mediumName } = queryConditions;
+    const { startYear, startMonth, endYear, endMonth, mediumName } =
+      queryConditions;
     const deposits = await this.depositRepository
       .createQueryBuilder("deposit")
       .select([
         "deposit.purpose AS purpose",
         "SUM(deposit.depositAmount) AS total",
       ])
-      .where("deposit.depositDate BETWEEN :startDate AND :endDate", {
-        startDate,
-        endDate,
+      .where("YEAR(deposit.depositDate) BETWEEN :startYear AND :endYear", {
+        startYear,
+        endYear,
       })
+      .andWhere(
+        "MONTH(deposit.depositDate) BETWEEN :startMonth AND :endMonth",
+        { startMonth, endMonth }
+      )
       .andWhere("deposit.isMediumMatched = true")
       .andWhere("deposit.mediumName = :mediumName", { mediumName })
       .groupBy("deposit.purpose")
@@ -147,16 +172,21 @@ export class ProfitLossService {
   private async calculateOnlineSales(
     queryConditions: any
   ): Promise<Record<string, number>> {
-    const { startDate, endDate, mediumName } = queryConditions;
+    const { startYear, startMonth, endYear, endMonth, mediumName } =
+      queryConditions;
     const sales = await this.onlineRepository
       .createQueryBuilder("online")
       .select([
         "online.mediumName AS mediumName",
         "SUM(online.salesAmount) AS total",
       ])
-      .where("online.salesMonth BETWEEN :startDate AND :endDate", {
-        startDate,
-        endDate,
+      .where("YEAR(online.salesMonth) BETWEEN :startYear AND :endYear", {
+        startYear,
+        endYear,
+      })
+      .andWhere("MONTH(online.salesMonth) BETWEEN :startMonth AND :endMonth", {
+        startMonth,
+        endMonth,
       })
       .andWhere("online.mediumName = :mediumName", { mediumName })
       .groupBy("online.mediumName")
@@ -172,13 +202,18 @@ export class ProfitLossService {
   private async calculateWholesalePurchase(
     queryConditions: any
   ): Promise<number> {
-    const { startDate, endDate, mediumName } = queryConditions;
+    const { startYear, startMonth, endYear, endMonth, mediumName } =
+      queryConditions;
     const result = await this.orderRepository
       .createQueryBuilder("order")
       .select("SUM(order.purchasePrice)", "total")
-      .where("order.createdAt BETWEEN :startDate AND :endDate", {
-        startDate,
-        endDate,
+      .where("YEAR(order.createdAt) BETWEEN :startYear AND :endYear", {
+        startYear,
+        endYear,
+      })
+      .andWhere("MONTH(order.createdAt) BETWEEN :startMonth AND :endMonth", {
+        startMonth,
+        endMonth,
       })
       .andWhere("order.isMediumMatched = true")
       .andWhere("order.mediumName = :mediumName", { mediumName })
@@ -191,13 +226,18 @@ export class ProfitLossService {
   private async calculateWholesalePurchaseShippingFee(
     queryConditions: any
   ): Promise<number> {
-    const { startDate, endDate, mediumName } = queryConditions;
+    const { startYear, startMonth, endYear, endMonth, mediumName } =
+      queryConditions;
     const result = await this.orderRepository
       .createQueryBuilder("order")
       .select("SUM(order.purchaseShippingFee)", "total")
-      .where("order.createdAt BETWEEN :startDate AND :endDate", {
-        startDate,
-        endDate,
+      .where("YEAR(order.createdAt) BETWEEN :startYear AND :endYear", {
+        startYear,
+        endYear,
+      })
+      .andWhere("MONTH(order.createdAt) BETWEEN :startMonth AND :endMonth", {
+        startMonth,
+        endMonth,
       })
       .andWhere("order.isMediumMatched = true")
       .andWhere("order.mediumName = :mediumName", { mediumName })
@@ -210,17 +250,22 @@ export class ProfitLossService {
   private async calculateWithdrawalByPurpose(
     queryConditions: any
   ): Promise<Record<string, number>> {
-    const { startDate, endDate, mediumName } = queryConditions;
+    const { startYear, startMonth, endYear, endMonth, mediumName } =
+      queryConditions;
     const withdrawals = await this.withdrawalRepository
       .createQueryBuilder("withdrawal")
       .select([
         "withdrawal.purpose AS purpose",
         "SUM(withdrawal.withdrawalAmount) AS total",
       ])
-      .where("withdrawal.withdrawalDate BETWEEN :startDate AND :endDate", {
-        startDate,
-        endDate,
-      })
+      .where(
+        "YEAR(withdrawal.withdrawalDate) BETWEEN :startYear AND :endYear",
+        { startYear, endYear }
+      )
+      .andWhere(
+        "MONTH(withdrawal.withdrawalDate) BETWEEN :startMonth AND :endMonth",
+        { startMonth, endMonth }
+      )
       .andWhere("withdrawal.isMediumMatched = true")
       .andWhere("withdrawal.mediumName = :mediumName", { mediumName })
       .groupBy("withdrawal.purpose")
@@ -236,16 +281,21 @@ export class ProfitLossService {
   private async calculateOnlinePurchase(
     queryConditions: any
   ): Promise<Record<string, number>> {
-    const { startDate, endDate, mediumName } = queryConditions;
+    const { startYear, startMonth, endYear, endMonth, mediumName } =
+      queryConditions;
     const purchases = await this.onlineRepository
       .createQueryBuilder("online")
       .select([
         "online.mediumName AS mediumName",
         "SUM(online.purchaseAmount) AS total",
       ])
-      .where("online.salesMonth BETWEEN :startDate AND :endDate", {
-        startDate,
-        endDate,
+      .where("YEAR(online.salesMonth) BETWEEN :startYear AND :endYear", {
+        startYear,
+        endYear,
+      })
+      .andWhere("MONTH(online.salesMonth) BETWEEN :startMonth AND :endMonth", {
+        startMonth,
+        endMonth,
       })
       .andWhere("online.mediumName = :mediumName", { mediumName })
       .groupBy("online.mediumName")
