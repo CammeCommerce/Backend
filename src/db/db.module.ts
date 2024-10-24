@@ -18,7 +18,9 @@ import { WithdrawalColumnIndex } from "src/domain/withdrawal/entity/withdrawal-c
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
