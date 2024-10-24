@@ -36,6 +36,8 @@ async function bootstrap() {
 
   SwaggerModule.setup("api", app, swaggerDocument);
 
+  app.setGlobalPrefix("api/v1");
+
   await app.listen(8080);
 }
 bootstrap();
