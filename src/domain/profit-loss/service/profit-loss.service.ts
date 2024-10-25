@@ -25,6 +25,18 @@ export class ProfitLossService {
     endDate: string,
     mediumName: string
   ): Promise<GetProfitLossDto> {
+    // 각 값이 매번 새로 초기화되도록 명시적으로 0으로 설정
+    let wholesaleSales = 0;
+    let wholesaleShippingFee = 0;
+    let depositByPurpose: Record<string, number> = {};
+    let onlineSalesByMedia: Record<string, number> = {};
+
+    let wholesalePurchase = 0;
+    let wholesalePurchaseShippingFee = 0;
+    let withdrawalByPurpose: Record<string, number> = {};
+    let onlinePurchaseByMedia: Record<string, number> = {};
+
+    // 연도와 월을 추출
     const [startYear, startMonth] = startDate.split("-").map(Number);
     const [endYear, endMonth] = endDate.split("-").map(Number);
 
@@ -36,27 +48,27 @@ export class ProfitLossService {
       mediumName,
     };
 
-    const wholesaleSales = await this.calculateWholesaleSales(queryConditions);
-    const wholesaleShippingFee =
+    // 각 계산 메서드에서 값 할당
+    wholesaleSales = await this.calculateWholesaleSales(queryConditions);
+    wholesaleShippingFee =
       await this.calculateWholesaleShippingFee(queryConditions);
-    const depositByPurpose =
-      await this.calculateDepositByPurpose(queryConditions);
-    const onlineSalesByMedia = await this.calculateOnlineSales(queryConditions);
+    depositByPurpose = await this.calculateDepositByPurpose(queryConditions);
+    onlineSalesByMedia = await this.calculateOnlineSales(queryConditions);
 
-    const wholesalePurchase =
-      await this.calculateWholesalePurchase(queryConditions);
-    const wholesalePurchaseShippingFee =
+    wholesalePurchase = await this.calculateWholesalePurchase(queryConditions);
+    wholesalePurchaseShippingFee =
       await this.calculateWholesalePurchaseShippingFee(queryConditions);
-    const withdrawalByPurpose =
+    withdrawalByPurpose =
       await this.calculateWithdrawalByPurpose(queryConditions);
-    const onlinePurchaseByMedia =
-      await this.calculateOnlinePurchase(queryConditions);
+    onlinePurchaseByMedia = await this.calculateOnlinePurchase(queryConditions);
 
+    // 총 매출과 총 매입 합계 계산
     const totalSales =
       wholesaleSales +
       wholesaleShippingFee +
       Object.values(depositByPurpose).reduce((a, b) => a + b, 0) +
       Object.values(onlineSalesByMedia).reduce((a, b) => a + b, 0);
+
     const totalPurchases =
       wholesalePurchase +
       wholesalePurchaseShippingFee +
