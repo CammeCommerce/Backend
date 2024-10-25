@@ -88,6 +88,7 @@ export class OrderService {
           salesPlace: order.salesPlace,
           isDeleted: false,
         },
+        cache: false,
       });
 
       if (matchedRecord) {
