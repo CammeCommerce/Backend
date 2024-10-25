@@ -103,7 +103,7 @@ export class ProfitLossService {
       .andWhere("order.isMediumMatched = :isMediumMatched", {
         isMediumMatched: true,
       })
-      .where("YEAR(order.createdAt) BETWEEN :startYear AND :endYear", {
+      .andWhere("YEAR(order.createdAt) BETWEEN :startYear AND :endYear", {
         startYear,
         endYear,
       })
@@ -222,7 +222,7 @@ export class ProfitLossService {
       .andWhere("order.isMediumMatched = :isMediumMatched", {
         isMediumMatched: true,
       })
-      .where("YEAR(order.createdAt) BETWEEN :startYear AND :endYear", {
+      .andWhere("YEAR(order.createdAt) BETWEEN :startYear AND :endYear", {
         startYear,
         endYear,
       })
