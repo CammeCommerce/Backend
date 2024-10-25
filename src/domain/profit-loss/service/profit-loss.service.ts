@@ -25,7 +25,7 @@ export class ProfitLossService {
     endDate: string,
     mediumName: string
   ): Promise<GetProfitLossDto> {
-    // 각 값이 매번 새로 초기화되도록 명시적으로 0으로 설정
+    // 초기화된 변수 설정
     let wholesaleSales = 0;
     let wholesaleShippingFee = 0;
     let depositByPurpose: Record<string, number> = {};
@@ -48,7 +48,7 @@ export class ProfitLossService {
       mediumName,
     };
 
-    // 각 계산 메서드에서 값 할당
+    // 각 메서드 결과 할당
     wholesaleSales = await this.calculateWholesaleSales(queryConditions);
     wholesaleShippingFee =
       await this.calculateWholesaleShippingFee(queryConditions);
@@ -62,7 +62,6 @@ export class ProfitLossService {
       await this.calculateWithdrawalByPurpose(queryConditions);
     onlinePurchaseByMedia = await this.calculateOnlinePurchase(queryConditions);
 
-    // 총 매출과 총 매입 합계 계산
     const totalSales =
       wholesaleSales +
       wholesaleShippingFee +
@@ -127,7 +126,11 @@ export class ProfitLossService {
     const result = await this.orderRepository
       .createQueryBuilder("order")
       .select("SUM(order.salesShippingFee)", "total")
-      .where("YEAR(order.createdAt) BETWEEN :startYear AND :endYear", {
+      .where("order.isDeleted = :isDeleted", { isDeleted: false })
+      .andWhere("order.isMediumMatched = :isMediumMatched", {
+        isMediumMatched: true,
+      })
+      .andWhere("YEAR(order.createdAt) BETWEEN :startYear AND :endYear", {
         startYear,
         endYear,
       })
@@ -135,9 +138,7 @@ export class ProfitLossService {
         startMonth,
         endMonth,
       })
-      .andWhere("order.isMediumMatched = true")
       .andWhere("order.mediumName = :mediumName", { mediumName })
-      .andWhere("order.isDeleted = false")
       .cache(false)
       .getRawOne();
 
@@ -156,7 +157,11 @@ export class ProfitLossService {
         "deposit.purpose AS purpose",
         "SUM(deposit.depositAmount) AS total",
       ])
-      .where("YEAR(deposit.depositDate) BETWEEN :startYear AND :endYear", {
+      .where("deposit.isDeleted = :isDeleted", { isDeleted: false })
+      .andWhere("deposit.isMediumMatched = :isMediumMatched", {
+        isMediumMatched: true,
+      })
+      .andWhere("YEAR(deposit.depositDate) BETWEEN :startYear AND :endYear", {
         startYear,
         endYear,
       })
@@ -164,9 +169,7 @@ export class ProfitLossService {
         "MONTH(deposit.depositDate) BETWEEN :startMonth AND :endMonth",
         { startMonth, endMonth }
       )
-      .andWhere("deposit.isMediumMatched = true")
       .andWhere("deposit.mediumName = :mediumName", { mediumName })
-      .andWhere("deposit.isDeleted = false")
       .groupBy("deposit.purpose")
       .cache(false)
       .getRawMany();
@@ -189,7 +192,8 @@ export class ProfitLossService {
         "online.mediumName AS mediumName",
         "SUM(online.salesAmount) AS total",
       ])
-      .where("YEAR(online.salesMonth) BETWEEN :startYear AND :endYear", {
+      .where("online.isDeleted = :isDeleted", { isDeleted: false })
+      .andWhere("YEAR(online.salesMonth) BETWEEN :startYear AND :endYear", {
         startYear,
         endYear,
       })
@@ -198,7 +202,6 @@ export class ProfitLossService {
         endMonth,
       })
       .andWhere("online.mediumName = :mediumName", { mediumName })
-      .andWhere("online.isDeleted = false")
       .groupBy("online.mediumName")
       .cache(false)
       .getRawMany();
@@ -246,7 +249,11 @@ export class ProfitLossService {
     const result = await this.orderRepository
       .createQueryBuilder("order")
       .select("SUM(order.purchaseShippingFee)", "total")
-      .where("YEAR(order.createdAt) BETWEEN :startYear AND :endYear", {
+      .where("order.isDeleted = :isDeleted", { isDeleted: false })
+      .andWhere("order.isMediumMatched = :isMediumMatched", {
+        isMediumMatched: true,
+      })
+      .andWhere("YEAR(order.createdAt) BETWEEN :startYear AND :endYear", {
         startYear,
         endYear,
       })
@@ -254,9 +261,7 @@ export class ProfitLossService {
         startMonth,
         endMonth,
       })
-      .andWhere("order.isMediumMatched = true")
       .andWhere("order.mediumName = :mediumName", { mediumName })
-      .andWhere("order.isDeleted = false")
       .cache(false)
       .getRawOne();
 
@@ -275,7 +280,11 @@ export class ProfitLossService {
         "withdrawal.purpose AS purpose",
         "SUM(withdrawal.withdrawalAmount) AS total",
       ])
-      .where(
+      .where("withdrawal.isDeleted = :isDeleted", { isDeleted: false })
+      .andWhere("withdrawal.isMediumMatched = :isMediumMatched", {
+        isMediumMatched: true,
+      })
+      .andWhere(
         "YEAR(withdrawal.withdrawalDate) BETWEEN :startYear AND :endYear",
         { startYear, endYear }
       )
@@ -283,9 +292,7 @@ export class ProfitLossService {
         "MONTH(withdrawal.withdrawalDate) BETWEEN :startMonth AND :endMonth",
         { startMonth, endMonth }
       )
-      .andWhere("withdrawal.isMediumMatched = true")
       .andWhere("withdrawal.mediumName = :mediumName", { mediumName })
-      .andWhere("withdrawal.isDeleted = false")
       .groupBy("withdrawal.purpose")
       .cache(false)
       .getRawMany();
@@ -308,7 +315,8 @@ export class ProfitLossService {
         "online.mediumName AS mediumName",
         "SUM(online.purchaseAmount) AS total",
       ])
-      .where("YEAR(online.salesMonth) BETWEEN :startYear AND :endYear", {
+      .where("online.isDeleted = :isDeleted", { isDeleted: false })
+      .andWhere("YEAR(online.salesMonth) BETWEEN :startYear AND :endYear", {
         startYear,
         endYear,
       })
@@ -317,7 +325,6 @@ export class ProfitLossService {
         endMonth,
       })
       .andWhere("online.mediumName = :mediumName", { mediumName })
-      .andWhere("online.isDeleted = false")
       .groupBy("online.mediumName")
       .cache(false)
       .getRawMany();
