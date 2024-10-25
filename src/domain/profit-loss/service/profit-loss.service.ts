@@ -216,6 +216,8 @@ export class ProfitLossService {
     const result = await this.orderRepository
       .createQueryBuilder("order")
       .select("SUM(order.purchasePrice)", "total")
+      .where("order.isDeleted = false")
+      .andWhere("order.isMediumMatched = true")
       .where("YEAR(order.createdAt) BETWEEN :startYear AND :endYear", {
         startYear,
         endYear,
@@ -224,9 +226,7 @@ export class ProfitLossService {
         startMonth,
         endMonth,
       })
-      .andWhere("order.isMediumMatched = true")
       .andWhere("order.mediumName = :mediumName", { mediumName })
-      .andWhere("order.isDeleted = false")
       .cache(false)
       .getRawOne();
 
