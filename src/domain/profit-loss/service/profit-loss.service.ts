@@ -110,6 +110,7 @@ export class ProfitLossService {
       .andWhere("order.isMediumMatched = true")
       .andWhere("order.mediumName = :mediumName", { mediumName })
       .andWhere("order.isDeleted = false")
+      .cache(false)
       .getRawOne();
 
     return parseInt(result.total) || 0;
@@ -135,6 +136,7 @@ export class ProfitLossService {
       .andWhere("order.isMediumMatched = true")
       .andWhere("order.mediumName = :mediumName", { mediumName })
       .andWhere("order.isDeleted = false")
+      .cache(false)
       .getRawOne();
 
     return parseInt(result.total) || 0;
@@ -164,6 +166,7 @@ export class ProfitLossService {
       .andWhere("deposit.mediumName = :mediumName", { mediumName })
       .andWhere("deposit.isDeleted = false")
       .groupBy("deposit.purpose")
+      .cache(false)
       .getRawMany();
 
     return deposits.reduce((acc, curr) => {
@@ -195,6 +198,7 @@ export class ProfitLossService {
       .andWhere("online.mediumName = :mediumName", { mediumName })
       .andWhere("online.isDeleted = false")
       .groupBy("online.mediumName")
+      .cache(false)
       .getRawMany();
 
     return sales.reduce((acc, curr) => {
@@ -223,6 +227,7 @@ export class ProfitLossService {
       .andWhere("order.isMediumMatched = true")
       .andWhere("order.mediumName = :mediumName", { mediumName })
       .andWhere("order.isDeleted = false")
+      .cache(false)
       .getRawOne();
 
     return parseInt(result.total) || 0;
@@ -248,6 +253,7 @@ export class ProfitLossService {
       .andWhere("order.isMediumMatched = true")
       .andWhere("order.mediumName = :mediumName", { mediumName })
       .andWhere("order.isDeleted = false")
+      .cache(false)
       .getRawOne();
 
     return parseInt(result.total) || 0;
@@ -277,6 +283,7 @@ export class ProfitLossService {
       .andWhere("withdrawal.mediumName = :mediumName", { mediumName })
       .andWhere("withdrawal.isDeleted = false")
       .groupBy("withdrawal.purpose")
+      .cache(false)
       .getRawMany();
 
     return withdrawals.reduce((acc, curr) => {
@@ -308,6 +315,7 @@ export class ProfitLossService {
       .andWhere("online.mediumName = :mediumName", { mediumName })
       .andWhere("online.isDeleted = false")
       .groupBy("online.mediumName")
+      .cache(false)
       .getRawMany();
 
     return purchases.reduce((acc, curr) => {
