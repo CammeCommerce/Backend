@@ -25,7 +25,6 @@ export class ProfitLossService {
     endDate: string,
     mediumName: string
   ): Promise<GetProfitLossDto> {
-    // startDate와 endDate에서 연도와 월을 추출
     const [startYear, startMonth] = startDate.split("-").map(Number);
     const [endYear, endMonth] = endDate.split("-").map(Number);
 
@@ -98,6 +97,7 @@ export class ProfitLossService {
       })
       .andWhere("order.isMediumMatched = true")
       .andWhere("order.mediumName = :mediumName", { mediumName })
+      .andWhere("order.isDeleted = false")
       .getRawOne();
 
     return parseInt(result.total) || 0;
@@ -122,6 +122,7 @@ export class ProfitLossService {
       })
       .andWhere("order.isMediumMatched = true")
       .andWhere("order.mediumName = :mediumName", { mediumName })
+      .andWhere("order.isDeleted = false")
       .getRawOne();
 
     return parseInt(result.total) || 0;
@@ -149,6 +150,7 @@ export class ProfitLossService {
       )
       .andWhere("deposit.isMediumMatched = true")
       .andWhere("deposit.mediumName = :mediumName", { mediumName })
+      .andWhere("deposit.isDeleted = false")
       .groupBy("deposit.purpose")
       .getRawMany();
 
@@ -179,6 +181,7 @@ export class ProfitLossService {
         endMonth,
       })
       .andWhere("online.mediumName = :mediumName", { mediumName })
+      .andWhere("online.isDeleted = false")
       .groupBy("online.mediumName")
       .getRawMany();
 
@@ -207,6 +210,7 @@ export class ProfitLossService {
       })
       .andWhere("order.isMediumMatched = true")
       .andWhere("order.mediumName = :mediumName", { mediumName })
+      .andWhere("order.isDeleted = false")
       .getRawOne();
 
     return parseInt(result.total) || 0;
@@ -231,6 +235,7 @@ export class ProfitLossService {
       })
       .andWhere("order.isMediumMatched = true")
       .andWhere("order.mediumName = :mediumName", { mediumName })
+      .andWhere("order.isDeleted = false")
       .getRawOne();
 
     return parseInt(result.total) || 0;
@@ -258,6 +263,7 @@ export class ProfitLossService {
       )
       .andWhere("withdrawal.isMediumMatched = true")
       .andWhere("withdrawal.mediumName = :mediumName", { mediumName })
+      .andWhere("withdrawal.isDeleted = false")
       .groupBy("withdrawal.purpose")
       .getRawMany();
 
@@ -288,6 +294,7 @@ export class ProfitLossService {
         endMonth,
       })
       .andWhere("online.mediumName = :mediumName", { mediumName })
+      .andWhere("online.isDeleted = false")
       .groupBy("online.mediumName")
       .getRawMany();
 
