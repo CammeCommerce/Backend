@@ -471,18 +471,21 @@ export class DepositService {
       throw new NotFoundException("입금값을 찾을 수 없습니다.");
     }
 
-    // Test: 수정 사항을 현재 행에만 반영
-    deposit.mediumName = dto.mediumName || deposit.mediumName;
-    deposit.depositDate = dto.depositDate;
-    deposit.accountAlias = dto.accountAlias;
-    deposit.depositAmount = dto.depositAmount;
-    deposit.accountDescription = dto.accountDescription;
-    deposit.transactionMethod1 = dto.transactionMethod1;
-    deposit.transactionMethod2 = dto.transactionMethod2;
-    deposit.accountMemo = dto.accountMemo;
-    deposit.counterpartyName = dto.counterpartyName;
-    deposit.purpose = dto.purpose;
-    deposit.clientName = dto.clientName;
+    // 각각의 필드를 개별적으로 수정 가능하게 설정
+    deposit.mediumName = dto.mediumName ?? deposit.mediumName;
+    deposit.depositDate = dto.depositDate ?? deposit.depositDate;
+    deposit.accountAlias = dto.accountAlias ?? deposit.accountAlias;
+    deposit.depositAmount = dto.depositAmount ?? deposit.depositAmount;
+    deposit.accountDescription =
+      dto.accountDescription ?? deposit.accountDescription;
+    deposit.transactionMethod1 =
+      dto.transactionMethod1 ?? deposit.transactionMethod1;
+    deposit.transactionMethod2 =
+      dto.transactionMethod2 ?? deposit.transactionMethod2;
+    deposit.accountMemo = dto.accountMemo ?? deposit.accountMemo;
+    deposit.counterpartyName = dto.counterpartyName ?? deposit.counterpartyName;
+    deposit.purpose = dto.purpose ?? deposit.purpose;
+    deposit.clientName = dto.clientName ?? deposit.clientName;
     deposit.updatedAt = new Date();
 
     await this.depositRepository.save(deposit);
