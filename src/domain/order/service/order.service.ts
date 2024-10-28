@@ -670,8 +670,9 @@ export class OrderService {
       throw new BadRequestException(`잘못된 taxType 값: ${dto.taxType}`);
     }
 
-    order.mediumName = dto.mediumName;
-    order.settlementCompanyName = dto.settlementCompanyName;
+    order.mediumName = dto.mediumName || order.mediumName;
+    order.settlementCompanyName =
+      dto.settlementCompanyName || order.settlementCompanyName;
     order.productName = dto.productName;
     order.quantity = dto.quantity;
     order.orderDate = dto.orderDate;
