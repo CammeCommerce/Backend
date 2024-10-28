@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Medium } from "src/domain/medium/entity/medium.entity";
 import { Repository } from "typeorm";
@@ -11,12 +15,21 @@ import {
 } from "src/domain/medium/dto/response/get-medium.dto";
 import { ModifyMediumDto } from "src/domain/medium/dto/request/modify-medium.dto";
 import { ModifyMediumResultDto } from "src/domain/medium/dto/response/modify-medium-result.dto";
+import { Order } from "src/domain/order/entity/order.entity";
+import { Deposit } from "src/domain/deposit/entity/deposit.entity";
+import { Withdrawal } from "src/domain/withdrawal/entity/withdrawal.entity";
 
 @Injectable()
 export class MediumService {
   constructor(
     @InjectRepository(Medium)
-    private readonly mediumRepository: Repository<Medium>
+    private readonly mediumRepository: Repository<Medium>,
+    @InjectRepository(Order)
+    private readonly orderRepository: Repository<Order>,
+    @InjectRepository(Deposit)
+    private readonly depositRepository: Repository<Deposit>,
+    @InjectRepository(Withdrawal)
+    private readonly withdrawalRepository: Repository<Withdrawal>
   ) {}
 
   // 매체명 등록
@@ -205,7 +218,6 @@ export class MediumService {
     return modifyMediumResultDto;
   }
 
-  // TODO: 단 1건이라도 매칭된 건이 있을 시, 삭제할 수 없도록 구현
   // 매체명 삭제
   async deleteMedium(id: number): Promise<void> {
     const medium = await this.mediumRepository.findOne({
@@ -214,6 +226,23 @@ export class MediumService {
 
     if (!medium) {
       throw new NotFoundException("매체를 찾을 수 없습니다.");
+    }
+
+    // 단 1건이라도 매칭된 건이 있을 시, 삭제할 수 없도록 구현
+    const isMatchedInOrder = await this.orderRepository.findOne({
+      where: { mediumName: medium.name, isDeleted: false },
+    });
+    const isMatchedInDeposit = await this.depositRepository.findOne({
+      where: { mediumName: medium.name, isDeleted: false },
+    });
+    const isMatchedInWithdrawal = await this.withdrawalRepository.findOne({
+      where: { mediumName: medium.name, isDeleted: false },
+    });
+
+    if (isMatchedInOrder || isMatchedInDeposit || isMatchedInWithdrawal) {
+      throw new BadRequestException(
+        "매체명이 주문, 입금 또는 출금에서 사용되고 있어 삭제할 수 없습니다."
+      );
     }
 
     medium.deletedAt = new Date();
