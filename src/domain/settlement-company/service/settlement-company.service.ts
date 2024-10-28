@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { SettlementCompany } from "src/domain/settlement-company/entity/settlement-company.entity";
 import { Repository } from "typeorm";
@@ -11,12 +15,15 @@ import {
 } from "src/domain/settlement-company/dto/response/get-settlement-company.dto";
 import { ModifySettlementCompanyDto } from "src/domain/settlement-company/dto/request/modify-settlement-company.dto";
 import { ModifySettlementCompanyResultDto } from "src/domain/settlement-company/dto/response/modify-settlement-company-result.dto";
+import { Order } from "src/domain/order/entity/order.entity";
 
 @Injectable()
 export class SettlementCompanyService {
   constructor(
     @InjectRepository(SettlementCompany)
-    private readonly settlementCompanyRepository: Repository<SettlementCompany>
+    private readonly settlementCompanyRepository: Repository<SettlementCompany>,
+    @InjectRepository(Order)
+    private readonly orderRepository: Repository<Order>
   ) {}
 
   // 정산업체명 등록
@@ -223,7 +230,6 @@ export class SettlementCompanyService {
     return modifySettlementCompanyResultDto;
   }
 
-  // TODO: 단 1건이라도 매칭된 건이 있을 시, 삭제할 수 없도록 구현
   // 정산업체명 삭제
   async deleteSettlementCompany(id: number): Promise<void> {
     const settlementCompany = await this.settlementCompanyRepository.findOne({
@@ -232,6 +238,20 @@ export class SettlementCompanyService {
 
     if (!settlementCompany) {
       throw new NotFoundException("정산업체를 찾을 수 없습니다.");
+    }
+
+    // 단 1건이라도 매칭된 건이 있을 시, 삭제할 수 없도록 구현
+    const isMatchedInOrder = await this.orderRepository.findOne({
+      where: {
+        settlementCompanyName: settlementCompany.name,
+        isDeleted: false,
+      },
+    });
+
+    if (isMatchedInOrder) {
+      throw new BadRequestException(
+        "정산업체명이 주문에서 사용되고 있어 삭제할 수 없습니다."
+      );
     }
 
     settlementCompany.deletedAt = new Date();
