@@ -481,17 +481,21 @@ export class WithdrawalService {
       throw new NotFoundException("출금값을 찾을 수 없습니다.");
     }
 
-    // Test: 수정 사항을 현재 행에만 반영
-    withdrawal.mediumName = dto.mediumName || withdrawal.mediumName;
-    withdrawal.withdrawalDate = dto.withdrawalDate;
-    withdrawal.accountAlias = dto.accountAlias;
-    withdrawal.withdrawalAmount = dto.withdrawalAmount;
-    withdrawal.accountDescription = dto.accountDescription;
-    withdrawal.transactionMethod1 = dto.transactionMethod1;
-    withdrawal.transactionMethod2 = dto.transactionMethod2;
-    withdrawal.accountMemo = dto.accountMemo;
-    withdrawal.purpose = dto.purpose;
-    withdrawal.clientName = dto.clientName;
+    // 각각의 필드를 개별적으로 수정 가능하게 설정
+    withdrawal.mediumName = dto.mediumName ?? withdrawal.mediumName;
+    withdrawal.withdrawalDate = dto.withdrawalDate ?? withdrawal.withdrawalDate;
+    withdrawal.accountAlias = dto.accountAlias ?? withdrawal.accountAlias;
+    withdrawal.withdrawalAmount =
+      dto.withdrawalAmount ?? withdrawal.withdrawalAmount;
+    withdrawal.accountDescription =
+      dto.accountDescription ?? withdrawal.accountDescription;
+    withdrawal.transactionMethod1 =
+      dto.transactionMethod1 ?? withdrawal.transactionMethod1;
+    withdrawal.transactionMethod2 =
+      dto.transactionMethod2 ?? withdrawal.transactionMethod2;
+    withdrawal.accountMemo = dto.accountMemo ?? withdrawal.accountMemo;
+    withdrawal.purpose = dto.purpose ?? withdrawal.purpose;
+    withdrawal.clientName = dto.clientName ?? withdrawal.clientName;
     withdrawal.updatedAt = new Date();
 
     await this.withdrawalRepository.save(withdrawal);
