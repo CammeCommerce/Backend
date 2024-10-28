@@ -670,19 +670,20 @@ export class OrderService {
       throw new BadRequestException(`잘못된 taxType 값: ${dto.taxType}`);
     }
 
-    // Test: 수정 사항을 현재 행에만 반영
-    order.mediumName = dto.mediumName || order.mediumName;
+    // 각각의 필드를 개별적으로 수정 가능하게 설정
+    order.mediumName = dto.mediumName ?? order.mediumName;
     order.settlementCompanyName =
-      dto.settlementCompanyName || order.settlementCompanyName;
-    order.productName = dto.productName;
-    order.quantity = dto.quantity;
-    order.orderDate = dto.orderDate;
-    order.purchasePlace = dto.purchasePlace;
-    order.salesPlace = dto.salesPlace;
-    order.purchasePrice = dto.purchasePrice;
-    order.salesPrice = dto.salesPrice;
-    order.purchaseShippingFee = dto.purchaseShippingFee;
-    order.salesShippingFee = dto.salesShippingFee;
+      dto.settlementCompanyName ?? order.settlementCompanyName;
+    order.productName = dto.productName ?? order.productName;
+    order.quantity = dto.quantity ?? order.quantity;
+    order.orderDate = dto.orderDate ?? order.orderDate;
+    order.purchasePlace = dto.purchasePlace ?? order.purchasePlace;
+    order.salesPlace = dto.salesPlace ?? order.salesPlace;
+    order.purchasePrice = dto.purchasePrice ?? order.purchasePrice;
+    order.salesPrice = dto.salesPrice ?? order.salesPrice;
+    order.purchaseShippingFee =
+      dto.purchaseShippingFee ?? order.purchaseShippingFee;
+    order.salesShippingFee = dto.salesShippingFee ?? order.salesShippingFee;
     order.taxType = taxTypeString;
     order.updatedAt = new Date();
 
