@@ -481,7 +481,8 @@ export class WithdrawalService {
       throw new NotFoundException("출금값을 찾을 수 없습니다.");
     }
 
-    withdrawal.mediumName = dto.mediumName;
+    // Test: 수정 사항을 현재 행에만 반영
+    withdrawal.mediumName = dto.mediumName || withdrawal.mediumName;
     withdrawal.withdrawalDate = dto.withdrawalDate;
     withdrawal.accountAlias = dto.accountAlias;
     withdrawal.withdrawalAmount = dto.withdrawalAmount;

@@ -471,7 +471,8 @@ export class DepositService {
       throw new NotFoundException("입금값을 찾을 수 없습니다.");
     }
 
-    deposit.mediumName = dto.mediumName;
+    // Test: 수정 사항을 현재 행에만 반영
+    deposit.mediumName = dto.mediumName || deposit.mediumName;
     deposit.depositDate = dto.depositDate;
     deposit.accountAlias = dto.accountAlias;
     deposit.depositAmount = dto.depositAmount;
