@@ -471,39 +471,44 @@ export class DepositService {
       throw new NotFoundException("입금값을 찾을 수 없습니다.");
     }
 
-    // 각각의 필드를 개별적으로 수정 가능하게 설정
-    deposit.mediumName = dto.mediumName ?? deposit.mediumName;
-    deposit.depositDate = dto.depositDate ?? deposit.depositDate;
-    deposit.accountAlias = dto.accountAlias ?? deposit.accountAlias;
-    deposit.depositAmount = dto.depositAmount ?? deposit.depositAmount;
-    deposit.accountDescription =
-      dto.accountDescription ?? deposit.accountDescription;
-    deposit.transactionMethod1 =
-      dto.transactionMethod1 ?? deposit.transactionMethod1;
-    deposit.transactionMethod2 =
-      dto.transactionMethod2 ?? deposit.transactionMethod2;
-    deposit.accountMemo = dto.accountMemo ?? deposit.accountMemo;
-    deposit.counterpartyName = dto.counterpartyName ?? deposit.counterpartyName;
-    deposit.purpose = dto.purpose ?? deposit.purpose;
-    deposit.clientName = dto.clientName ?? deposit.clientName;
-    deposit.updatedAt = new Date();
+    // 업데이트할 필드만 별도로 구성
+    const updateFields = {
+      mediumName: dto.mediumName ?? deposit.mediumName,
+      depositDate: dto.depositDate ?? deposit.depositDate,
+      accountAlias: dto.accountAlias ?? deposit.accountAlias,
+      depositAmount: dto.depositAmount ?? deposit.depositAmount,
+      accountDescription: dto.accountDescription ?? deposit.accountDescription,
+      transactionMethod1: dto.transactionMethod1 ?? deposit.transactionMethod1,
+      transactionMethod2: dto.transactionMethod2 ?? deposit.transactionMethod2,
+      accountMemo: dto.accountMemo ?? deposit.accountMemo,
+      counterpartyName: dto.counterpartyName ?? deposit.counterpartyName,
+      purpose: dto.purpose ?? deposit.purpose,
+      clientName: dto.clientName ?? deposit.clientName,
+      updatedAt: new Date(),
+    };
 
-    await this.depositRepository.update(id, deposit);
+    // 특정 필드만 업데이트
+    await this.depositRepository.update(id, updateFields);
+
+    // 수정된 데이터를 가져와 DTO로 반환
+    const updatedDeposit = await this.depositRepository.findOne({
+      where: { id, isDeleted: false },
+    });
 
     const modifyDepositResultDto = plainToInstance(ModifyDepositResultDto, {
-      id: deposit.id,
-      mediumName: deposit.mediumName,
-      depositDate: deposit.depositDate,
-      accountAlias: deposit.accountAlias,
-      depositAmount: deposit.depositAmount,
-      accountDescription: deposit.accountDescription,
-      transactionMethod1: deposit.transactionMethod1,
-      transactionMethod2: deposit.transactionMethod2,
-      accountMemo: deposit.accountMemo,
-      counterpartyName: deposit.counterpartyName,
-      purpose: deposit.purpose,
-      clientName: deposit.clientName,
-      updatedAt: deposit.updatedAt,
+      id: updatedDeposit.id,
+      mediumName: updatedDeposit.mediumName,
+      depositDate: updatedDeposit.depositDate,
+      accountAlias: updatedDeposit.accountAlias,
+      depositAmount: updatedDeposit.depositAmount,
+      accountDescription: updatedDeposit.accountDescription,
+      transactionMethod1: updatedDeposit.transactionMethod1,
+      transactionMethod2: updatedDeposit.transactionMethod2,
+      accountMemo: updatedDeposit.accountMemo,
+      counterpartyName: updatedDeposit.counterpartyName,
+      purpose: updatedDeposit.purpose,
+      clientName: updatedDeposit.clientName,
+      updatedAt: updatedDeposit.updatedAt,
     });
 
     return modifyDepositResultDto;
