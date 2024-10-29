@@ -471,51 +471,41 @@ export class DepositService {
       throw new NotFoundException("입금값을 찾을 수 없습니다.");
     }
 
-    // QueryBuilder로 필드별 독립 업데이트 수행
-    const updateQuery = this.depositRepository
-      .createQueryBuilder()
-      .update(Deposit)
-      .set({
-        mediumName: dto.mediumName ?? deposit.mediumName,
-        depositDate: dto.depositDate ?? deposit.depositDate,
-        accountAlias: dto.accountAlias ?? deposit.accountAlias,
-        depositAmount: dto.depositAmount ?? deposit.depositAmount,
-        accountDescription:
-          dto.accountDescription ?? deposit.accountDescription,
-        transactionMethod1:
-          dto.transactionMethod1 ?? deposit.transactionMethod1,
-        transactionMethod2:
-          dto.transactionMethod2 ?? deposit.transactionMethod2,
-        accountMemo: dto.accountMemo ?? deposit.accountMemo,
-        counterpartyName: dto.counterpartyName ?? deposit.counterpartyName,
-        purpose: dto.purpose ?? deposit.purpose,
-        clientName: dto.clientName ?? deposit.clientName,
-        updatedAt: new Date(),
-      })
-      .where("id = :id", { id }) // id를 기준으로 독립적인 필드 업데이트
-      .andWhere("isDeleted = false");
+    // 매칭 정보 해제 후, 독립적으로 필드 수정
+    deposit.isMediumMatched = false;
+    deposit.mediumName = dto.mediumName ?? deposit.mediumName;
+    deposit.depositDate = dto.depositDate ?? deposit.depositDate;
+    deposit.accountAlias = dto.accountAlias ?? deposit.accountAlias;
+    deposit.depositAmount = dto.depositAmount ?? deposit.depositAmount;
+    deposit.accountDescription =
+      dto.accountDescription ?? deposit.accountDescription;
+    deposit.transactionMethod1 =
+      dto.transactionMethod1 ?? deposit.transactionMethod1;
+    deposit.transactionMethod2 =
+      dto.transactionMethod2 ?? deposit.transactionMethod2;
+    deposit.accountMemo = dto.accountMemo ?? deposit.accountMemo;
+    deposit.counterpartyName = dto.counterpartyName ?? deposit.counterpartyName;
+    deposit.purpose = dto.purpose ?? deposit.purpose;
+    deposit.clientName = dto.clientName ?? deposit.clientName;
+    deposit.updatedAt = new Date();
 
-    await updateQuery.execute();
-
-    // 업데이트 후 최신 데이터 조회 및 DTO로 반환
-    const updatedDeposit = await this.depositRepository.findOne({
-      where: { id, isDeleted: false },
-    });
+    // 매칭 정보를 무시하고 독립적으로 현재 엔트리만 업데이트
+    await this.depositRepository.save(deposit);
 
     const modifyDepositResultDto = plainToInstance(ModifyDepositResultDto, {
-      id: updatedDeposit.id,
-      mediumName: updatedDeposit.mediumName,
-      depositDate: updatedDeposit.depositDate,
-      accountAlias: updatedDeposit.accountAlias,
-      depositAmount: updatedDeposit.depositAmount,
-      accountDescription: updatedDeposit.accountDescription,
-      transactionMethod1: updatedDeposit.transactionMethod1,
-      transactionMethod2: updatedDeposit.transactionMethod2,
-      accountMemo: updatedDeposit.accountMemo,
-      counterpartyName: updatedDeposit.counterpartyName,
-      purpose: updatedDeposit.purpose,
-      clientName: updatedDeposit.clientName,
-      updatedAt: updatedDeposit.updatedAt,
+      id: deposit.id,
+      mediumName: deposit.mediumName,
+      depositDate: deposit.depositDate,
+      accountAlias: deposit.accountAlias,
+      depositAmount: deposit.depositAmount,
+      accountDescription: deposit.accountDescription,
+      transactionMethod1: deposit.transactionMethod1,
+      transactionMethod2: deposit.transactionMethod2,
+      accountMemo: deposit.accountMemo,
+      counterpartyName: deposit.counterpartyName,
+      purpose: deposit.purpose,
+      clientName: deposit.clientName,
+      updatedAt: deposit.updatedAt,
     });
 
     return modifyDepositResultDto;
