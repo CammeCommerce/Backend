@@ -481,7 +481,8 @@ export class WithdrawalService {
       throw new NotFoundException("출금값을 찾을 수 없습니다.");
     }
 
-    // 각각의 필드를 개별적으로 수정 가능하게 설정
+    // 매칭 정보 해제 후, 독립적으로 필드 수정
+    withdrawal.isMediumMatched = false;
     withdrawal.mediumName = dto.mediumName ?? withdrawal.mediumName;
     withdrawal.withdrawalDate = dto.withdrawalDate ?? withdrawal.withdrawalDate;
     withdrawal.accountAlias = dto.accountAlias ?? withdrawal.accountAlias;
@@ -498,6 +499,7 @@ export class WithdrawalService {
     withdrawal.clientName = dto.clientName ?? withdrawal.clientName;
     withdrawal.updatedAt = new Date();
 
+    // 매칭 정보를 무시하고 독립적으로 현재 엔트리만 업데이트
     await this.withdrawalRepository.save(withdrawal);
 
     const modifyWithdrawalResultDto = plainToInstance(
