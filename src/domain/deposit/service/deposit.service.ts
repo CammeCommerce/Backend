@@ -471,26 +471,33 @@ export class DepositService {
       throw new NotFoundException("입금값을 찾을 수 없습니다.");
     }
 
-    // 업데이트할 필드만 별도로 구성
-    const updateFields = {
-      mediumName: dto.mediumName ?? deposit.mediumName,
-      depositDate: dto.depositDate ?? deposit.depositDate,
-      accountAlias: dto.accountAlias ?? deposit.accountAlias,
-      depositAmount: dto.depositAmount ?? deposit.depositAmount,
-      accountDescription: dto.accountDescription ?? deposit.accountDescription,
-      transactionMethod1: dto.transactionMethod1 ?? deposit.transactionMethod1,
-      transactionMethod2: dto.transactionMethod2 ?? deposit.transactionMethod2,
-      accountMemo: dto.accountMemo ?? deposit.accountMemo,
-      counterpartyName: dto.counterpartyName ?? deposit.counterpartyName,
-      purpose: dto.purpose ?? deposit.purpose,
-      clientName: dto.clientName ?? deposit.clientName,
-      updatedAt: new Date(),
-    };
+    // QueryBuilder로 필드별 독립 업데이트 수행
+    const updateQuery = this.depositRepository
+      .createQueryBuilder()
+      .update(Deposit)
+      .set({
+        mediumName: dto.mediumName ?? deposit.mediumName,
+        depositDate: dto.depositDate ?? deposit.depositDate,
+        accountAlias: dto.accountAlias ?? deposit.accountAlias,
+        depositAmount: dto.depositAmount ?? deposit.depositAmount,
+        accountDescription:
+          dto.accountDescription ?? deposit.accountDescription,
+        transactionMethod1:
+          dto.transactionMethod1 ?? deposit.transactionMethod1,
+        transactionMethod2:
+          dto.transactionMethod2 ?? deposit.transactionMethod2,
+        accountMemo: dto.accountMemo ?? deposit.accountMemo,
+        counterpartyName: dto.counterpartyName ?? deposit.counterpartyName,
+        purpose: dto.purpose ?? deposit.purpose,
+        clientName: dto.clientName ?? deposit.clientName,
+        updatedAt: new Date(),
+      })
+      .where("id = :id", { id }) // id를 기준으로 독립적인 필드 업데이트
+      .andWhere("isDeleted = false");
 
-    // 특정 필드만 업데이트
-    await this.depositRepository.update(id, updateFields);
+    await updateQuery.execute();
 
-    // 수정된 데이터를 가져와 DTO로 반환
+    // 업데이트 후 최신 데이터 조회 및 DTO로 반환
     const updatedDeposit = await this.depositRepository.findOne({
       where: { id, isDeleted: false },
     });
