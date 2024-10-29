@@ -488,7 +488,7 @@ export class DepositService {
     deposit.clientName = dto.clientName ?? deposit.clientName;
     deposit.updatedAt = new Date();
 
-    await this.depositRepository.save(deposit);
+    await this.depositRepository.update(id, deposit);
 
     const modifyDepositResultDto = plainToInstance(ModifyDepositResultDto, {
       id: deposit.id,
