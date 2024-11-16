@@ -172,6 +172,17 @@ export class OrderService {
     for (let i = 1; i < jsonData.length; i++) {
       const row = jsonData[i];
 
+      // 공란 데이터 검증
+      const missingFields = [];
+      if (!row[purchasePlaceIdx]) missingFields.push("매입처");
+      if (!row[salesPlaceIdx]) missingFields.push("매출처");
+
+      if (missingFields.length > 0) {
+        throw new BadRequestException(
+          `엑셀 ${i + 1}번째 행에 다음 값이 공란입니다: ${missingFields.join(", ")}`
+        );
+      }
+
       // parseInt를 사용하여 숫자 필드를 변환하고 NaN 발생 시 기본값 설정
       const quantity = parseInt(row[quantityIdx], 10) || 0;
       const purchasePrice = parseInt(row[purchasePriceIdx], 10) || 0;
