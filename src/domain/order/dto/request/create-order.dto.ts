@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsEnum, IsInt, IsString } from "class-validator";
-import { TaxType } from "src/global/enum/tax-type.enum";
+import { TaxType } from "../../../../global/enum/tax-type.enum";
 
 export class CreateOrderDto {
   @ApiProperty({ example: "캄므커머스", description: "매체명" })

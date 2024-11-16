@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { TaxType } from "src/global/enum/tax-type.enum";
+import { TaxType } from "../../../../global/enum/tax-type.enum";
 
 export class OrderDetailDto {
   @ApiProperty({ example: 1, description: "주문 ID" })
