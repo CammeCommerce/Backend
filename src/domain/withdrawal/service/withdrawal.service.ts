@@ -149,6 +149,17 @@ export class WithdrawalService {
     for (let i = 1; i < jsonData.length; i++) {
       const row = jsonData[i];
 
+      // 공란 데이터 검증
+      const missingFields = [];
+      if (!row[accountAliasIdx]) missingFields.push("계좌별칭");
+      if (!row[purposeIdx]) missingFields.push("용도");
+
+      if (missingFields.length > 0) {
+        throw new BadRequestException(
+          `엑셀 공란 값: ${missingFields.join(", ")} (${i + 1}행)`
+        );
+      }
+
       // parseInt를 사용하여 숫자 필드를 변환하고 NaN 발생 시 기본값 설정
       const withdrawalAmount = parseInt(row[withdrawalAmountIdx], 10) || 0;
 
