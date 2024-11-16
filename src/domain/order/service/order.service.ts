@@ -179,7 +179,7 @@ export class OrderService {
 
       if (missingFields.length > 0) {
         throw new BadRequestException(
-          `엑셀 ${i + 1}번째 행에 다음 값이 공란입니다: ${missingFields.join(", ")}`
+          `엑셀 공란 값: ${missingFields.join(", ")} (${i + 1}행)`
         );
       }
 
