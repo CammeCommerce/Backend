@@ -11,10 +11,9 @@ import {
   Query,
   Res,
   UploadedFile,
-  UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
-import { OrderService } from "src/domain/order/service/order.service";
+import { OrderService } from "../service/order.service";
 import {
   ApiBody,
   ApiConsumes,
@@ -22,17 +21,14 @@ import {
   ApiQuery,
   ApiResponse,
 } from "@nestjs/swagger";
-import {
-  GetOrdersDto,
-  OrderDetailDto,
-} from "src/domain/order/dto/response/get-order.dto";
-import { ModifyOrderDto } from "src/domain/order/dto/request/modify-order.dto";
-import { ModifyOrderResultDto } from "src/domain/order/dto/response/modify-order-result.dto";
+import { UploadOrderExcelDto } from "../dto/request/upload-order-excel.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { UploadOrderExcelDto } from "src/domain/order/dto/request/upload-order-excel.dto";
-import { GetSortedOrdersDto } from "src/domain/order/dto/response/get-sorted-order.dto";
+import { GetOrderColumnIndexDto } from "../dto/response/get-order-column-index.dto";
+import { GetOrdersDto, OrderDetailDto } from "../dto/response/get-order.dto";
+import { GetSortedOrdersDto } from "../dto/response/get-sorted-order.dto";
+import { ModifyOrderDto } from "../dto/request/modify-order.dto";
+import { ModifyOrderResultDto } from "../dto/response/modify-order-result.dto";
 import { Response } from "express";
-import { GetOrderColumnIndexDto } from "src/domain/order/dto/response/get-order-column-index.dto";
 
 @Controller("order")
 export class OrderController {

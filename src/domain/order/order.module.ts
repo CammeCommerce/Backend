@@ -1,11 +1,11 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { Order } from "src/domain/order/entity/order.entity";
-import { OrderController } from "src/domain/order/controller/order.controller";
-import { OrderService } from "src/domain/order/service/order.service";
-import { OrderMatching } from "src/domain/order-matching/entity/order-matching.entity";
-import { OrderColumnIndex } from "src/domain/order/entity/order-column-index.entity";
-import { AuthModule } from "src/domain/auth/auth.module";
+import { Order } from "./entity/order.entity";
+import { OrderMatching } from "../order-matching/entity/order-matching.entity";
+import { OrderColumnIndex } from "./entity/order-column-index.entity";
+import { AuthModule } from "../auth/auth.module";
+import { OrderController } from "./controller/order.controller";
+import { OrderService } from "./service/order.service";
 
 @Module({
   imports: [
