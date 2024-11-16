@@ -1,9 +1,9 @@
 import { Body, Controller, Patch, Post, Get, Session } from "@nestjs/common";
-import { UserService } from "src/domain/user/service/user.service";
-import { UserLoginDto } from "src/domain/user/dto/request/user-login.dto";
-import { UserLoginResultDto } from "src/domain/user/dto/response/user-login-result.dto";
-import { UpdatePasswordDto } from "src/domain/user/dto/request/update-password.dto";
 import { ApiOperation, ApiBody } from "@nestjs/swagger";
+import { UserService } from "../service/user.service";
+import { UserLoginDto } from "../dto/request/user-login.dto";
+import { UserLoginResultDto } from "../dto/response/user-login-result.dto";
+import { UpdatePasswordDto } from "../dto/request/update-password.dto";
 
 @Controller("user")
 export class UserController {

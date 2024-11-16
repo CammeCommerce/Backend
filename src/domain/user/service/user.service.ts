@@ -5,12 +5,12 @@ import {
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { User } from "src/domain/user/entity/user.entity";
-import { UserLoginDto } from "src/domain/user/dto/request/user-login.dto";
-import { UserLoginResultDto } from "src/domain/user/dto/response/user-login-result.dto";
+import { User } from "../entity/user.entity";
+import { AuthService } from "../../auth/auth.service";
+import { UserLoginDto } from "../dto/request/user-login.dto";
+import { UserLoginResultDto } from "../dto/response/user-login-result.dto";
 import { plainToInstance } from "class-transformer";
-import { AuthService } from "src/domain/auth/auth.service";
-import { UpdatePasswordDto } from "src/domain/user/dto/request/update-password.dto";
+import { UpdatePasswordDto } from "../dto/request/update-password.dto";
 
 @Injectable()
 export class UserService {
