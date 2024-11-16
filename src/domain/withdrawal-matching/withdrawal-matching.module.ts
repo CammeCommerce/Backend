@@ -1,9 +1,9 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { WithdrawalMatching } from "src/domain/withdrawal-matching/entity/withdrawal-matching.entity";
-import { WithdrawalMatchingController } from "src/domain/withdrawal-matching/controller/withdrawal-matching.controller";
-import { WithdrawalMatchingService } from "src/domain/withdrawal-matching/service/withdrawal-matching.service";
-import { AuthModule } from "src/domain/auth/auth.module";
+import { WithdrawalMatching } from "./entity/withdrawal-matching.entity";
+import { AuthModule } from "../auth/auth.module";
+import { WithdrawalMatchingController } from "./controller/withdrawal-matching.controller";
+import { WithdrawalMatchingService } from "./service/withdrawal-matching.service";
 
 @Module({
   imports: [TypeOrmModule.forFeature([WithdrawalMatching]), AuthModule],
