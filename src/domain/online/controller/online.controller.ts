@@ -9,18 +9,14 @@ import {
   Patch,
   Post,
   Query,
-  UseGuards,
 } from "@nestjs/common";
+import { OnlineService } from "../service/online.service";
 import { ApiBody, ApiOperation, ApiQuery } from "@nestjs/swagger";
-import { OnlineService } from "src/domain/online/service/online.service";
-import { CreateOnlineDto } from "src/domain/online/dto/request/create-online.dto";
-import { CreateOnlineResultDto } from "src/domain/online/dto/response/create-online.result.dto";
-import {
-  GetOnlineDto,
-  OnlineDetailDto,
-} from "src/domain/online/dto/response/get-online.dto";
-import { ModifyOnlineDto } from "src/domain/online/dto/request/modify-online.dto";
-import { ModifyOnlineResultDto } from "src/domain/online/dto/response/modify-online-result.dto";
+import { CreateOnlineDto } from "../dto/request/create-online.dto";
+import { CreateOnlineResultDto } from "../dto/response/create-online.result.dto";
+import { GetOnlineDto, OnlineDetailDto } from "../dto/response/get-online.dto";
+import { ModifyOnlineDto } from "../dto/request/modify-online.dto";
+import { ModifyOnlineResultDto } from "../dto/response/modify-online-result.dto";
 
 @Controller("online")
 export class OnlineController {

@@ -4,17 +4,14 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Online } from "src/domain/online/entity/online.entity";
+import { Online } from "../entity/online.entity";
 import { In, Repository } from "typeorm";
+import { CreateOnlineDto } from "../dto/request/create-online.dto";
+import { CreateOnlineResultDto } from "../dto/response/create-online.result.dto";
 import { plainToInstance } from "class-transformer";
-import { CreateOnlineDto } from "src/domain/online/dto/request/create-online.dto";
-import { CreateOnlineResultDto } from "src/domain/online/dto/response/create-online.result.dto";
-import {
-  GetOnlineDto,
-  OnlineDetailDto,
-} from "src/domain/online/dto/response/get-online.dto";
-import { ModifyOnlineDto } from "src/domain/online/dto/request/modify-online.dto";
-import { ModifyOnlineResultDto } from "src/domain/online/dto/response/modify-online-result.dto";
+import { GetOnlineDto, OnlineDetailDto } from "../dto/response/get-online.dto";
+import { ModifyOnlineDto } from "../dto/request/modify-online.dto";
+import { ModifyOnlineResultDto } from "../dto/response/modify-online-result.dto";
 
 @Injectable()
 export class OnlineService {
