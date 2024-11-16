@@ -6,13 +6,12 @@ import {
   HttpCode,
   Post,
   Query,
-  UseGuards,
 } from "@nestjs/common";
-import { DepositMatchingService } from "src/domain/deposit-matching/service/deposit-matching.service";
+import { DepositMatchingService } from "../service/deposit-matching.service";
 import { ApiBody, ApiOperation, ApiQuery } from "@nestjs/swagger";
-import { CreateDepositMatchingDto } from "src/domain/deposit-matching/dto/request/create-deposit-matching.dto";
-import { CreateDepositMatchingResultDto } from "src/domain/deposit-matching/dto/response/create-deposit-matching-result.dto";
-import { GetDepositMatchingsDto } from "src/domain/deposit-matching/dto/response/get-deposit-matching.dto";
+import { CreateDepositMatchingDto } from "../dto/request/create-deposit-matching.dto";
+import { CreateDepositMatchingResultDto } from "../dto/response/create-deposit-matching-result.dto";
+import { GetDepositMatchingsDto } from "../dto/response/get-deposit-matching.dto";
 
 @Controller("deposit-matching")
 export class DepositMatchingController {

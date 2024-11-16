@@ -1,21 +1,19 @@
+import { InjectRepository } from "@nestjs/typeorm";
+import { DepositMatching } from "../entity/deposit-matching.entity";
+import { In, Repository } from "typeorm";
+import { CreateDepositMatchingDto } from "../dto/request/create-deposit-matching.dto";
+import { CreateDepositMatchingResultDto } from "../dto/response/create-deposit-matching-result.dto";
 import {
   BadRequestException,
   ConflictException,
-  Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { DepositMatching } from "src/domain/deposit-matching/entity/deposit-matching.entity";
-import { In, Repository } from "typeorm";
-import { CreateDepositMatchingResultDto } from "src/domain/deposit-matching/dto/response/create-deposit-matching-result.dto";
 import { plainToInstance } from "class-transformer";
-import { CreateDepositMatchingDto } from "src/domain/deposit-matching/dto/request/create-deposit-matching.dto";
 import {
   DepositMatchingDetailDto,
   GetDepositMatchingsDto,
-} from "src/domain/deposit-matching/dto/response/get-deposit-matching.dto";
+} from "../dto/response/get-deposit-matching.dto";
 
-@Injectable()
 export class DepositMatchingService {
   constructor(
     @InjectRepository(DepositMatching)

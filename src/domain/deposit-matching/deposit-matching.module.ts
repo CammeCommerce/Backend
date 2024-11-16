@@ -1,9 +1,9 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { DepositMatching } from "src/domain/deposit-matching/entity/deposit-matching.entity";
-import { DepositMatchingController } from "src/domain/deposit-matching/controller/deposit-matching.controller";
-import { DepositMatchingService } from "src/domain/deposit-matching/service/deposit-matching.service";
-import { AuthModule } from "src/domain/auth/auth.module";
+import { DepositMatching } from "./entity/deposit-matching.entity";
+import { AuthModule } from "../auth/auth.module";
+import { DepositMatchingController } from "./controller/deposit-matching.controller";
+import { DepositMatchingService } from "./service/deposit-matching.service";
 
 @Module({
   imports: [TypeOrmModule.forFeature([DepositMatching]), AuthModule],
