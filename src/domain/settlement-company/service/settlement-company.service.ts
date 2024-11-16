@@ -4,18 +4,18 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { SettlementCompany } from "src/domain/settlement-company/entity/settlement-company.entity";
+import { SettlementCompany } from "../entity/settlement-company.entity";
 import { Repository } from "typeorm";
-import { CreateSettlementCompanyDto } from "src/domain/settlement-company/dto/request/create-settlement-company.dto";
-import { CreateSettlementCompanyResultDto } from "src/domain/settlement-company/dto/response/create-settlement-company-result.dto";
+import { Order } from "../../order/entity/order.entity";
+import { CreateSettlementCompanyDto } from "../dto/request/create-settlement-company.dto";
+import { CreateSettlementCompanyResultDto } from "../dto/response/create-settlement-company-result.dto";
 import { plainToInstance } from "class-transformer";
 import {
   GetSettlementCompaniesDto,
   SettlementCompanyDetailDto,
-} from "src/domain/settlement-company/dto/response/get-settlement-company.dto";
-import { ModifySettlementCompanyDto } from "src/domain/settlement-company/dto/request/modify-settlement-company.dto";
-import { ModifySettlementCompanyResultDto } from "src/domain/settlement-company/dto/response/modify-settlement-company-result.dto";
-import { Order } from "src/domain/order/entity/order.entity";
+} from "../dto/response/get-settlement-company.dto";
+import { ModifySettlementCompanyDto } from "../dto/request/modify-settlement-company.dto";
+import { ModifySettlementCompanyResultDto } from "../dto/response/modify-settlement-company-result.dto";
 
 @Injectable()
 export class SettlementCompanyService {

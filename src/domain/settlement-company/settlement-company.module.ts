@@ -1,10 +1,10 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { SettlementCompany } from "src/domain/settlement-company/entity/settlement-company.entity";
-import { SettlementCompanyController } from "src/domain/settlement-company/controller/settlement-company.controller";
-import { SettlementCompanyService } from "src/domain/settlement-company/service/settlement-company.service";
-import { AuthModule } from "src/domain/auth/auth.module";
-import { Order } from "src/domain/order/entity/order.entity";
+import { SettlementCompany } from "./entity/settlement-company.entity";
+import { Order } from "../order/entity/order.entity";
+import { AuthModule } from "../auth/auth.module";
+import { SettlementCompanyController } from "./controller/settlement-company.controller";
+import { SettlementCompanyService } from "./service/settlement-company.service";
 
 @Module({
   imports: [TypeOrmModule.forFeature([SettlementCompany, Order]), AuthModule],

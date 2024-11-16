@@ -9,15 +9,14 @@ import {
   Patch,
   Post,
   Query,
-  UseGuards,
 } from "@nestjs/common";
-import { SettlementCompanyService } from "src/domain/settlement-company/service/settlement-company.service";
+import { SettlementCompanyService } from "../service/settlement-company.service";
 import { ApiOperation, ApiQuery } from "@nestjs/swagger";
-import { CreateSettlementCompanyDto } from "src/domain/settlement-company/dto/request/create-settlement-company.dto";
-import { CreateSettlementCompanyResultDto } from "src/domain/settlement-company/dto/response/create-settlement-company-result.dto";
-import { GetSettlementCompaniesDto } from "src/domain/settlement-company/dto/response/get-settlement-company.dto";
-import { ModifySettlementCompanyDto } from "src/domain/settlement-company/dto/request/modify-settlement-company.dto";
-import { ModifySettlementCompanyResultDto } from "src/domain/settlement-company/dto/response/modify-settlement-company-result.dto";
+import { CreateSettlementCompanyDto } from "../dto/request/create-settlement-company.dto";
+import { CreateSettlementCompanyResultDto } from "../dto/response/create-settlement-company-result.dto";
+import { GetSettlementCompaniesDto } from "../dto/response/get-settlement-company.dto";
+import { ModifySettlementCompanyDto } from "../dto/request/modify-settlement-company.dto";
+import { ModifySettlementCompanyResultDto } from "../dto/response/modify-settlement-company-result.dto";
 
 @Controller("settlement-company")
 export class SettlementCompanyController {
