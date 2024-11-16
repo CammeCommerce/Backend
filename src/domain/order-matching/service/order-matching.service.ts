@@ -26,6 +26,20 @@ export class OrderMatchingService {
   async createOrderMatching(
     dto: CreateOrderMatchingDto
   ): Promise<CreateOrderMatchingResultDto> {
+    // 매칭 등록 필수 값 확인 및 에러 처리
+    if (!dto.purchasePlace || dto.purchasePlace.trim() === "") {
+      throw new BadRequestException("매입처 값이 공란입니다.");
+    }
+    if (!dto.salesPlace || dto.salesPlace.trim() === "") {
+      throw new BadRequestException("매출처 값이 공란입니다.");
+    }
+    if (!dto.mediumName || dto.mediumName.trim() === "") {
+      throw new BadRequestException("매체명 값이 공란입니다.");
+    }
+    if (!dto.settlementCompanyName || dto.settlementCompanyName.trim() === "") {
+      throw new BadRequestException("정산업체명 값이 공란입니다.");
+    }
+
     // 매입처와 매출처가 같은 주문 매칭이 있는지 중복 체크
     const existingMatching = await this.orderMatchingRepository.findOne({
       where: {
