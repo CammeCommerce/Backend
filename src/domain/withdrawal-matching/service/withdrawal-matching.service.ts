@@ -26,6 +26,17 @@ export class WithdrawalMatchingService {
   async createWithdrawalMatching(
     dto: CreateWithdrawalMatchingDto
   ): Promise<CreateWithdrawalMatchingResultDto> {
+    // 매칭 등록 필수 값 확인 및 에러 처리
+    if (!dto.accountAlias || dto.accountAlias.trim() === "") {
+      throw new BadRequestException("계좌별칭 값이 공란입니다.");
+    }
+    if (!dto.purpose || dto.purpose.trim() === "") {
+      throw new BadRequestException("용도 값이 공란입니다.");
+    }
+    if (!dto.mediumName || dto.mediumName.trim() === "") {
+      throw new BadRequestException("매체명 값이 공란입니다.");
+    }
+
     // 계좌 별칭과 용도가 같은 출금 매칭이 있는지 중복 체크
     const existingMatching = await this.withdrawalMatchingRepository.findOne({
       where: {
