@@ -1,7 +1,7 @@
 import { Controller, Get, Query } from "@nestjs/common";
+import { ProfitLossService } from "../service/profit-loss.service";
 import { ApiOperation, ApiQuery } from "@nestjs/swagger";
-import { ProfitLossService } from "src/domain/profit-loss/service/profit-loss.service";
-import { GetProfitLossDto } from "src/domain/profit-loss/dto/response/get-profit-loss.dto";
+import { GetProfitLossDto } from "../dto/response/get-profit-loss.dto";
 
 @Controller("profit-loss")
 export class ProfitLossController {

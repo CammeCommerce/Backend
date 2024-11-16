@@ -1,11 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import { Order } from "../../order/entity/order.entity";
 import { Repository } from "typeorm";
-import { Order } from "src/domain/order/entity/order.entity";
-import { Deposit } from "src/domain/deposit/entity/deposit.entity";
-import { Withdrawal } from "src/domain/withdrawal/entity/withdrawal.entity";
-import { Online } from "src/domain/online/entity/online.entity";
-import { GetProfitLossDto } from "src/domain/profit-loss/dto/response/get-profit-loss.dto";
+import { Deposit } from "../../deposit/entity/deposit.entity";
+import { Withdrawal } from "../../withdrawal/entity/withdrawal.entity";
+import { Online } from "../../online/entity/online.entity";
+import { GetProfitLossDto } from "../dto/response/get-profit-loss.dto";
 
 @Injectable()
 export class ProfitLossService {
