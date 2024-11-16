@@ -9,15 +9,14 @@ import {
   Patch,
   Post,
   Query,
-  UseGuards,
 } from "@nestjs/common";
-import { MediumService } from "src/domain/medium/service/medium.service";
-import { CreateMediumDto } from "src/domain/medium/dto/request/create-medium.dto";
+import { MediumService } from "../service/medium.service";
 import { ApiOperation, ApiQuery } from "@nestjs/swagger";
-import { GetMediumsDto } from "src/domain/medium/dto/response/get-medium.dto";
-import { ModifyMediumDto } from "src/domain/medium/dto/request/modify-medium.dto";
-import { ModifyMediumResultDto } from "src/domain/medium/dto/response/modify-medium-result.dto";
-import { CreateMediumResultDto } from "src/domain/medium/dto/response/create-medium-result.dto";
+import { CreateMediumDto } from "../dto/request/create-medium.dto";
+import { CreateMediumResultDto } from "../dto/response/create-medium-result.dto";
+import { GetMediumsDto } from "../dto/response/get-medium.dto";
+import { ModifyMediumDto } from "../dto/request/modify-medium.dto";
+import { ModifyMediumResultDto } from "../dto/response/modify-medium-result.dto";
 
 @Controller("medium")
 export class MediumController {

@@ -4,20 +4,17 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Medium } from "src/domain/medium/entity/medium.entity";
+import { Medium } from "../entity/medium.entity";
 import { Repository } from "typeorm";
-import { CreateMediumDto } from "src/domain/medium/dto/request/create-medium.dto";
-import { CreateMediumResultDto } from "src/domain/medium/dto/response/create-medium-result.dto";
+import { Order } from "../../order/entity/order.entity";
+import { Deposit } from "../../deposit/entity/deposit.entity";
+import { Withdrawal } from "../../withdrawal/entity/withdrawal.entity";
+import { CreateMediumDto } from "../dto/request/create-medium.dto";
+import { CreateMediumResultDto } from "../dto/response/create-medium-result.dto";
 import { plainToInstance } from "class-transformer";
-import {
-  GetMediumsDto,
-  MediumDetailDto,
-} from "src/domain/medium/dto/response/get-medium.dto";
-import { ModifyMediumDto } from "src/domain/medium/dto/request/modify-medium.dto";
-import { ModifyMediumResultDto } from "src/domain/medium/dto/response/modify-medium-result.dto";
-import { Order } from "src/domain/order/entity/order.entity";
-import { Deposit } from "src/domain/deposit/entity/deposit.entity";
-import { Withdrawal } from "src/domain/withdrawal/entity/withdrawal.entity";
+import { GetMediumsDto, MediumDetailDto } from "../dto/response/get-medium.dto";
+import { ModifyMediumDto } from "../dto/request/modify-medium.dto";
+import { ModifyMediumResultDto } from "../dto/response/modify-medium-result.dto";
 
 @Injectable()
 export class MediumService {
