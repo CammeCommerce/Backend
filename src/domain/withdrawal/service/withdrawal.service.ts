@@ -4,19 +4,19 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Withdrawal } from "src/domain/withdrawal/entity/withdrawal.entity";
 import { DeepPartial, In, Repository } from "typeorm";
 import { plainToInstance } from "class-transformer";
+import * as XLSX from "xlsx";
+import { Withdrawal } from "../entity/withdrawal.entity";
+import { WithdrawalMatching } from "../../withdrawal-matching/entity/withdrawal-matching.entity";
+import { WithdrawalColumnIndex } from "../entity/withdrawal-column-index.entity";
+import { GetWithdrawalColumnIndexDto } from "../dto/response/get-withdrawal-column-index.dto";
 import {
   GetWithdrawalDto,
   WithdrawalDetailDto,
-} from "src/domain/withdrawal/dto/response/get-withdrawal.dto";
-import { ModifyWithdrawalDto } from "src/domain/withdrawal/dto/request/modify-withdrawal.dto";
-import { ModifyWithdrawalResultDto } from "src/domain/withdrawal/dto/response/modify-withdrawal-result.dto";
-import { WithdrawalMatching } from "src/domain/withdrawal-matching/entity/withdrawal-matching.entity";
-import * as XLSX from "xlsx";
-import { WithdrawalColumnIndex } from "src/domain/withdrawal/entity/withdrawal-column-index.entity";
-import { GetWithdrawalColumnIndexDto } from "src/domain/withdrawal/dto/response/get-withdrawal-column-index.dto";
+} from "../dto/response/get-withdrawal.dto";
+import { ModifyWithdrawalDto } from "../dto/request/modify-withdrawal.dto";
+import { ModifyWithdrawalResultDto } from "../dto/response/modify-withdrawal-result.dto";
 
 @Injectable()
 export class WithdrawalService {

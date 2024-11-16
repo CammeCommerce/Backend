@@ -11,21 +11,20 @@ import {
   Query,
   Res,
   UploadedFile,
-  UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
-import { WithdrawalService } from "src/domain/withdrawal/service/withdrawal.service";
+import { Response } from "express";
+import { WithdrawalService } from "../service/withdrawal.service";
 import { ApiBody, ApiConsumes, ApiOperation, ApiQuery } from "@nestjs/swagger";
+import { UploadWithdrawalExcelDto } from "../dto/request/upload-withdrawal-excel.dto";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { GetWithdrawalColumnIndexDto } from "../dto/response/get-withdrawal-column-index.dto";
 import {
   GetWithdrawalDto,
   WithdrawalDetailDto,
-} from "src/domain/withdrawal/dto/response/get-withdrawal.dto";
-import { ModifyWithdrawalDto } from "src/domain/withdrawal/dto/request/modify-withdrawal.dto";
-import { ModifyWithdrawalResultDto } from "src/domain/withdrawal/dto/response/modify-withdrawal-result.dto";
-import { FileInterceptor } from "@nestjs/platform-express";
-import { UploadWithdrawalExcelDto } from "src/domain/withdrawal/dto/request/upload-withdrawal-excel.dto";
-import { Response } from "express";
-import { GetWithdrawalColumnIndexDto } from "src/domain/withdrawal/dto/response/get-withdrawal-column-index.dto";
+} from "../dto/response/get-withdrawal.dto";
+import { ModifyWithdrawalDto } from "../dto/request/modify-withdrawal.dto";
+import { ModifyWithdrawalResultDto } from "../dto/response/modify-withdrawal-result.dto";
 
 @Controller("withdrawal")
 export class WithdrawalController {
