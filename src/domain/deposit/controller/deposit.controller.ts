@@ -11,21 +11,20 @@ import {
   Query,
   Res,
   UploadedFile,
-  UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
-import { DepositService } from "src/domain/deposit/service/deposit.service";
+import { DepositService } from "../service/deposit.service";
 import { ApiBody, ApiConsumes, ApiOperation, ApiQuery } from "@nestjs/swagger";
+import { UploadDepositExcelDto } from "../dto/request/upload-deposit-excel.dto";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { GetDepositColumnIndexDto } from "../dto/response/get-deposit-column-index.dto";
 import {
   DepositDetailDto,
   GetDepositsDto,
-} from "src/domain/deposit/dto/response/get-deposit.dto";
-import { ModifyDepositDto } from "src/domain/deposit/dto/request/modify-deposit.dto";
-import { ModifyDepositResultDto } from "src/domain/deposit/dto/response/modify-deposit-result.dto";
-import { FileInterceptor } from "@nestjs/platform-express";
-import { UploadDepositExcelDto } from "src/domain/deposit/dto/request/upload-deposit-excel.dto";
+} from "../dto/response/get-deposit.dto";
+import { ModifyDepositDto } from "../dto/request/modify-deposit.dto";
+import { ModifyDepositResultDto } from "../dto/response/modify-deposit-result.dto";
 import { Response } from "express";
-import { GetDepositColumnIndexDto } from "src/domain/deposit/dto/response/get-deposit-column-index.dto";
 
 @Controller("deposit")
 export class DepositController {

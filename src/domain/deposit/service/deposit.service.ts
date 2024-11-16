@@ -4,19 +4,19 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Deposit } from "src/domain/deposit/entity/deposit.entity";
+import { Deposit } from "../entity/deposit.entity";
 import { DeepPartial, In, Repository } from "typeorm";
+import { DepositMatching } from "../../deposit-matching/entity/deposit-matching.entity";
+import { DepositColumnIndex } from "../entity/deposit-column-index.entity";
+import { GetDepositColumnIndexDto } from "../dto/response/get-deposit-column-index.dto";
 import { plainToInstance } from "class-transformer";
 import {
   DepositDetailDto,
   GetDepositsDto,
-} from "src/domain/deposit/dto/response/get-deposit.dto";
-import { ModifyDepositDto } from "src/domain/deposit/dto/request/modify-deposit.dto";
-import { ModifyDepositResultDto } from "src/domain/deposit/dto/response/modify-deposit-result.dto";
+} from "../dto/response/get-deposit.dto";
+import { ModifyDepositDto } from "../dto/request/modify-deposit.dto";
+import { ModifyDepositResultDto } from "../dto/response/modify-deposit-result.dto";
 import * as XLSX from "xlsx";
-import { DepositMatching } from "src/domain/deposit-matching/entity/deposit-matching.entity";
-import { DepositColumnIndex } from "src/domain/deposit/entity/deposit-column-index.entity";
-import { GetDepositColumnIndexDto } from "src/domain/deposit/dto/response/get-deposit-column-index.dto";
 
 @Injectable()
 export class DepositService {
