@@ -130,9 +130,9 @@ export class DepositService {
     const worksheet = workbook.Sheets[sheetName];
     const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
-    if (!jsonData || jsonData.length < 2) {
-      throw new BadRequestException("엑셀 파일의 데이터가 유효하지 않습니다.");
-    }
+    // if (!jsonData || jsonData.length < 2) {
+    //   throw new BadRequestException("엑셀 파일의 데이터가 유효하지 않습니다.");
+    // }
 
     // 엑셀 열 인덱스 문자열을 숫자 인덱스로 변환
     const depositDateIdx = this.columnToIndex(depositDateIndex);
