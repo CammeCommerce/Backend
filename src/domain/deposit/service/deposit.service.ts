@@ -187,7 +187,9 @@ export class DepositService {
           where: {
             accountAlias: deposit.accountAlias,
             purpose: deposit.purpose,
+            isDeleted: false,
           },
+          cache: false,
         });
 
         if (matchedRecord) {

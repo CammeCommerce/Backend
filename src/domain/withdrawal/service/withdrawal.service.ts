@@ -183,7 +183,9 @@ export class WithdrawalService {
           where: {
             accountAlias: withdrawal.accountAlias,
             purpose: withdrawal.purpose,
+            isDeleted: false,
           },
+          cache: false,
         });
 
         if (matchedRecord) {

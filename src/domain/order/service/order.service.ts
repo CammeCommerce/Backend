@@ -220,7 +220,9 @@ export class OrderService {
         where: {
           purchasePlace: order.purchasePlace,
           salesPlace: order.salesPlace,
+          isDeleted: false,
         },
+        cache: false,
       });
 
       if (matchedRecord) {
