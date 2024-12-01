@@ -228,8 +228,8 @@ export class OrderService {
       if (matchedRecord) {
         order.mediumName = matchedRecord.mediumName;
         order.settlementCompanyName = matchedRecord.settlementCompanyName;
-        order.isMediumMatched = !!order.mediumName;
-        order.isSettlementCompanyMatched = !!order.settlementCompanyName;
+        order.isMediumMatched = !!order.isMediumMatched;
+        order.isSettlementCompanyMatched = !!order.isSettlementCompanyMatched;
       }
 
       orders.push(order);

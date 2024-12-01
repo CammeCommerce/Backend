@@ -72,7 +72,7 @@ export class DepositService {
 
       if (matchedRecord) {
         deposit.mediumName = matchedRecord.mediumName;
-        deposit.isMediumMatched = !!deposit.mediumName;
+        deposit.isMediumMatched = !!deposit.isMediumMatched;
 
         await this.depositRepository.save(deposit);
       }
