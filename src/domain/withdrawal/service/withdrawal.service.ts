@@ -67,6 +67,7 @@ export class WithdrawalService {
           purpose: withdrawal.purpose,
           isDeleted: false,
         },
+        cache: false,
       });
 
       if (matchedRecord) {

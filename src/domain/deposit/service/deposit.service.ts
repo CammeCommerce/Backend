@@ -67,6 +67,7 @@ export class DepositService {
           purpose: deposit.purpose,
           isDeleted: false,
         },
+        cache: false,
       });
 
       if (matchedRecord) {
