@@ -191,7 +191,7 @@ export class WithdrawalService {
 
         if (matchedRecord) {
           withdrawal.mediumName = matchedRecord.mediumName;
-          withdrawal.isMediumMatched = !!withdrawal.mediumName;
+          withdrawal.isMediumMatched = !!withdrawal.isMediumMatched;
         }
       }
 
