@@ -53,7 +53,7 @@ export class DepositService {
   // 매체명 매칭하는 메서드
   async matchDeposits(): Promise<void> {
     const unmatchedDeposits = await this.depositRepository.find({
-      where: [{ mediumName: null, isMediumMatched: false, isDeleted: false }],
+      where: [{ mediumName: null, isDeleted: false }],
     });
 
     if (!unmatchedDeposits.length) {
@@ -61,14 +61,16 @@ export class DepositService {
     }
 
     for (const deposit of unmatchedDeposits) {
-      const matchedRecord = await this.depositMatchingRepository.findOne({
-        where: {
+      const matchedRecord = await this.depositMatchingRepository
+        .createQueryBuilder("depositMatching")
+        .where("depositMatching.accountAlias = :accountAlias", {
           accountAlias: deposit.accountAlias,
+        })
+        .andWhere("depositMatching.purpose = :purpose", {
           purpose: deposit.purpose,
-          isDeleted: false,
-        },
-        cache: false,
-      });
+        })
+        .andWhere("depositMatching.isDeleted = false")
+        .getOne();
 
       if (matchedRecord) {
         deposit.mediumName = matchedRecord.mediumName;
