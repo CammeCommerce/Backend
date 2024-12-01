@@ -223,14 +223,14 @@ export class DepositService {
   // 입금값 조회
   async getDeposits(): Promise<GetDepositsDto> {
     // 매칭되지 않은 입금들에 대해 매칭 로직을 수행
-    await this.matchDeposits();
+    // await this.matchDeposits();
 
     const deposits = await this.depositRepository.find({
       where: { isDeleted: false },
       order: { createdAt: "ASC" },
     });
 
-    if (!deposits) {
+    if (!deposits.length) {
       throw new NotFoundException("등록된 입금값이 없습니다.");
     }
 

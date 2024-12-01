@@ -13,11 +13,13 @@ import {
   DepositMatchingDetailDto,
   GetDepositMatchingsDto,
 } from "../dto/response/get-deposit-matching.dto";
+import { DepositService } from "../../deposit/service/deposit.service";
 
 export class DepositMatchingService {
   constructor(
     @InjectRepository(DepositMatching)
-    private readonly depositMatchingRepository: Repository<DepositMatching>
+    private readonly depositMatchingRepository: Repository<DepositMatching>,
+    private readonly depositService: DepositService
   ) {}
 
   // 입금 매칭 등록
@@ -52,6 +54,8 @@ export class DepositMatchingService {
 
     const depositMatching = await this.depositMatchingRepository.create(dto);
     await this.depositMatchingRepository.save(depositMatching);
+
+    await this.depositService.matchDeposits();
 
     // 입금 매칭 등록 결과 DTO 생성
     const createDepositMatchingDto = plainToInstance(
