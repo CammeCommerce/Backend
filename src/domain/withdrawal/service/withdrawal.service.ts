@@ -219,14 +219,14 @@ export class WithdrawalService {
   // 출금값 조회
   async getWithdrawals(): Promise<GetWithdrawalDto> {
     // 매칭되지 않은 출금들에 대해 매칭 로직을 수행
-    await this.matchWithdrawals();
+    // await this.matchWithdrawals();
 
     const withdrawals = await this.withdrawalRepository.find({
       where: { isDeleted: false },
       order: { createdAt: "ASC" },
     });
 
-    if (!withdrawals) {
+    if (!withdrawals.length) {
       throw new NotFoundException("등록된 출금값이 없습니다.");
     }
 

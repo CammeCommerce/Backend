@@ -14,12 +14,14 @@ import {
   GetWithdrawalMatchingsDto,
   WithdrawalMatchingDetailDto,
 } from "../dto/response/get-withdrawal-matching.dto";
+import { WithdrawalService } from "../../withdrawal/service/withdrawal.service";
 
 @Injectable()
 export class WithdrawalMatchingService {
   constructor(
     @InjectRepository(WithdrawalMatching)
-    private readonly withdrawalMatchingRepository: Repository<WithdrawalMatching>
+    private readonly withdrawalMatchingRepository: Repository<WithdrawalMatching>,
+    private readonly withdrawalService: WithdrawalService
   ) {}
 
   // 출금 매칭 등록
@@ -55,6 +57,8 @@ export class WithdrawalMatchingService {
     const withdrawalMatching =
       await this.withdrawalMatchingRepository.create(dto);
     await this.withdrawalMatchingRepository.save(withdrawalMatching);
+
+    await this.withdrawalService.matchWithdrawals();
 
     // 출금 매칭 등록 결과 DTO 생성
     const createWithdrawalMatchingDto = plainToInstance(
