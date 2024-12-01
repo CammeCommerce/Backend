@@ -53,7 +53,7 @@ export class DepositService {
   // 매체명 매칭하는 메서드
   async matchDeposits(): Promise<void> {
     const unmatchedDeposits = await this.depositRepository.find({
-      where: [{ mediumName: null, isDeleted: false }],
+      where: [{ mediumName: null, isMediumMatched: false, isDeleted: false }],
     });
 
     if (!unmatchedDeposits.length) {
@@ -72,7 +72,7 @@ export class DepositService {
 
       if (matchedRecord) {
         deposit.mediumName = matchedRecord.mediumName;
-        deposit.isMediumMatched = !!deposit.isMediumMatched;
+        deposit.isMediumMatched = true;
 
         await this.depositRepository.save(deposit);
       }
