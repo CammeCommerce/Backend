@@ -61,18 +61,14 @@ export class DepositService {
     }
 
     for (const deposit of unmatchedDeposits) {
-      const matchedRecord = await this.depositMatchingRepository
-        .createQueryBuilder("depositMatching")
-        .where("depositMatching.accountAlias = :accountAlias", {
+      const matchedRecord = await this.depositMatchingRepository.findOne({
+        where: {
           accountAlias: deposit.accountAlias,
-        })
-        .andWhere("depositMatching.purpose = :purpose", {
           purpose: deposit.purpose,
-        })
-        .andWhere("depositMatching.isDeleted = false")
-        .getOne();
-
-      console.log("Matched Record:", matchedRecord);
+          isDeleted: false,
+        },
+        cache: false,
+      });
 
       if (matchedRecord) {
         deposit.mediumName = matchedRecord.mediumName;
