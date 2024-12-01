@@ -18,5 +18,6 @@ import { WithdrawalService } from "./service/withdrawal.service";
   ],
   controllers: [WithdrawalController],
   providers: [WithdrawalService],
+  exports: [WithdrawalService],
 })
 export class WithdrawalModule {}

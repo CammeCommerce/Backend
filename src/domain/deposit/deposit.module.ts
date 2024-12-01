@@ -14,5 +14,6 @@ import { DepositService } from "./service/deposit.service";
   ],
   controllers: [DepositController],
   providers: [DepositService],
+  exports: [DepositService],
 })
 export class DepositModule {}
