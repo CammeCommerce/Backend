@@ -52,32 +52,68 @@ export class DepositService {
 
   // 매체명 매칭하는 메서드
   async matchDeposits(): Promise<void> {
-    const unmatchedDeposits = await this.depositRepository.find({
-      where: [{ mediumName: null, isDeleted: false }],
-    });
+    const unmatchedDeposits = await this.depositRepository
+      .createQueryBuilder("deposit")
+      .where("deposit.mediumName IS NULL")
+      .andWhere("deposit.isDeleted = false")
+      .getMany();
 
     if (!unmatchedDeposits.length) {
       return;
     }
 
     for (const deposit of unmatchedDeposits) {
-      const matchedRecord = await this.depositMatchingRepository.findOne({
-        where: {
+      const matchedRecord = await this.depositMatchingRepository
+        .createQueryBuilder("matching")
+        .where("depositMatching.accountAlias = :accountAlias", {
           accountAlias: deposit.accountAlias,
+        })
+        .andWhere("depositMatching.purpose = :purpose", {
           purpose: deposit.purpose,
-          isDeleted: false,
-        },
-        cache: false,
-      });
+        })
+        .andWhere("depositMatching.isDeleted = false")
+        .getOne();
 
       if (matchedRecord) {
-        deposit.mediumName = matchedRecord.mediumName;
-        deposit.isMediumMatched = !!deposit.mediumName;
-
-        await this.depositRepository.save(deposit);
+        await this.depositRepository
+          .createQueryBuilder()
+          .update(Deposit)
+          .set({
+            mediumName: matchedRecord.mediumName,
+            isMediumMatched: true,
+          })
+          .where("id = :id", { id: deposit.id })
+          .execute();
       }
     }
   }
+  // async matchDeposits(): Promise<void> {
+  //   const unmatchedDeposits = await this.depositRepository.find({
+  //     where: [{ mediumName: null, isDeleted: false }],
+  //   });
+
+  //   if (!unmatchedDeposits.length) {
+  //     return;
+  //   }
+
+  //   for (const deposit of unmatchedDeposits) {
+  //     const matchedRecord = await this.depositMatchingRepository.findOne({
+  //       where: {
+  //         accountAlias: deposit.accountAlias,
+  //         purpose: deposit.purpose,
+  //         isDeleted: false,
+  //       },
+  //       cache: false,
+  //     });
+
+  //     if (matchedRecord) {
+  //       deposit.mediumName = matchedRecord.mediumName;
+  //       deposit.isMediumMatched = !!deposit.mediumName;
+
+  //       await this.depositRepository.save(deposit);
+  //     }
+  //   }
+  // }
 
   // 열 인덱스 저장 메서드
   async saveDepositColumnIndex(
@@ -531,23 +567,45 @@ export class DepositService {
       throw new BadRequestException("삭제할 입금 ID가 없습니다.");
     }
 
-    const deposits = await this.depositRepository.find({
-      where: {
-        id: In(ids),
-        isDeleted: false,
-      },
-    });
+    const depositsToDelete = await this.depositRepository
+      .createQueryBuilder("deposit")
+      .where("deposit.id IN (:...ids)", { ids })
+      .andWhere("deposit.isDeleted = false")
+      .getMany();
 
-    if (deposits.length !== ids.length) {
+    if (depositsToDelete.length !== ids.length) {
       throw new NotFoundException("일부 입금값을 찾을 수 없습니다.");
     }
 
-    for (const deposit of deposits) {
-      deposit.deletedAt = new Date();
-      deposit.isDeleted = true;
-      await this.depositRepository.save(deposit);
-    }
-
-    return;
+    await this.depositRepository
+      .createQueryBuilder()
+      .update(Deposit)
+      .set({ isDeleted: true, deletedAt: new Date() })
+      .where("id IN (:...ids)", { ids })
+      .execute();
   }
+  // async deleteDeposits(ids: number[]): Promise<void> {
+  //   if (!ids || ids.length === 0) {
+  //     throw new BadRequestException("삭제할 입금 ID가 없습니다.");
+  //   }
+
+  //   const deposits = await this.depositRepository.find({
+  //     where: {
+  //       id: In(ids),
+  //       isDeleted: false,
+  //     },
+  //   });
+
+  //   if (deposits.length !== ids.length) {
+  //     throw new NotFoundException("일부 입금값을 찾을 수 없습니다.");
+  //   }
+
+  //   for (const deposit of deposits) {
+  //     deposit.deletedAt = new Date();
+  //     deposit.isDeleted = true;
+  //     await this.depositRepository.save(deposit);
+  //   }
+
+  //   return;
+  // }
 }
