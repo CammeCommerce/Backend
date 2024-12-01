@@ -14,12 +14,14 @@ import {
   GetOrderMatchingsDto,
   OrderMatchingDetailDto,
 } from "../dto/response/get-order-matching.dto";
+import { OrderService } from "../../order/service/order.service";
 
 @Injectable()
 export class OrderMatchingService {
   constructor(
     @InjectRepository(OrderMatching)
-    private readonly orderMatchingRepository: Repository<OrderMatching>
+    private readonly orderMatchingRepository: Repository<OrderMatching>,
+    private readonly orderService: OrderService
   ) {}
 
   // 주문 매칭 등록
@@ -57,6 +59,8 @@ export class OrderMatchingService {
 
     const orderMatching = await this.orderMatchingRepository.create(dto);
     await this.orderMatchingRepository.save(orderMatching);
+
+    await this.orderService.matchOrders();
 
     // 주문 매칭 등록 결과 DTO 생성
     const createOrderMatchingDto = plainToInstance(

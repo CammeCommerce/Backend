@@ -257,14 +257,14 @@ export class OrderService {
   // 주문값 조회
   async getOrders(): Promise<GetOrdersDto> {
     // 매칭되지 않은 주문들에 대해 매칭 로직을 수행
-    await this.matchOrders(); // 조회 시 매칭 로직 실행
+    // await this.matchOrders(); // 조회 시 매칭 로직 실행
 
     const orders = await this.orderRepository.find({
       where: { isDeleted: false },
       order: { createdAt: "DESC" },
     });
 
-    if (!orders) {
+    if (!orders.length) {
       throw new NotFoundException("등록된 주문이 없습니다.");
     }
 
