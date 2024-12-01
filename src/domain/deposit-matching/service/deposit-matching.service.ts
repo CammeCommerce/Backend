@@ -14,16 +14,11 @@ import {
   GetDepositMatchingsDto,
 } from "../dto/response/get-deposit-matching.dto";
 import { DepositService } from "../../deposit/service/deposit.service";
-import { Deposit } from "../../deposit/entity/deposit.entity";
 
 export class DepositMatchingService {
   constructor(
     @InjectRepository(DepositMatching)
     private readonly depositMatchingRepository: Repository<DepositMatching>,
-
-    @InjectRepository(Deposit)
-    private readonly depositRepository: Repository<Deposit>,
-
     private readonly depositService: DepositService
   ) {}
 
@@ -261,12 +256,6 @@ export class DepositMatchingService {
       depositMatching.deletedAt = new Date();
       depositMatching.isDeleted = true;
       await this.depositMatchingRepository.save(depositMatching);
-
-      // 삭제된 매칭을 참조하는 입금 데이터 업데이트
-      await this.depositRepository.update(
-        { mediumName: depositMatching.mediumName },
-        { mediumName: null, isMediumMatched: false }
-      );
     }
 
     return;
