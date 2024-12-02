@@ -236,27 +236,46 @@ export class DepositMatchingService {
   }
 
   // 입금 매칭 삭제
+  // async deleteDepositMatchings(ids: number[]): Promise<void> {
+  //   if (!ids || ids.length === 0) {
+  //     throw new BadRequestException("삭제할 입금 매칭 ID가 없습니다.");
+  //   }
+
+  //   const depositMatchings = await this.depositMatchingRepository.find({
+  //     where: {
+  //       id: In(ids),
+  //       isDeleted: false,
+  //     },
+  //   });
+
+  //   if (depositMatchings.length !== ids.length) {
+  //     throw new NotFoundException("일부 입금 매칭을 찾을 수 없습니다.");
+  //   }
+
+  //   for (const depositMatching of depositMatchings) {
+  //     depositMatching.deletedAt = new Date();
+  //     depositMatching.isDeleted = true;
+  //     await this.depositMatchingRepository.save(depositMatching);
+  //   }
+
+  //   return;
+  // }
   async deleteDepositMatchings(ids: number[]): Promise<void> {
     if (!ids || ids.length === 0) {
       throw new BadRequestException("삭제할 입금 매칭 ID가 없습니다.");
     }
 
-    const depositMatchings = await this.depositMatchingRepository.find({
-      where: {
-        id: In(ids),
-        isDeleted: false,
-      },
+    // 삭제하려는 ID로 조회하여 존재 여부를 확인
+    const depositMatchings = await this.depositMatchingRepository.findBy({
+      id: In(ids),
     });
 
     if (depositMatchings.length !== ids.length) {
       throw new NotFoundException("일부 입금 매칭을 찾을 수 없습니다.");
     }
 
-    for (const depositMatching of depositMatchings) {
-      depositMatching.deletedAt = new Date();
-      depositMatching.isDeleted = true;
-      await this.depositMatchingRepository.save(depositMatching);
-    }
+    // 하드 삭제 수행
+    await this.depositMatchingRepository.delete({ id: In(ids) });
 
     return;
   }

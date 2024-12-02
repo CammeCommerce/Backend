@@ -51,9 +51,37 @@ export class DepositService {
   }
 
   // 매체명 매칭하는 메서드
+  // async matchDeposits(): Promise<void> {
+  //   const unmatchedDeposits = await this.depositRepository.find({
+  //     where: [{ mediumName: null, isDeleted: false }],
+  //   });
+
+  //   if (!unmatchedDeposits.length) {
+  //     return;
+  //   }
+
+  //   for (const deposit of unmatchedDeposits) {
+  //     const matchedRecord = await this.depositMatchingRepository.findOne({
+  //       where: {
+  //         accountAlias: deposit.accountAlias,
+  //         purpose: deposit.purpose,
+  //         isDeleted: false,
+  //       },
+  //       cache: false,
+  //     });
+
+  //     if (matchedRecord) {
+  //       deposit.mediumName = matchedRecord.mediumName;
+  //       deposit.isMediumMatched = true;
+
+  //       await this.depositRepository.save(deposit);
+  //     }
+  //   }
+  // }
+
   async matchDeposits(): Promise<void> {
     const unmatchedDeposits = await this.depositRepository.find({
-      where: [{ mediumName: null, isDeleted: false }],
+      where: [{ mediumName: null }],
     });
 
     if (!unmatchedDeposits.length) {
@@ -65,7 +93,6 @@ export class DepositService {
         where: {
           accountAlias: deposit.accountAlias,
           purpose: deposit.purpose,
-          isDeleted: false,
         },
         cache: false,
       });
@@ -526,27 +553,45 @@ export class DepositService {
   }
 
   // 입금값 삭제
+  // async deleteDeposits(ids: number[]): Promise<void> {
+  //   if (!ids || ids.length === 0) {
+  //     throw new BadRequestException("삭제할 입금 ID가 없습니다.");
+  //   }
+
+  //   const deposits = await this.depositRepository.find({
+  //     where: {
+  //       id: In(ids),
+  //       isDeleted: false,
+  //     },
+  //   });
+
+  //   if (deposits.length !== ids.length) {
+  //     throw new NotFoundException("일부 입금값을 찾을 수 없습니다.");
+  //   }
+
+  //   for (const deposit of deposits) {
+  //     deposit.deletedAt = new Date();
+  //     deposit.isDeleted = true;
+  //     await this.depositRepository.save(deposit);
+  //   }
+
+  //   return;
+  // }
+
   async deleteDeposits(ids: number[]): Promise<void> {
     if (!ids || ids.length === 0) {
       throw new BadRequestException("삭제할 입금 ID가 없습니다.");
     }
 
-    const deposits = await this.depositRepository.find({
-      where: {
-        id: In(ids),
-        isDeleted: false,
-      },
-    });
+    // 삭제하려는 ID로 조회하여 존재 여부를 확인
+    const deposits = await this.depositRepository.findBy({ id: In(ids) });
 
     if (deposits.length !== ids.length) {
       throw new NotFoundException("일부 입금값을 찾을 수 없습니다.");
     }
 
-    for (const deposit of deposits) {
-      deposit.deletedAt = new Date();
-      deposit.isDeleted = true;
-      await this.depositRepository.save(deposit);
-    }
+    // 하드 삭제 수행
+    await this.depositRepository.delete({ id: In(ids) });
 
     return;
   }
