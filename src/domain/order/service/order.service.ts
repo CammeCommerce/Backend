@@ -392,14 +392,14 @@ export class OrderService {
     //   });
     // }
     if (isMediumMatched !== undefined && isMediumMatched !== null) {
-      const isMediumMatchedValue = String(isMediumMatched) === "true" ? 1 : 0;
+      const isMediumMatchedValue =
+        String(isMediumMatched).toLowerCase() === "true" ||
+        isMediumMatched === "1"
+          ? 1
+          : 0;
       queryBuilder.andWhere("order.isMediumMatched = :isMediumMatched", {
         isMediumMatched: isMediumMatchedValue,
       });
-    }
-
-    if (mediumName) {
-      queryBuilder.andWhere("order.mediumName = :mediumName", { mediumName });
     }
 
     // 정산업체명 매칭 여부 필터 (주석 처리)
@@ -424,7 +424,10 @@ export class OrderService {
       isSettlementCompanyMatched !== null
     ) {
       const isSettlementCompanyMatchedValue =
-        String(isSettlementCompanyMatched) === "true" ? 1 : 0;
+        String(isSettlementCompanyMatched).toLowerCase() === "true" ||
+        isSettlementCompanyMatched === "1"
+          ? 1
+          : 0;
       queryBuilder.andWhere(
         "order.isSettlementCompanyMatched = :isSettlementCompanyMatched",
         { isSettlementCompanyMatched: isSettlementCompanyMatchedValue }
