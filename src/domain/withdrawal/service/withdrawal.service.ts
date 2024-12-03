@@ -53,7 +53,7 @@ export class WithdrawalService {
   // 매체명 매칭하는 메서드
   async matchWithdrawals(): Promise<void> {
     const unmatchedWithdrawal = await this.withdrawalRepository.find({
-      where: [{ mediumName: null, isDeleted: false }],
+      where: [{ mediumName: null, isMediumMatched: false, isDeleted: false }],
     });
 
     if (!unmatchedWithdrawal.length) {
@@ -70,12 +70,14 @@ export class WithdrawalService {
         cache: false,
       });
 
-      if (matchedRecord) {
-        withdrawal.mediumName = matchedRecord.mediumName;
-        withdrawal.isMediumMatched = !!withdrawal.isMediumMatched;
-
-        await this.withdrawalRepository.save(withdrawal);
+      if (!matchedRecord) {
+        continue;
       }
+
+      withdrawal.mediumName = matchedRecord.mediumName;
+      withdrawal.isMediumMatched = true;
+
+      await this.withdrawalRepository.save(withdrawal);
     }
   }
 
@@ -128,10 +130,6 @@ export class WithdrawalService {
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
     const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-    // if (!jsonData || jsonData.length < 2) {
-    //   throw new BadRequestException("엑셀 파일의 데이터가 유효하지 않습니다.");
-    // }
 
     // 엑셀 열 인덱스 문자열을 숫자 인덱스로 변환
     const withdrawalDateIdx = this.columnToIndex(withdrawalDateIndex);
