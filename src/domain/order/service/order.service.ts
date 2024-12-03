@@ -380,7 +380,21 @@ export class OrderService {
     }
 
     // 매체명 매칭 여부 필터
-    if (isMediumMatched !== undefined && isMediumMatched !== null) {
+    // if (isMediumMatched !== undefined && isMediumMatched !== null) {
+    //   const isMediumMatchedValue =
+    //     String(isMediumMatched).toLowerCase() === "true" ||
+    //     isMediumMatched === "1"
+    //       ? 1
+    //       : 0;
+    //   queryBuilder.andWhere("order.isMediumMatched = :isMediumMatched", {
+    //     isMediumMatched: isMediumMatchedValue,
+    //   });
+    // }
+    if (
+      isMediumMatched !== undefined &&
+      isMediumMatched !== null &&
+      isMediumMatched !== ""
+    ) {
       const isMediumMatchedValue =
         String(isMediumMatched).toLowerCase() === "true" ||
         isMediumMatched === "1"
@@ -392,9 +406,24 @@ export class OrderService {
     }
 
     // 정산업체명 매칭 여부 필터
+    // if (
+    //   isSettlementCompanyMatched !== undefined &&
+    //   isSettlementCompanyMatched !== null
+    // ) {
+    //   const isSettlementCompanyMatchedValue =
+    //     String(isSettlementCompanyMatched).toLowerCase() === "true" ||
+    //     isSettlementCompanyMatched === "1"
+    //       ? 1
+    //       : 0;
+    //   queryBuilder.andWhere(
+    //     "order.isSettlementCompanyMatched = :isSettlementCompanyMatched",
+    //     { isSettlementCompanyMatched: isSettlementCompanyMatchedValue }
+    //   );
+    // }
     if (
       isSettlementCompanyMatched !== undefined &&
-      isSettlementCompanyMatched !== null
+      isSettlementCompanyMatched !== null &&
+      isSettlementCompanyMatched !== ""
     ) {
       const isSettlementCompanyMatchedValue =
         String(isSettlementCompanyMatched).toLowerCase() === "true" ||
@@ -407,6 +436,14 @@ export class OrderService {
       );
     }
 
+    // 매체명 검색 필터
+    if (mediumName) {
+      queryBuilder.andWhere("order.mediumName LIKE :mediumName", {
+        mediumName: `%${mediumName}%`,
+      });
+    }
+
+    // 정산업체명 검색 필터
     if (settlementCompanyName) {
       queryBuilder.andWhere(
         "order.settlementCompanyName = :settlementCompanyName",
@@ -478,6 +515,8 @@ export class OrderService {
       default:
         break;
     }
+
+    queryBuilder.orderBy("order.createdAt", "DESC");
 
     const orders = await queryBuilder.getMany();
 
