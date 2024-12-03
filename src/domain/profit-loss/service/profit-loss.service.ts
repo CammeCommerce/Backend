@@ -147,39 +147,6 @@ export class ProfitLossService {
   }
 
   // 입금 내역 용도별로 계산
-  // private async calculateDepositByPurpose(
-  //   queryConditions: any
-  // ): Promise<Record<string, number>> {
-  //   const { startYear, startMonth, endYear, endMonth, mediumName } =
-  //     queryConditions;
-  //   const deposits = await this.depositRepository
-  //     .createQueryBuilder("deposit")
-  //     .select([
-  //       "deposit.purpose AS purpose",
-  //       "SUM(deposit.depositAmount) AS total",
-  //     ])
-  //     .where("deposit.is_deleted = :isDeleted", { isDeleted: 0 })
-  //     .andWhere("deposit.isMediumMatched = :isMediumMatched", {
-  //       isMediumMatched: 1,
-  //     })
-  //     .andWhere("YEAR(deposit.depositDate) BETWEEN :startYear AND :endYear", {
-  //       startYear,
-  //       endYear,
-  //     })
-  //     .andWhere(
-  //       "MONTH(deposit.depositDate) BETWEEN :startMonth AND :endMonth",
-  //       { startMonth, endMonth }
-  //     )
-  //     .andWhere("deposit.mediumName = :mediumName", { mediumName })
-  //     .groupBy("deposit.purpose")
-  //     .cache(false)
-  //     .getRawMany();
-
-  //   return deposits.reduce((acc, curr) => {
-  //     acc[curr.purpose || "Unknown"] = parseInt(curr.total, 10);
-  //     return acc;
-  //   }, {});
-  // }
   private async calculateDepositByPurpose(
     queryConditions: any
   ): Promise<Record<string, number>> {
@@ -218,10 +185,8 @@ export class ProfitLossService {
   // private async calculateOnlineSales(
   //   queryConditions: any
   // ): Promise<Record<string, number>> {
-  //   const { startYear, startMonth, endYear, endMonth, mediumName } =
-  //     queryConditions;
+  //   const { startYear, startMonth, endYear, endMonth } = queryConditions;
 
-  //   // 요청된 기간의 월 범위를 생성 (YYYY-MM 형식)
   //   const startMonthString = `${startYear}-${String(startMonth).padStart(2, "0")}`;
   //   const endMonthString = `${endYear}-${String(endMonth).padStart(2, "0")}`;
 
@@ -236,7 +201,6 @@ export class ProfitLossService {
   //       startMonth: startMonthString,
   //       endMonth: endMonthString,
   //     })
-  //     .andWhere("online.mediumName = :mediumName", { mediumName })
   //     .groupBy("online.mediumName")
   //     .cache(false)
   //     .getRawMany();
@@ -249,7 +213,8 @@ export class ProfitLossService {
   private async calculateOnlineSales(
     queryConditions: any
   ): Promise<Record<string, number>> {
-    const { startYear, startMonth, endYear, endMonth } = queryConditions;
+    const { startYear, startMonth, endYear, endMonth, mediumName } =
+      queryConditions;
 
     const startMonthString = `${startYear}-${String(startMonth).padStart(2, "0")}`;
     const endMonthString = `${endYear}-${String(endMonth).padStart(2, "0")}`;
@@ -257,7 +222,7 @@ export class ProfitLossService {
     const sales = await this.onlineRepository
       .createQueryBuilder("online")
       .select([
-        "online.mediumName AS mediumName",
+        "online.onlineCompanyName AS onlineCompanyName",
         "SUM(online.salesAmount) AS total",
       ])
       .where("online.is_deleted = :isDeleted", { isDeleted: 0 })
@@ -265,12 +230,13 @@ export class ProfitLossService {
         startMonth: startMonthString,
         endMonth: endMonthString,
       })
-      .groupBy("online.mediumName")
+      .andWhere("online.mediumName = :mediumName", { mediumName })
+      .groupBy("online.onlineCompanyName")
       .cache(false)
       .getRawMany();
 
     return sales.reduce((acc, curr) => {
-      acc[curr.mediumName || "Unknown"] = parseInt(curr.total, 10);
+      acc[curr.onlineCompanyName || "Unknown"] = parseInt(curr.total, 10);
       return acc;
     }, {});
   }
@@ -332,40 +298,6 @@ export class ProfitLossService {
   }
 
   // 출금 내역 용도별로 계산
-  // private async calculateWithdrawalByPurpose(
-  //   queryConditions: any
-  // ): Promise<Record<string, number>> {
-  //   const { startYear, startMonth, endYear, endMonth, mediumName } =
-  //     queryConditions;
-  //   const withdrawals = await this.withdrawalRepository
-  //     .createQueryBuilder("withdrawal")
-  //     .select([
-  //       "withdrawal.purpose AS purpose",
-  //       "SUM(withdrawal.withdrawalAmount) AS total",
-  //     ])
-  //     .where("withdrawal.is_deleted = :isDeleted", { isDeleted: 0 })
-  //     .andWhere("withdrawal.isMediumMatched = :isMediumMatched", {
-  //       isMediumMatched: 1,
-  //     })
-  //     .andWhere(
-  //       "YEAR(withdrawal.withdrawalDate) BETWEEN :startYear AND :endYear",
-  //       { startYear, endYear }
-  //     )
-  //     .andWhere(
-  //       "MONTH(withdrawal.withdrawalDate) BETWEEN :startMonth AND :endMonth",
-  //       { startMonth, endMonth }
-  //     )
-  //     .andWhere("withdrawal.mediumName = :mediumName", { mediumName })
-  //     .groupBy("withdrawal.purpose")
-  //     .cache(false)
-  //     .getRawMany();
-
-  //   return withdrawals.reduce((acc, curr) => {
-  //     acc[curr.purpose || "Unknown"] = parseInt(curr.total, 10);
-  //     return acc;
-  //   }, {});
-  // }
-  // 출금 내역 용도별로 계산
   private async calculateWithdrawalByPurpose(
     queryConditions: any
   ): Promise<Record<string, number>> {
@@ -407,8 +339,7 @@ export class ProfitLossService {
   // private async calculateOnlinePurchase(
   //   queryConditions: any
   // ): Promise<Record<string, number>> {
-  //   const { startYear, startMonth, endYear, endMonth, mediumName } =
-  //     queryConditions;
+  //   const { startYear, startMonth, endYear, endMonth } = queryConditions;
 
   //   const startMonthString = `${startYear}-${String(startMonth).padStart(2, "0")}`;
   //   const endMonthString = `${endYear}-${String(endMonth).padStart(2, "0")}`;
@@ -424,7 +355,6 @@ export class ProfitLossService {
   //       startMonth: startMonthString,
   //       endMonth: endMonthString,
   //     })
-  //     .andWhere("online.mediumName = :mediumName", { mediumName })
   //     .groupBy("online.mediumName")
   //     .cache(false)
   //     .getRawMany();
@@ -437,7 +367,8 @@ export class ProfitLossService {
   private async calculateOnlinePurchase(
     queryConditions: any
   ): Promise<Record<string, number>> {
-    const { startYear, startMonth, endYear, endMonth } = queryConditions;
+    const { startYear, startMonth, endYear, endMonth, mediumName } =
+      queryConditions;
 
     const startMonthString = `${startYear}-${String(startMonth).padStart(2, "0")}`;
     const endMonthString = `${endYear}-${String(endMonth).padStart(2, "0")}`;
@@ -445,7 +376,7 @@ export class ProfitLossService {
     const purchases = await this.onlineRepository
       .createQueryBuilder("online")
       .select([
-        "online.mediumName AS mediumName",
+        "online.onlineCompanyName AS onlineCompanyName",
         "SUM(online.purchaseAmount) AS total",
       ])
       .where("online.is_deleted = :isDeleted", { isDeleted: 0 })
@@ -453,12 +384,13 @@ export class ProfitLossService {
         startMonth: startMonthString,
         endMonth: endMonthString,
       })
-      .groupBy("online.mediumName")
+      .andWhere("online.mediumName = :mediumName", { mediumName })
+      .groupBy("online.onlineCompanyName")
       .cache(false)
       .getRawMany();
 
     return purchases.reduce((acc, curr) => {
-      acc[curr.mediumName || "Unknown"] = parseInt(curr.total, 10);
+      acc[curr.onlineCompanyName || "Unknown"] = parseInt(curr.total, 10);
       return acc;
     }, {});
   }
