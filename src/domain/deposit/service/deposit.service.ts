@@ -89,6 +89,7 @@ export class DepositService {
     }
 
     for (const deposit of unmatchedDeposits) {
+      console.log("입금:", deposit);
       const matchedRecord = await this.depositMatchingRepository.findOne({
         where: {
           accountAlias: deposit.accountAlias,
@@ -100,6 +101,7 @@ export class DepositService {
 
       // 매칭 데이터가 없으면 현재 루프를 건너뜀
       if (!matchedRecord) {
+        console.log("매칭 이력 없음: ", deposit.accountAlias, deposit.purpose);
         continue;
       }
 
