@@ -715,8 +715,8 @@ export class OrderService {
     order.shippingDifference =
       order.salesShippingFee - order.purchaseShippingFee;
 
-    order.isMediumMatched = !!order.isMediumMatched;
-    order.isSettlementCompanyMatched = !!order.isSettlementCompanyMatched;
+    order.isMediumMatched = false;
+    order.isSettlementCompanyMatched = false;
 
     await this.orderRepository.save(order);
 

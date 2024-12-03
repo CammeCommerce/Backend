@@ -515,7 +515,7 @@ export class DepositService {
     deposit.clientName = dto.clientName ?? deposit.clientName;
     deposit.updatedAt = new Date();
 
-    deposit.isMediumMatched = !!deposit.isMediumMatched;
+    deposit.isMediumMatched = false;
 
     // 매칭 정보를 무시하고 독립적으로 현재 엔트리만 업데이트
     await this.depositRepository.save(deposit);
