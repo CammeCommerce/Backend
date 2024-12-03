@@ -93,16 +93,22 @@ export class DepositService {
         where: {
           accountAlias: deposit.accountAlias,
           purpose: deposit.purpose,
+          isDeleted: false,
         },
         cache: false,
       });
 
-      if (matchedRecord) {
-        deposit.mediumName = matchedRecord.mediumName;
-        deposit.isMediumMatched = true;
-
-        await this.depositRepository.save(deposit);
+      // 매칭 데이터가 없으면 현재 루프를 건너뜀
+      if (!matchedRecord) {
+        continue;
       }
+
+      // 매칭된 데이터가 있으면 mediumName 및 isMediumMatched 업데이트
+      deposit.mediumName = matchedRecord.mediumName;
+      deposit.isMediumMatched = true;
+
+      // 업데이트된 입금값 저장
+      await this.depositRepository.save(deposit);
     }
   }
 
