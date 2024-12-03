@@ -381,17 +381,24 @@ export class OrderService {
 
     // 매체명 매칭 여부 필터
     if (isMediumMatched !== undefined && isMediumMatched !== null) {
-      const isMediumMatchedBoolean = isMediumMatched === "true";
+      // const isMediumMatchedBoolean = isMediumMatched === "true";
+      // queryBuilder.andWhere("order.isMediumMatched = :isMediumMatched", {
+      //   isMediumMatched: isMediumMatchedBoolean,
+      // });
+      const isMediumMatchedBoolean = isMediumMatched === "true" ? 1 : 0;
       queryBuilder.andWhere("order.isMediumMatched = :isMediumMatched", {
         isMediumMatched: isMediumMatchedBoolean,
       });
     }
 
     // 매체명 검색 조건
+    // if (mediumName) {
+    //   queryBuilder.andWhere("order.mediumName LIKE :mediumName", {
+    //     mediumName: `%${mediumName}%`,
+    //   });
+    // }
     if (mediumName) {
-      queryBuilder.andWhere("order.mediumName LIKE :mediumName", {
-        mediumName: `%${mediumName}%`,
-      });
+      queryBuilder.andWhere("order.mediumName = :mediumName", { mediumName });
     }
 
     // 정산업체명 매칭 여부 필터
@@ -400,7 +407,12 @@ export class OrderService {
       isSettlementCompanyMatched !== null
     ) {
       const isSettlementCompanyMatchedBoolean =
-        isSettlementCompanyMatched === "true";
+        //   isSettlementCompanyMatched === "true";
+        // queryBuilder.andWhere(
+        //   "order.isSettlementCompanyMatched = :isSettlementCompanyMatched",
+        //   { isSettlementCompanyMatched: isSettlementCompanyMatchedBoolean }
+        // );
+        isSettlementCompanyMatched === "true" ? 1 : 0;
       queryBuilder.andWhere(
         "order.isSettlementCompanyMatched = :isSettlementCompanyMatched",
         { isSettlementCompanyMatched: isSettlementCompanyMatchedBoolean }
@@ -408,11 +420,19 @@ export class OrderService {
     }
 
     // 정산업체명 검색 조건
+    // if (settlementCompanyName) {
+    //   queryBuilder.andWhere(
+    //     "order.settlementCompanyName LIKE :settlementCompanyName",
+    //     {
+    //       settlementCompanyName: `%${settlementCompanyName}%`,
+    //     }
+    //   );
+    // }
     if (settlementCompanyName) {
       queryBuilder.andWhere(
-        "order.settlementCompanyName LIKE :settlementCompanyName",
+        "order.settlementCompanyName = :settlementCompanyName",
         {
-          settlementCompanyName: `%${settlementCompanyName}%`,
+          settlementCompanyName,
         }
       );
     }
