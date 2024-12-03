@@ -115,7 +115,7 @@ export class ProfitLossService {
       .cache(false)
       .getRawOne();
 
-    return parseInt(result.total) || "0", 10;
+    return parseInt(result.total) || 0;
   }
 
   // 도매 배송비 계산
