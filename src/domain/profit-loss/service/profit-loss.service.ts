@@ -36,7 +36,21 @@ export class ProfitLossService {
     let withdrawalByPurpose: Record<string, number> = {};
     let onlinePurchaseByMedia: Record<string, number> = {};
 
-    // 연도와 월을 추출
+    // 입력값 검증
+    if (!startDate || !endDate) {
+      throw new Error("Start date and end date are required.");
+    }
+
+    const isStartDateValid = /^\d{4}-\d{2}$/.test(startDate);
+    const isEndDateValid = /^\d{4}-\d{2}$/.test(endDate);
+
+    if (!isStartDateValid || !isEndDateValid) {
+      throw new Error(
+        "Start date and end date must be in the format 'YYYY-MM'."
+      );
+    }
+
+    // 연도와 월 추출
     const [startYear, startMonth] = startDate.split("-").map(Number);
     const [endYear, endMonth] = endDate.split("-").map(Number);
 
