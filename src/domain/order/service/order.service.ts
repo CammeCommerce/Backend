@@ -391,13 +391,13 @@ export class OrderService {
     //     isMediumMatched: isMediumMatchedBoolean,
     //   });
     // }
+    if (isMediumMatched !== undefined && isMediumMatched !== null) {
+      const isMediumMatchedValue = String(isMediumMatched) === "true" ? 1 : 0;
+      queryBuilder.andWhere("order.isMediumMatched = :isMediumMatched", {
+        isMediumMatched: isMediumMatchedValue,
+      });
+    }
 
-    // 매체명 검색 조건
-    // if (mediumName) {
-    //   queryBuilder.andWhere("order.mediumName LIKE :mediumName", {
-    //     mediumName: `%${mediumName}%`,
-    //   });
-    // }
     if (mediumName) {
       queryBuilder.andWhere("order.mediumName = :mediumName", { mediumName });
     }
@@ -419,16 +419,18 @@ export class OrderService {
     //     { isSettlementCompanyMatched: isSettlementCompanyMatchedBoolean }
     //   );
     // }
+    if (
+      isSettlementCompanyMatched !== undefined &&
+      isSettlementCompanyMatched !== null
+    ) {
+      const isSettlementCompanyMatchedValue =
+        String(isSettlementCompanyMatched) === "true" ? 1 : 0;
+      queryBuilder.andWhere(
+        "order.isSettlementCompanyMatched = :isSettlementCompanyMatched",
+        { isSettlementCompanyMatched: isSettlementCompanyMatchedValue }
+      );
+    }
 
-    // 정산업체명 검색 조건
-    // if (settlementCompanyName) {
-    //   queryBuilder.andWhere(
-    //     "order.settlementCompanyName LIKE :settlementCompanyName",
-    //     {
-    //       settlementCompanyName: `%${settlementCompanyName}%`,
-    //     }
-    //   );
-    // }
     if (settlementCompanyName) {
       queryBuilder.andWhere(
         "order.settlementCompanyName = :settlementCompanyName",
