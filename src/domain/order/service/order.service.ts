@@ -90,8 +90,8 @@ export class OrderService {
       if (matchedRecord) {
         order.mediumName = matchedRecord.mediumName;
         order.settlementCompanyName = matchedRecord.settlementCompanyName;
-        order.isMediumMatched = !!order.isMediumMatched;
-        order.isSettlementCompanyMatched = !!order.isSettlementCompanyMatched;
+        order.isMediumMatched = true;
+        order.isSettlementCompanyMatched = true;
 
         await this.orderRepository.save(order);
       }
@@ -228,8 +228,8 @@ export class OrderService {
       if (matchedRecord) {
         order.mediumName = matchedRecord.mediumName;
         order.settlementCompanyName = matchedRecord.settlementCompanyName;
-        order.isMediumMatched = !!order.isMediumMatched;
-        order.isSettlementCompanyMatched = !!order.isSettlementCompanyMatched;
+        order.isMediumMatched = true;
+        order.isSettlementCompanyMatched = true;
       }
 
       orders.push(order);
