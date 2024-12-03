@@ -521,6 +521,8 @@ export class WithdrawalService {
     withdrawal.clientName = dto.clientName ?? withdrawal.clientName;
     withdrawal.updatedAt = new Date();
 
+    withdrawal.isMediumMatched = !!withdrawal.isMediumMatched;
+
     // 매칭 정보를 무시하고 독립적으로 현재 엔트리만 업데이트
     await this.withdrawalRepository.save(withdrawal);
 
