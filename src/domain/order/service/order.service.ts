@@ -379,18 +379,7 @@ export class OrderService {
       });
     }
 
-    // 매체명 매칭 여부 필터 (주석 처리)
-    // if (isMediumMatched !== undefined && isMediumMatched !== null) {
-    //   // const isMediumMatchedBoolean = isMediumMatched === "true";
-    //   // queryBuilder.andWhere("order.isMediumMatched = :isMediumMatched", {
-    //   //   isMediumMatched: isMediumMatchedBoolean,
-    //   // });
-    //
-    //   const isMediumMatchedBoolean = isMediumMatched === "true" ? 1 : 0;
-    //   queryBuilder.andWhere("order.isMediumMatched = :isMediumMatched", {
-    //     isMediumMatched: isMediumMatchedBoolean,
-    //   });
-    // }
+    // 매체명 매칭 여부 필터
     if (isMediumMatched !== undefined && isMediumMatched !== null) {
       const isMediumMatchedValue =
         String(isMediumMatched).toLowerCase() === "true" ||
@@ -402,23 +391,7 @@ export class OrderService {
       });
     }
 
-    // 정산업체명 매칭 여부 필터 (주석 처리)
-    // if (
-    //   isSettlementCompanyMatched !== undefined &&
-    //   isSettlementCompanyMatched !== null
-    // ) {
-    //   const isSettlementCompanyMatchedBoolean =
-    //     //   isSettlementCompanyMatched === "true";
-    //     // queryBuilder.andWhere(
-    //     //   "order.isSettlementCompanyMatched = :isSettlementCompanyMatched",
-    //     //   { isSettlementCompanyMatched: isSettlementCompanyMatchedBoolean }
-    //     // );
-    //     isSettlementCompanyMatched === "true" ? 1 : 0;
-    //   queryBuilder.andWhere(
-    //     "order.isSettlementCompanyMatched = :isSettlementCompanyMatched",
-    //     { isSettlementCompanyMatched: isSettlementCompanyMatchedBoolean }
-    //   );
-    // }
+    // 정산업체명 매칭 여부 필터
     if (
       isSettlementCompanyMatched !== undefined &&
       isSettlementCompanyMatched !== null
