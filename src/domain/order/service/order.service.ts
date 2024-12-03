@@ -380,16 +380,6 @@ export class OrderService {
     }
 
     // 매체명 매칭 여부 필터
-    // if (isMediumMatched !== undefined && isMediumMatched !== null) {
-    //   const isMediumMatchedValue =
-    //     String(isMediumMatched).toLowerCase() === "true" ||
-    //     isMediumMatched === "1"
-    //       ? 1
-    //       : 0;
-    //   queryBuilder.andWhere("order.isMediumMatched = :isMediumMatched", {
-    //     isMediumMatched: isMediumMatchedValue,
-    //   });
-    // }
     if (
       isMediumMatched !== undefined &&
       isMediumMatched !== null &&
@@ -406,20 +396,6 @@ export class OrderService {
     }
 
     // 정산업체명 매칭 여부 필터
-    // if (
-    //   isSettlementCompanyMatched !== undefined &&
-    //   isSettlementCompanyMatched !== null
-    // ) {
-    //   const isSettlementCompanyMatchedValue =
-    //     String(isSettlementCompanyMatched).toLowerCase() === "true" ||
-    //     isSettlementCompanyMatched === "1"
-    //       ? 1
-    //       : 0;
-    //   queryBuilder.andWhere(
-    //     "order.isSettlementCompanyMatched = :isSettlementCompanyMatched",
-    //     { isSettlementCompanyMatched: isSettlementCompanyMatchedValue }
-    //   );
-    // }
     if (
       isSettlementCompanyMatched !== undefined &&
       isSettlementCompanyMatched !== null &&
