@@ -80,8 +80,6 @@ export class DepositService {
   // }
 
   async matchDeposits(): Promise<void> {
-    await this.depositMatchingRepository.clear();
-
     const unmatchedDeposits = await this.depositRepository.find({
       where: [{ mediumName: null, isMediumMatched: false, isDeleted: false }],
     });
