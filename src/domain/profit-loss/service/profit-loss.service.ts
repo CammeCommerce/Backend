@@ -96,31 +96,24 @@ export class ProfitLossService {
     const { startYear, startMonth, endYear, endMonth, mediumName } =
       queryConditions;
 
-    console.log(
-      "Calculating Wholesale Sales with Conditions:",
-      queryConditions
-    );
-
     const result = await this.orderRepository
       .createQueryBuilder("order")
       .select("SUM(order.salesPrice)", "total")
-      .where("order.isDeleted = :isDeleted", { isDeleted: false })
+      .where("order.is_deleted = :is_deleted", { isDeleted: false })
       .andWhere("order.isMediumMatched = :isMediumMatched", {
         isMediumMatched: true,
       })
-      .andWhere("YEAR(order.createdAt) BETWEEN :startYear AND :endYear", {
+      .andWhere("YEAR(order.orderDate) BETWEEN :startYear AND :endYear", {
         startYear,
         endYear,
       })
-      .andWhere("MONTH(order.createdAt) BETWEEN :startMonth AND :endMonth", {
+      .andWhere("MONTH(order.orderDate) BETWEEN :startMonth AND :endMonth", {
         startMonth,
         endMonth,
       })
       .andWhere("order.mediumName = :mediumName", { mediumName })
       .cache(false)
       .getRawOne();
-
-    console.log("Wholesale Sales Query Result:", result);
 
     return parseInt(result.total) || 0;
   }
@@ -134,15 +127,15 @@ export class ProfitLossService {
     const result = await this.orderRepository
       .createQueryBuilder("order")
       .select("SUM(order.salesShippingFee)", "total")
-      .where("order.isDeleted = :isDeleted", { isDeleted: false })
+      .where("order.is_deleted = :is_deleted", { isDeleted: false })
       .andWhere("order.isMediumMatched = :isMediumMatched", {
         isMediumMatched: true,
       })
-      .andWhere("YEAR(order.createdAt) BETWEEN :startYear AND :endYear", {
+      .andWhere("YEAR(order.orderDate) BETWEEN :startYear AND :endYear", {
         startYear,
         endYear,
       })
-      .andWhere("MONTH(order.createdAt) BETWEEN :startMonth AND :endMonth", {
+      .andWhere("MONTH(order.orderDate) BETWEEN :startMonth AND :endMonth", {
         startMonth,
         endMonth,
       })
@@ -165,7 +158,7 @@ export class ProfitLossService {
         "deposit.purpose AS purpose",
         "SUM(deposit.depositAmount) AS total",
       ])
-      .where("deposit.isDeleted = :isDeleted", { isDeleted: false })
+      .where("deposit.is_deleted = :is_deleted", { isDeleted: false })
       .andWhere("deposit.isMediumMatched = :isMediumMatched", {
         isMediumMatched: true,
       })
@@ -200,7 +193,7 @@ export class ProfitLossService {
         "online.mediumName AS mediumName",
         "SUM(online.salesAmount) AS total",
       ])
-      .where("online.isDeleted = :isDeleted", { isDeleted: false })
+      .where("online.is_deleted = :is_deleted", { isDeleted: false })
       .andWhere("YEAR(online.salesMonth) BETWEEN :startYear AND :endYear", {
         startYear,
         endYear,
@@ -229,15 +222,15 @@ export class ProfitLossService {
     const result = await this.orderRepository
       .createQueryBuilder("order")
       .select("SUM(order.purchasePrice)", "total")
-      .where("order.isDeleted = :isDeleted", { isDeleted: false })
+      .where("order.is_deleted = :is_deleted", { isDeleted: false })
       .andWhere("order.isMediumMatched = :isMediumMatched", {
         isMediumMatched: true,
       })
-      .andWhere("YEAR(order.createdAt) BETWEEN :startYear AND :endYear", {
+      .andWhere("YEAR(order.orderDate) BETWEEN :startYear AND :endYear", {
         startYear,
         endYear,
       })
-      .andWhere("MONTH(order.createdAt) BETWEEN :startMonth AND :endMonth", {
+      .andWhere("MONTH(order.orderDate) BETWEEN :startMonth AND :endMonth", {
         startMonth,
         endMonth,
       })
@@ -257,15 +250,15 @@ export class ProfitLossService {
     const result = await this.orderRepository
       .createQueryBuilder("order")
       .select("SUM(order.purchaseShippingFee)", "total")
-      .where("order.isDeleted = :isDeleted", { isDeleted: false })
+      .where("order.is_deleted = :is_deleted", { isDeleted: false })
       .andWhere("order.isMediumMatched = :isMediumMatched", {
         isMediumMatched: true,
       })
-      .andWhere("YEAR(order.createdAt) BETWEEN :startYear AND :endYear", {
+      .andWhere("YEAR(order.orderDate) BETWEEN :startYear AND :endYear", {
         startYear,
         endYear,
       })
-      .andWhere("MONTH(order.createdAt) BETWEEN :startMonth AND :endMonth", {
+      .andWhere("MONTH(order.orderDate) BETWEEN :startMonth AND :endMonth", {
         startMonth,
         endMonth,
       })
@@ -288,7 +281,7 @@ export class ProfitLossService {
         "withdrawal.purpose AS purpose",
         "SUM(withdrawal.withdrawalAmount) AS total",
       ])
-      .where("withdrawal.isDeleted = :isDeleted", { isDeleted: false })
+      .where("withdrawal.is_deleted = :is_deleted", { isDeleted: false })
       .andWhere("withdrawal.isMediumMatched = :isMediumMatched", {
         isMediumMatched: true,
       })
@@ -323,7 +316,7 @@ export class ProfitLossService {
         "online.mediumName AS mediumName",
         "SUM(online.purchaseAmount) AS total",
       ])
-      .where("online.isDeleted = :isDeleted", { isDeleted: false })
+      .where("online.is_deleted = :is_deleted", { isDeleted: false })
       .andWhere("YEAR(online.salesMonth) BETWEEN :startYear AND :endYear", {
         startYear,
         endYear,
