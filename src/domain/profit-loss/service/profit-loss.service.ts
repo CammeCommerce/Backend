@@ -36,21 +36,7 @@ export class ProfitLossService {
     let withdrawalByPurpose: Record<string, number> = {};
     let onlinePurchaseByMedia: Record<string, number> = {};
 
-    // 입력값 검증
-    if (!startDate || !endDate) {
-      throw new Error("Start date and end date are required.");
-    }
-
-    const isStartDateValid = /^\d{4}-\d{2}$/.test(startDate);
-    const isEndDateValid = /^\d{4}-\d{2}$/.test(endDate);
-
-    if (!isStartDateValid || !isEndDateValid) {
-      throw new Error(
-        "Start date and end date must be in the format 'YYYY-MM'."
-      );
-    }
-
-    // 연도와 월 추출
+    // 연도와 월을 추출
     const [startYear, startMonth] = startDate.split("-").map(Number);
     const [endYear, endMonth] = endDate.split("-").map(Number);
 
@@ -109,6 +95,12 @@ export class ProfitLossService {
   private async calculateWholesaleSales(queryConditions: any): Promise<number> {
     const { startYear, startMonth, endYear, endMonth, mediumName } =
       queryConditions;
+
+    console.log(
+      "Calculating Wholesale Sales with Conditions:",
+      queryConditions
+    );
+
     const result = await this.orderRepository
       .createQueryBuilder("order")
       .select("SUM(order.salesPrice)", "total")
@@ -127,6 +119,8 @@ export class ProfitLossService {
       .andWhere("order.mediumName = :mediumName", { mediumName })
       .cache(false)
       .getRawOne();
+
+    console.log("Wholesale Sales Query Result:", result);
 
     return parseInt(result.total) || 0;
   }
