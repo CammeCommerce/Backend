@@ -715,6 +715,9 @@ export class OrderService {
     order.shippingDifference =
       order.salesShippingFee - order.purchaseShippingFee;
 
+    order.isMediumMatched = !!order.isMediumMatched;
+    order.isSettlementCompanyMatched = !!order.isSettlementCompanyMatched;
+
     await this.orderRepository.save(order);
 
     // 주문값 수정 결과 DTO 생성
