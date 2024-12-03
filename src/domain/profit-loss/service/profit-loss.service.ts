@@ -182,11 +182,47 @@ export class ProfitLossService {
   }
 
   // 온라인 매체별 매출 계산
+  // private async calculateOnlineSales(
+  //   queryConditions: any
+  // ): Promise<Record<string, number>> {
+  //   const { startYear, startMonth, endYear, endMonth, mediumName } =
+  //     queryConditions;
+  //   const sales = await this.onlineRepository
+  //     .createQueryBuilder("online")
+  //     .select([
+  //       "online.mediumName AS mediumName",
+  //       "SUM(online.salesAmount) AS total",
+  //     ])
+  //     .where("online.is_deleted = :isDeleted", { isDeleted: 0 })
+  //     .andWhere("YEAR(online.salesMonth) BETWEEN :startYear AND :endYear", {
+  //       startYear,
+  //       endYear,
+  //     })
+  //     .andWhere("MONTH(online.salesMonth) BETWEEN :startMonth AND :endMonth", {
+  //       startMonth,
+  //       endMonth,
+  //     })
+  //     .andWhere("online.mediumName = :mediumName", { mediumName })
+  //     .groupBy("online.mediumName")
+  //     .cache(false)
+  //     .getRawMany();
+
+  //   return sales.reduce((acc, curr) => {
+  //     acc[curr.mediumName || "Unknown"] = parseInt(curr.total, 10);
+  //     return acc;
+  //   }, {});
+  // }
+
   private async calculateOnlineSales(
     queryConditions: any
   ): Promise<Record<string, number>> {
     const { startYear, startMonth, endYear, endMonth, mediumName } =
       queryConditions;
+
+    // 요청된 기간의 월 범위를 생성 (YYYY-MM 형식)
+    const startMonthString = `${startYear}-${String(startMonth).padStart(2, "0")}`;
+    const endMonthString = `${endYear}-${String(endMonth).padStart(2, "0")}`;
+
     const sales = await this.onlineRepository
       .createQueryBuilder("online")
       .select([
@@ -194,13 +230,9 @@ export class ProfitLossService {
         "SUM(online.salesAmount) AS total",
       ])
       .where("online.is_deleted = :isDeleted", { isDeleted: 0 })
-      .andWhere("YEAR(online.salesMonth) BETWEEN :startYear AND :endYear", {
-        startYear,
-        endYear,
-      })
-      .andWhere("MONTH(online.salesMonth) BETWEEN :startMonth AND :endMonth", {
-        startMonth,
-        endMonth,
+      .andWhere("online.salesMonth BETWEEN :startMonth AND :endMonth", {
+        startMonth: startMonthString,
+        endMonth: endMonthString,
       })
       .andWhere("online.mediumName = :mediumName", { mediumName })
       .groupBy("online.mediumName")
