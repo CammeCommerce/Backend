@@ -311,9 +311,13 @@ export class WithdrawalService {
 
     // 매체명 매칭 여부 필터
     if (isMediumMatched !== undefined && isMediumMatched !== null) {
-      const isMediumMatchedBoolean = isMediumMatched === "true";
+      const isMediumMatchedValue =
+        String(isMediumMatched).toLowerCase() === "true" ||
+        isMediumMatched === "1"
+          ? 1
+          : 0;
       queryBuilder.andWhere("withdrawal.isMediumMatched = :isMediumMatched", {
-        isMediumMatched: isMediumMatchedBoolean,
+        isMediumMatched: isMediumMatchedValue,
       });
     }
 
