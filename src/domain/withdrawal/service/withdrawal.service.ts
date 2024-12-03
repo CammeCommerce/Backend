@@ -224,7 +224,7 @@ export class WithdrawalService {
 
     const withdrawals = await this.withdrawalRepository.find({
       where: { isDeleted: false },
-      order: { createdAt: "ASC" },
+      order: { createdAt: "DESC" },
     });
 
     if (!withdrawals.length) {
@@ -543,22 +543,15 @@ export class WithdrawalService {
       throw new BadRequestException("삭제할 출금 ID가 없습니다.");
     }
 
-    const withdrawals = await this.withdrawalRepository.find({
-      where: {
-        id: In(ids),
-        isDeleted: false,
-      },
-    });
+    // 삭제하려는 ID로 조회 및 존재 여부를 확인
+    const withdrawals = await this.withdrawalRepository.findBy({ id: In(ids) });
 
     if (withdrawals.length !== ids.length) {
-      throw new NotFoundException("일부 출금을 찾을 수 없습니다.");
+      throw new NotFoundException("일부 출금값을 찾을 수 없습니다.");
     }
 
-    for (const withdrawal of withdrawals) {
-      withdrawal.deletedAt = new Date();
-      withdrawal.isDeleted = true;
-      await this.withdrawalRepository.save(withdrawal);
-    }
+    // 하드 삭제
+    await this.withdrawalRepository.delete({ id: In(ids) });
 
     return;
   }
