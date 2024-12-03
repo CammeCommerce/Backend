@@ -81,7 +81,7 @@ export class DepositService {
 
   async matchDeposits(): Promise<void> {
     const unmatchedDeposits = await this.depositRepository.find({
-      where: [{ mediumName: null }],
+      where: [{ mediumName: null, isMediumMatched: false }],
     });
 
     if (!unmatchedDeposits.length) {
