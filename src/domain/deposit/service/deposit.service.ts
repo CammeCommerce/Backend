@@ -320,7 +320,11 @@ export class DepositService {
     }
 
     // 매체명 매칭 여부 필터
-    if (isMediumMatched !== undefined && isMediumMatched !== null) {
+    if (
+      isMediumMatched !== undefined &&
+      isMediumMatched !== null &&
+      isMediumMatched !== ""
+    ) {
       const isMediumMatchedValue =
         String(isMediumMatched).toLowerCase() === "true" ||
         isMediumMatched === "1"
@@ -400,6 +404,8 @@ export class DepositService {
       default:
         break;
     }
+
+    queryBuilder.orderBy("deposit.createdAt", "DESC");
 
     const deposits = await queryBuilder.getMany();
 

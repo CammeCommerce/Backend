@@ -310,7 +310,11 @@ export class WithdrawalService {
     }
 
     // 매체명 매칭 여부 필터
-    if (isMediumMatched !== undefined && isMediumMatched !== null) {
+    if (
+      isMediumMatched !== undefined &&
+      isMediumMatched !== null &&
+      isMediumMatched !== ""
+    ) {
       const isMediumMatchedValue =
         String(isMediumMatched).toLowerCase() === "true" ||
         isMediumMatched === "1"
@@ -408,6 +412,8 @@ export class WithdrawalService {
       default:
         break;
     }
+
+    queryBuilder.orderBy("withdrawal.createdAt", "DESC");
 
     const withdrawals = await queryBuilder.getMany();
 
