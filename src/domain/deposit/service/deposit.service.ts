@@ -89,7 +89,6 @@ export class DepositService {
     }
 
     for (const deposit of unmatchedDeposits) {
-      console.log("입금:", deposit);
       const matchedRecord = await this.depositMatchingRepository.findOne({
         where: {
           accountAlias: deposit.accountAlias,
@@ -101,7 +100,6 @@ export class DepositService {
 
       // 매칭 데이터가 없으면 현재 루프를 건너뜀
       if (!matchedRecord) {
-        console.log("매칭 이력 없음: ", deposit.accountAlias, deposit.purpose);
         continue;
       }
 
@@ -263,7 +261,7 @@ export class DepositService {
 
     const deposits = await this.depositRepository.find({
       where: { isDeleted: false },
-      order: { createdAt: "ASC" },
+      order: { createdAt: "DESC" },
     });
 
     if (!deposits.length) {
@@ -560,7 +558,6 @@ export class DepositService {
     return modifyDepositResultDto;
   }
 
-  // 입금값 삭제
   // async deleteDeposits(ids: number[]): Promise<void> {
   //   if (!ids || ids.length === 0) {
   //     throw new BadRequestException("삭제할 입금 ID가 없습니다.");
@@ -586,6 +583,7 @@ export class DepositService {
   //   return;
   // }
 
+  // 입금값 삭제
   async deleteDeposits(ids: number[]): Promise<void> {
     if (!ids || ids.length === 0) {
       throw new BadRequestException("삭제할 입금 ID가 없습니다.");
