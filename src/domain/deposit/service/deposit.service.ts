@@ -53,7 +53,14 @@ export class DepositService {
   // 매체명 매칭하는 메서드
   async matchDeposits(): Promise<void> {
     const unmatchedDeposits = await this.depositRepository.find({
-      where: [{ mediumName: null, isMediumMatched: false, isDeleted: false }],
+      where: [
+        {
+          mediumName: null,
+          isMediumMatched: false,
+          isDeleted: false,
+          isManuallyModified: false,
+        },
+      ],
     });
 
     if (!unmatchedDeposits.length) {
@@ -330,16 +337,22 @@ export class DepositService {
         isMediumMatched === "1"
           ? 1
           : 0;
-      queryBuilder.andWhere("deposit.isMediumMatched = :isMediumMatched", {
-        isMediumMatched: isMediumMatchedValue,
-      });
+      queryBuilder.andWhere(
+        "deposit.isMediumMatched = :isMediumMatched AND deposit.isManuallyModified = false",
+        {
+          isMediumMatched: isMediumMatchedValue,
+        }
+      );
     }
 
     // 매체명 검색 조건
     if (mediumName) {
-      queryBuilder.andWhere("deposit.mediumName LIKE :mediumName", {
-        mediumName: `%${mediumName}%`,
-      });
+      queryBuilder.andWhere(
+        "deposit.mediumName LIKE :mediumName AND deposit.isManuallyModified = false",
+        {
+          mediumName: `%${mediumName}%`,
+        }
+      );
     }
 
     // 계좌별칭 또는 용도 검색 조건
@@ -516,6 +529,7 @@ export class DepositService {
     deposit.updatedAt = new Date();
 
     deposit.isMediumMatched = false;
+    deposit.isManuallyModified = true;
 
     // 매칭 정보를 무시하고 독립적으로 현재 엔트리만 업데이트
     await this.depositRepository.save(deposit);

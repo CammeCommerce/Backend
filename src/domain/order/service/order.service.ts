@@ -68,9 +68,15 @@ export class OrderService {
   async matchOrders(): Promise<void> {
     const unmatchedOrders = await this.orderRepository.find({
       where: [
-        { mediumName: null, isDeleted: false, isManuallyModified: false },
+        {
+          mediumName: null,
+          isMediumMatched: false,
+          isDeleted: false,
+          isManuallyModified: false,
+        },
         {
           settlementCompanyName: null,
+          isSettlementCompanyMatched: false,
           isDeleted: false,
           isManuallyModified: false,
         },
