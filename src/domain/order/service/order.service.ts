@@ -401,7 +401,7 @@ export class OrderService {
           ? 1
           : 0;
       queryBuilder.andWhere(
-        "order.isMediumMatched = :isMediumMatched AND order.isManuallyModified = false",
+        "order.isMediumMatched = :isMediumMatched OR order.isManuallyModified = true",
         {
           isMediumMatched: isMediumMatchedValue,
         }
@@ -420,25 +420,22 @@ export class OrderService {
           ? 1
           : 0;
       queryBuilder.andWhere(
-        "order.isSettlementCompanyMatched = :isSettlementCompanyMatched AND order.isManuallyModified = false",
+        "order.isSettlementCompanyMatched = :isSettlementCompanyMatched OR order.isManuallyModified = true",
         { isSettlementCompanyMatched: isSettlementCompanyMatchedValue }
       );
     }
 
     // 매체명 검색 필터
     if (mediumName) {
-      queryBuilder.andWhere(
-        "order.mediumName LIKE :mediumName AND order.isManuallyModified = false",
-        {
-          mediumName: `%${mediumName}%`,
-        }
-      );
+      queryBuilder.andWhere("order.mediumName LIKE :mediumName", {
+        mediumName: `%${mediumName}%`,
+      });
     }
 
     // 정산업체명 검색 필터
     if (settlementCompanyName) {
       queryBuilder.andWhere(
-        "order.settlementCompanyName = :settlementCompanyName AND order.isManuallyModified = false",
+        "order.settlementCompanyName = :settlementCompanyName",
         {
           settlementCompanyName,
         }
