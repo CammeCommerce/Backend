@@ -400,12 +400,9 @@ export class OrderService {
         isMediumMatched === "1"
           ? 1
           : 0;
-      queryBuilder.andWhere(
-        "order.isMediumMatched = :isMediumMatched OR order.isManuallyModified = true",
-        {
-          isMediumMatched: isMediumMatchedValue,
-        }
-      );
+      queryBuilder.andWhere("order.isMediumMatched = :isMediumMatched", {
+        isMediumMatched: isMediumMatchedValue,
+      });
     }
 
     // 정산업체명 매칭 여부 필터
@@ -420,16 +417,19 @@ export class OrderService {
           ? 1
           : 0;
       queryBuilder.andWhere(
-        "order.isSettlementCompanyMatched = :isSettlementCompanyMatched OR order.isManuallyModified = true",
+        "order.isSettlementCompanyMatched = :isSettlementCompanyMatched AND order.isManuallyModified = false",
         { isSettlementCompanyMatched: isSettlementCompanyMatchedValue }
       );
     }
 
     // 매체명 검색 필터
     if (mediumName) {
-      queryBuilder.andWhere("order.mediumName LIKE :mediumName", {
-        mediumName: `%${mediumName}%`,
-      });
+      queryBuilder.andWhere(
+        "order.mediumName LIKE :mediumName AND order.isManuallyModified = false",
+        {
+          mediumName: `%${mediumName}%`,
+        }
+      );
     }
 
     // 정산업체명 검색 필터
