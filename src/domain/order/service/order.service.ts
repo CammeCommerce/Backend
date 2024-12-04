@@ -394,9 +394,12 @@ export class OrderService {
         isMediumMatched === "1"
           ? 1
           : 0;
-      queryBuilder.andWhere("order.isMediumMatched = :isMediumMatched", {
-        isMediumMatched: isMediumMatchedValue,
-      });
+      queryBuilder.andWhere(
+        "order.isMediumMatched = :isMediumMatched AND order.isManuallyModified = false",
+        {
+          isMediumMatched: isMediumMatchedValue,
+        }
+      );
     }
 
     // 정산업체명 매칭 여부 필터
