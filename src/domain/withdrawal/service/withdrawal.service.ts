@@ -53,7 +53,14 @@ export class WithdrawalService {
   // 매체명 매칭하는 메서드
   async matchWithdrawals(): Promise<void> {
     const unmatchedWithdrawal = await this.withdrawalRepository.find({
-      where: [{ mediumName: null, isMediumMatched: false, isDeleted: false }],
+      where: [
+        {
+          mediumName: null,
+          isMediumMatched: false,
+          isDeleted: false,
+          isManuallyModified: false,
+        },
+      ],
     });
 
     if (!unmatchedWithdrawal.length) {
@@ -298,7 +305,7 @@ export class WithdrawalService {
       queryBuilder.andWhere(
         "DATE(withdrawal.withdrawalDate) BETWEEN :startDate AND :endDate",
         {
-          startDate: startDate.toISOString().split("T")[0], // 날짜 부분만 추출
+          startDate: startDate.toISOString().split("T")[0],
           endDate: endDate.toISOString().split("T")[0],
         }
       );
@@ -325,14 +332,17 @@ export class WithdrawalService {
       });
     }
 
-    // 매체명 검색 조건
+    // 매체명 검색 필터
     if (mediumName) {
-      queryBuilder.andWhere("withdrawal.mediumName LIKE :mediumName", {
-        mediumName: `%${mediumName}%`,
-      });
+      queryBuilder.andWhere(
+        "withdrawal.mediumName LIKE :mediumName  AND withdrawal.isManuallyModified = false",
+        {
+          mediumName: `%${mediumName}%`,
+        }
+      );
     }
 
-    // 계좌별칭 또는 용도 검색 조건
+    // 계좌별칭 또는 용도 검색 필터
     if (searchQuery) {
       queryBuilder.andWhere(
         "(withdrawal.accountAlias LIKE :searchQuery OR withdrawal.purpose LIKE :searchQuery)",
@@ -522,6 +532,7 @@ export class WithdrawalService {
     withdrawal.updatedAt = new Date();
 
     withdrawal.isMediumMatched = false;
+    withdrawal.isManuallyModified = true;
 
     // 매칭 정보를 무시하고 독립적으로 현재 엔트리만 업데이트
     await this.withdrawalRepository.save(withdrawal);

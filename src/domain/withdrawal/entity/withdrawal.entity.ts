@@ -35,4 +35,7 @@ export class Withdrawal extends BaseEntity {
 
   @Column({ comment: "매체명 매칭 여부", default: false })
   isMediumMatched: boolean;
+
+  @Column({ default: false })
+  isManuallyModified: boolean;
 }
