@@ -337,15 +337,12 @@ export class DepositService {
         isMediumMatched === "1"
           ? 1
           : 0;
-      queryBuilder.andWhere(
-        "deposit.isMediumMatched = :isMediumMatched AND deposit.isManuallyModified = false",
-        {
-          isMediumMatched: isMediumMatchedValue,
-        }
-      );
+      queryBuilder.andWhere("deposit.isMediumMatched = :isMediumMatched", {
+        isMediumMatched: isMediumMatchedValue,
+      });
     }
 
-    // 매체명 검색 조건
+    // 매체명 검색 필터
     if (mediumName) {
       queryBuilder.andWhere(
         "deposit.mediumName LIKE :mediumName AND deposit.isManuallyModified = false",
@@ -355,7 +352,7 @@ export class DepositService {
       );
     }
 
-    // 계좌별칭 또는 용도 검색 조건
+    // 계좌별칭 또는 용도 검색 필터
     if (searchQuery) {
       queryBuilder.andWhere(
         "(deposit.accountAlias LIKE :searchQuery OR deposit.purpose LIKE :searchQuery)",
