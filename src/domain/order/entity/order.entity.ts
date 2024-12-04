@@ -50,4 +50,7 @@ export class Order extends BaseEntity {
 
   @Column({ comment: "정산업체명 매칭 여부", default: false })
   isSettlementCompanyMatched: boolean;
+
+  @Column({ default: false })
+  isManuallyModified: boolean;
 }

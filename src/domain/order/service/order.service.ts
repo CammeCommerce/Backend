@@ -68,8 +68,12 @@ export class OrderService {
   async matchOrders(): Promise<void> {
     const unmatchedOrders = await this.orderRepository.find({
       where: [
-        { mediumName: null, isDeleted: false },
-        { settlementCompanyName: null, isDeleted: false },
+        { mediumName: null, isDeleted: false, isManuallyModified: false },
+        {
+          settlementCompanyName: null,
+          isDeleted: false,
+          isManuallyModified: false,
+        },
       ],
     });
 
@@ -717,6 +721,7 @@ export class OrderService {
 
     order.isMediumMatched = false;
     order.isSettlementCompanyMatched = false;
+    order.isManuallyModified = true;
 
     await this.orderRepository.save(order);
 
