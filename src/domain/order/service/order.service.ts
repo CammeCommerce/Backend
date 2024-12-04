@@ -417,7 +417,7 @@ export class OrderService {
           ? 1
           : 0;
       queryBuilder.andWhere(
-        "order.isSettlementCompanyMatched = :isSettlementCompanyMatched AND order.isManuallyModified = false",
+        "order.isSettlementCompanyMatched = :isSettlementCompanyMatched",
         { isSettlementCompanyMatched: isSettlementCompanyMatchedValue }
       );
     }
